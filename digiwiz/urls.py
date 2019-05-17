@@ -20,11 +20,13 @@ from classroom.views import classroom, students, teachers
 
 urlpatterns = [
     path('', include('classroom.urls')),
+    path(r'^activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
+         students.activate, name='activate_student'),
     path('admin/', admin.site.urls),
     path('login/', auth_views.LoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('signup/', classroom.SignUpView.as_view(), name='signup'),
-    path('signup/student/', students.StudentSignUpView.as_view(), name='student_signup'),
+    path('signup/student/', students.signup, name='student_signup'),
     path('signup/teacher/', teachers.TeacherSignUpView.as_view(), name='teacher_signup'),
 
 ]

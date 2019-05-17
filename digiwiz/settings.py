@@ -145,3 +145,9 @@ STATICFILES_DIRS = [
 # Third party apps configuration
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'digiwiz.sq@gmail.com'
+EMAIL_HOST_PASSWORD = '!#digiwiz#!'
+EMAIL_PORT = 587

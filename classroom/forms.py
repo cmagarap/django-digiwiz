@@ -25,7 +25,7 @@ class TeacherSignUpForm(UserCreationForm):
 
 
 class StudentSignUpForm(UserCreationForm):
-    email = forms.EmailField()
+    email = forms.EmailField(max_length=200)
     first_name = forms.CharField()
     last_name = forms.CharField()
     interests = forms.ModelMultipleChoiceField(
