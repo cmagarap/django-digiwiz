@@ -30,7 +30,7 @@ def login_view(request):
             else:
                 return redirect('/')
 
-    return render(request, 'registration/login.html', {'form': form})
+    return render(request, 'authentication/login.html', {'form': form})
 
 
 def logout_view(request):
@@ -41,4 +41,4 @@ def logout_view(request):
 def signup_page(request):
     if request.user.is_authenticated:
         return redirect('home')
-    return render(request, 'registration/signup.html')
+    return render(request, 'authentication/signup.html')

@@ -102,9 +102,10 @@ def signup(request):
                 mail_subject = 'DigiWiz: Activate your account.'
                 current_site = get_current_site(request)
 
-                message = render_to_string('registration/email_account_confirm.html', {
+                message = render_to_string('authentication/email_student_confirm.html', {
                     'user': user,
                     'domain': current_site,
+                    # use .decode to convert byte to string (b'NDc' -> NDc)
                     'uid': urlsafe_base64_encode(force_bytes(user.pk)).decode('utf-8'),
                     'token': account_activation_token.make_token(user),
                 })
@@ -116,7 +117,7 @@ def signup(request):
                 return HttpResponse('Please confirm your email address to complete the registration')
         else:
             form = StudentSignUpForm()
-    return render(request, 'registration/signup_form.html', {'form': form, 'user_type': 'student'})
+    return render(request, 'authentication/signup_form.html', {'form': form, 'user_type': 'student'})
 
 
 @login_required

@@ -15,17 +15,17 @@ Including another URLconf
 """
 from classroom.views import classroom, students, teachers
 from django.contrib import admin
-from django.contrib.auth import views as auth_views
 from django.urls import include, path
 
 urlpatterns = [
     path('', include('classroom.urls')),
-    path('activate/<str:uidb64>/<str:token>', students.activate, name='activate'),
+    path('activate-student/<str:uidb64>/<str:token>', students.activate, name='activate_student'),
+    path('activate-teacher/<str:uidb64>/<str:token>', teachers.activate, name='activate_teacher'),
     path('admin/', admin.site.urls),
     path('login/', classroom.login_view, name='login'),
     path('logout/', classroom.logout_view, name='logout'),
     path('signup/', classroom.signup_page, name='signup'),
     path('signup/student/', students.signup, name='student_signup'),
-    path('signup/teacher/', teachers.TeacherSignUpView.as_view(), name='teacher_signup'),
+    path('signup/teacher/', teachers.signup, name='teacher_signup'),
 
 ]

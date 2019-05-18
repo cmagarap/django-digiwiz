@@ -1,24 +1,30 @@
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+from django.contrib.sites.shortcuts import get_current_site
+from django.core.mail import EmailMessage
 from django.db import transaction
 from django.db.models import Avg, Count
+from django.http import HttpResponse
 from django.forms import inlineformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
+from django.utils.encoding import force_bytes, force_text
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   UpdateView)
-
 from ..decorators import teacher_required
 from ..forms import BaseAnswerInlineFormSet, QuestionForm, TeacherSignUpForm
 from ..models import Answer, Question, Quiz, User
+from ..tokens import account_activation_token
 
 
 class TeacherSignUpView(CreateView):
     model = User
     form_class = TeacherSignUpForm
-    template_name = 'registration/signup_form.html'
+    template_name = 'authentication/signup_form.html'
 
     def get_context_data(self, **kwargs):
         kwargs['user_type'] = 'teacher'
@@ -119,6 +125,57 @@ class QuizResultsView(DetailView):
 
     def get_queryset(self):
         return self.request.user.quizzes.all()
+
+
+def activate(request, uidb64, token):
+    try:
+        uid = force_text(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+    if user is not None and account_activation_token.check_token(user, token):
+        # activate user and login:
+        user.is_active = True
+        user.save()
+        login(request, user)
+
+        # Should have a new template for message that activation is a success
+        return HttpResponse('Activation successful!')
+    else:
+        return HttpResponse('Activation link is invalid!')
+
+
+def signup(request):
+    if request.user.is_authenticated:
+        return redirect('home')
+    else:
+        if request.method == 'POST':
+            form = TeacherSignUpForm(request.POST)
+            if form.is_valid():
+                user = form.save()
+                user.is_active = False
+                user.save()
+
+                # Send an email to the user with the token:
+                mail_subject = 'DigiWiz: Activate your account.'
+                current_site = get_current_site(request)
+
+                message = render_to_string('authentication/email_teacher_confirm.html', {
+                    'user': user,
+                    'domain': current_site,
+                    # use .decode to convert byte to string (b'NDc' -> NDc)
+                    'uid': urlsafe_base64_encode(force_bytes(user.pk)).decode('utf-8'),
+                    'token': account_activation_token.make_token(user),
+                })
+
+                to_email = form.cleaned_data.get('email')
+                email = EmailMessage(mail_subject, message, to=[to_email])
+                email.send()
+
+                return HttpResponse('Please confirm your email address to complete the registration')
+        else:
+            form = TeacherSignUpForm()
+    return render(request, 'authentication/signup_form.html', {'form': form, 'user_type': 'teacher'})
 
 
 @login_required
