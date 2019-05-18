@@ -25,9 +25,9 @@ class TeacherSignUpForm(UserCreationForm):
 
 
 class StudentSignUpForm(UserCreationForm):
-    email = forms.EmailField(max_length=200)
-    first_name = forms.CharField()
-    last_name = forms.CharField()
+    email = forms.EmailField(max_length=50)
+    first_name = forms.CharField(max_length=80)
+    last_name = forms.CharField(max_length=80)
     interests = forms.ModelMultipleChoiceField(
         queryset=Subject.objects.all(),
         widget=forms.CheckboxSelectMultiple,

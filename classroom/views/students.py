@@ -1,24 +1,23 @@
 from django.contrib import messages
 from django.contrib.auth import login, get_user_model
+from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from django.contrib.sites.shortcuts import get_current_site
+from django.core.mail import EmailMessage
 from django.db import transaction
 from django.db.models import Count
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
+from django.utils.encoding import force_bytes, force_text
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.generic import CreateView, ListView, UpdateView
-
 from ..decorators import student_required
 from ..forms import StudentInterestsForm, StudentSignUpForm, TakeQuizForm
 from ..models import Quiz, Student, TakenQuiz, User
-from django.contrib.sites.shortcuts import get_current_site
-from django.utils.encoding import force_bytes, force_text
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.template.loader import render_to_string
 from ..tokens import account_activation_token
-from django.contrib.auth.models import User
-from django.core.mail import EmailMessage
-from django.http import HttpResponse
+
 
 User = get_user_model()
 
@@ -69,32 +68,6 @@ class TakenQuizListView(ListView):
         return queryset
 
 
-def signup(request):
-    if request.method == 'POST':
-        form = StudentSignUpForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            user.is_active = False
-            user.save()
-            current_site = get_current_site(request)
-            mail_subject = 'Activate your blog account.'
-            message = render_to_string('registration/acc_active_email.html', {
-                'user': user,
-                'domain': current_site.domain,
-                'uid': urlsafe_base64_encode(force_bytes(user.pk)).decode(),
-                'token': account_activation_token.make_token(user),
-            })
-            to_email = form.cleaned_data.get('email')
-            email = EmailMessage(
-                mail_subject, message, to=[to_email]
-            )
-            email.send()
-            return HttpResponse('Please confirm your email address to complete the registration')
-    else:
-        form = StudentSignUpForm()
-    return render(request, 'registration/signup_form.html', {'form': form, 'user_type': 'student'})
-
-
 def activate(request, uidb64, token):
     try:
         uid = force_text(urlsafe_base64_decode(uidb64))
@@ -102,14 +75,40 @@ def activate(request, uidb64, token):
     except(TypeError, ValueError, OverflowError, User.DoesNotExist):
         user = None
     if user is not None and account_activation_token.check_token(user, token):
+        # activate user and login:
         user.is_active = True
         user.save()
         login(request, user)
 
-        # New template for message that activation is a success
-        return redirect('home')
+        # Should have a new template for message that activation is a success
+        return HttpResponse('Activation successful!')
     else:
         return HttpResponse('Activation link is invalid!')
+
+
+def signup(request):
+    if request.method == 'POST':
+        form = StudentSignUpForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            user.is_active = False
+            user.save()
+
+            # Send an email to the user with the token:
+            mail_subject = 'DigiWiz: Activate your account.'
+            current_site = get_current_site(request)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            token = account_activation_token.make_token(user)
+            activation_link = "{0}/activate/{1}/{2}".format(current_site, uid, token)
+            message = "Hello {0},\n {1}".format(user.username, activation_link)
+            to_email = form.cleaned_data.get('email')
+            email = EmailMessage(mail_subject, message, to=[to_email])
+            email.send()
+
+            return HttpResponse('Please confirm your email address to complete the registration')
+    else:
+        form = StudentSignUpForm()
+    return render(request, 'registration/signup_form.html', {'form': form, 'user_type': 'student'})
 
 
 @login_required
