@@ -8,6 +8,7 @@ from django.db import transaction
 from django.db.models import Count
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_bytes, force_text
@@ -100,10 +101,14 @@ def signup(request):
                 # Send an email to the user with the token:
                 mail_subject = 'DigiWiz: Activate your account.'
                 current_site = get_current_site(request)
-                uid = urlsafe_base64_encode(force_bytes(user.pk))
-                token = account_activation_token.make_token(user)
-                activation_link = "{0}/activate/{1}/{2}".format(current_site, uid, token)
-                message = "Hello {0},\n {1}".format(user.username, activation_link)
+
+                message = render_to_string('registration/email_account_confirm.html', {
+                    'user': user,
+                    'domain': current_site,
+                    'uid': urlsafe_base64_encode(force_bytes(user.pk)).decode('utf-8'),
+                    'token': account_activation_token.make_token(user),
+                })
+
                 to_email = form.cleaned_data.get('email')
                 email = EmailMessage(mail_subject, message, to=[to_email])
                 email.send()
