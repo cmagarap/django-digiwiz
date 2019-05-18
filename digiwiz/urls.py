@@ -22,9 +22,9 @@ urlpatterns = [
     path('', include('classroom.urls')),
     path('activate/b<str:uidb64>/<str:token>', students.activate, name='activate'),
     path('admin/', admin.site.urls),
-    path('login/', auth_views.LoginView.as_view(), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
-    path('signup/', classroom.SignUpView.as_view(), name='signup'),
+    path('login/', classroom.login_view, name='login'),
+    path('logout/', classroom.logout_view, name='logout'),
+    path('signup/', classroom.signup_page, name='signup'),
     path('signup/student/', students.signup, name='student_signup'),
     path('signup/teacher/', teachers.TeacherSignUpView.as_view(), name='teacher_signup'),
 

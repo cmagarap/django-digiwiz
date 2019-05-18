@@ -1,10 +1,27 @@
 from django import forms
+from django.contrib.auth import authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.db import transaction
 from django.forms.utils import ValidationError
 
 from classroom.models import (Answer, Question, Student, StudentAnswer,
                               Subject, User)
+
+
+class UserLoginForm(forms.Form):
+    username = forms.CharField()
+    password = forms.CharField(widget=forms.PasswordInput)
+
+    def clean(self, *args, **kwargs):
+        username = self.cleaned_data.get('username')
+        password = self.cleaned_data.get('password')
+
+        if username and password:
+            user = authenticate(username=username, password=password)
+            if user is None:
+                raise forms.ValidationError('Incorrect Password')
+
+        return super(UserLoginForm, self).clean(*args, **kwargs)
 
 
 class TeacherSignUpForm(UserCreationForm):
@@ -25,7 +42,7 @@ class TeacherSignUpForm(UserCreationForm):
 
 
 class StudentSignUpForm(UserCreationForm):
-    email = forms.EmailField(max_length=50)
+    email = forms.EmailField(max_length=50, label='Parent\'s Email')
     first_name = forms.CharField(max_length=80)
     last_name = forms.CharField(max_length=80)
     interests = forms.ModelMultipleChoiceField(
@@ -36,7 +53,7 @@ class StudentSignUpForm(UserCreationForm):
 
     class Meta(UserCreationForm.Meta):
         model = User
-        fields = ['email', 'first_name', 'last_name', 'username']
+        fields = ['username', 'first_name', 'last_name', 'email']
 
     @transaction.atomic
     def save(self):

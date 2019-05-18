@@ -87,27 +87,30 @@ def activate(request, uidb64, token):
 
 
 def signup(request):
-    if request.method == 'POST':
-        form = StudentSignUpForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            user.is_active = False
-            user.save()
-
-            # Send an email to the user with the token:
-            mail_subject = 'DigiWiz: Activate your account.'
-            current_site = get_current_site(request)
-            uid = urlsafe_base64_encode(force_bytes(user.pk))
-            token = account_activation_token.make_token(user)
-            activation_link = "{0}/activate/{1}/{2}".format(current_site, uid, token)
-            message = "Hello {0},\n {1}".format(user.username, activation_link)
-            to_email = form.cleaned_data.get('email')
-            email = EmailMessage(mail_subject, message, to=[to_email])
-            email.send()
-
-            return HttpResponse('Please confirm your email address to complete the registration')
+    if request.user.is_authenticated:
+        return redirect('home')
     else:
-        form = StudentSignUpForm()
+        if request.method == 'POST':
+            form = StudentSignUpForm(request.POST)
+            if form.is_valid():
+                user = form.save()
+                user.is_active = False
+                user.save()
+
+                # Send an email to the user with the token:
+                mail_subject = 'DigiWiz: Activate your account.'
+                current_site = get_current_site(request)
+                uid = urlsafe_base64_encode(force_bytes(user.pk))
+                token = account_activation_token.make_token(user)
+                activation_link = "{0}/activate/{1}/{2}".format(current_site, uid, token)
+                message = "Hello {0},\n {1}".format(user.username, activation_link)
+                to_email = form.cleaned_data.get('email')
+                email = EmailMessage(mail_subject, message, to=[to_email])
+                email.send()
+
+                return HttpResponse('Please confirm your email address to complete the registration')
+        else:
+            form = StudentSignUpForm()
     return render(request, 'registration/signup_form.html', {'form': form, 'user_type': 'student'})
 
 
