@@ -20,8 +20,8 @@ from django.urls import include, path
 
 urlpatterns = [
     path('', include('classroom.urls')),
-    path('activate-student/<str:uidb64>/<str:token>', students.activate, name='activate_student'),
-    path('activate-teacher/<str:uidb64>/<str:token>', teachers.activate, name='activate_teacher'),
+    path('activate-student/<uidb64>/<token>', students.activate, name='activate_student'),
+    path('activate-teacher/<uidb64>/<token>', teachers.activate, name='activate_teacher'),
     path('admin/', admin.site.urls),
     path('login/', classroom.login_view, name='login'),
     path('logout/', classroom.logout_view, name='logout'),
