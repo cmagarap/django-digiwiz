@@ -31,7 +31,7 @@ class TeacherSignUpForm(UserCreationForm):
 
     class Meta(UserCreationForm.Meta):
         model = User
-        fields = ['email', 'first_name', 'last_name', 'username']
+        fields = ['username', 'email', 'first_name', 'last_name']
 
     def save(self, commit=True):
         user = super().save(commit=False)
