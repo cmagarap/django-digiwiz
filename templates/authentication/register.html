@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <!--=======Page Heading
+    =================================-->
+    <section class="page-heading-section before-bg bg-image" style="background-image: url({% static 'images/header/p-header2.jpg' %});">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8 col-sm-12">
+                    <div class="page-heading">
+                        <h2 class="page-name text-capitalize">Register</h2>
+                    </div><!--/.page-heading-->
+                </div><!--/.col-md-12-->
+            </div><!--/.row-->
+        </div><!--/.container-->
+    </section><!--/.page-heading-area-->
+
+    <div class="register-page page-wrapper s-pd100">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 col-md-6 col-sm-8">
+                    <div class="login-form-area register-form-area">
+                        <center><h5>Select below the type of account</h5></center>
+                        <br>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="single-pricing-table basic-pricing border-radius text-center">
+                                        <div class="pricing-header">
+                                            <h3>Teacher</h3>
+                                        </div>
+                                        <div class="pricing-price-area">
+                                            <img src="{% static 'images/icon/teacher.png' %}" alt="icon">
+
+                                        </div>
+                                        <div class="pricing-content">
+                                            <a class="btn btn-default" href="{% url 'teacher_register' %}">I am a Teacher</a>
+                                        </div><!--/.pricing-content-->
+                                    </div><!--/.single-pricing-table-->
+                                </div><!--/.col-lg-4-->
+
+                                <div class="col-lg-6">
+                                    <div class="single-pricing-table business-pricing border-radius text-center">
+                                        <div class="pricing-header">
+                                            <h3>Student</h3>
+                                        </div>
+                                        <div class="pricing-price-area">
+                                            <img src="{% static 'images/icon/student.png' %}" alt="icon">
+
+                                        </div>
+                                        <div class="pricing-content">
+
+                                            <a class="btn btn-default" href="{% url 'student_register' %}">I am a Student</a>
+                                        </div><!--/.pricing-content-->
+                                    </div><!--/.single-pricing-table-->
+                                </div><!--/.col-lg-4-->
+                            </div><!--/.row-->
+                        </div><!--/.container-->
+                        <div class="login-form-register-now">
+                            <p> Have an account? <a href="{% url 'login' %}">LOGIN NOW</a></p>
+                        </div>
+                    </div><!--/.register-form-area-->
+                </div><!--/.col-lg-12-->
+            </div><!--/.row-->
+        </div><!--/.container-->
+    </div><!--/.login-page-->
+{% endblock %}

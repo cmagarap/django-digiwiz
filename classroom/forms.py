@@ -19,9 +19,9 @@ class UserLoginForm(forms.Form):
         if username and password:
             user = authenticate(username=username, password=password)
             if user is None:
-                raise forms.ValidationError('Incorrect Password')
+                raise forms.ValidationError('You entered an invalid username and/or password. Please try again.')
 
-        return super(UserLoginForm, self).clean(*args, **kwargs)
+        return super(UserLoginForm, self).clean()
 
 
 class TeacherSignUpForm(UserCreationForm):

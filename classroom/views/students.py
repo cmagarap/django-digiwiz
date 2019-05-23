@@ -6,7 +6,6 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
 from django.db import transaction
 from django.db.models import Count
-from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
@@ -80,14 +79,23 @@ def activate(request, uidb64, token):
         user.is_active = True
         user.save()
         login(request, user)
-
-        # Should have a new template for message that activation is a success
-        return HttpResponse('Activation successful!')
+        context = {
+            'title': 'Account Activation',
+            'result': 'Congratulations!',
+            'message': 'Your account has been activated successfully.',
+            'alert': 'success'
+        }
     else:
-        return HttpResponse('Activation link is invalid!')
+        context = {
+            'title': 'Account Activation',
+            'result': 'We\'re sorry...',
+            'message': 'The activation link you provided is invalid. Please try again.',
+            'alert': 'danger'
+        }
+    return render(request, 'authentication/activation.html', context)
 
 
-def signup(request):
+def register(request):
     if request.user.is_authenticated:
         return redirect('home')
     else:
@@ -112,13 +120,25 @@ def signup(request):
 
                 to_email = form.cleaned_data.get('email')
                 email = EmailMessage(mail_subject, message, to=[to_email])
-                # try:
+                # insert try clause:
                 email.send()
+                context = {
+                    'title': 'Account Activation',
+                    'result': 'One more step remaining...',
+                    'message': 'Please confirm your email address to complete the registration.',
+                    'alert': 'info'
+                }
 
-                return HttpResponse('Please confirm your email address to complete the registration')
+                return render(request, 'authentication/activation.html', context)
         else:
             form = StudentSignUpForm()
-    return render(request, 'authentication/signup_form.html', {'form': form, 'user_type': 'student'})
+
+    context = {
+        'form': form,
+        'user_type': 'student',
+        'title': 'Register as Student'
+    }
+    return render(request, 'authentication/register_form.html', context)
 
 
 @login_required

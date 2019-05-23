@@ -3,11 +3,21 @@ from django.shortcuts import redirect, render
 from ..forms import UserLoginForm
 
 
+def about(request):
+    if request.user.is_authenticated:
+        if request.user.is_teacher:
+            return redirect('teachers:quiz_change_list')
+        elif request.user.is_student:
+            return redirect('students:quiz_list')
+
+    return render(request, 'classroom/about.html')
+
+
 def home(request):
     if request.user.is_authenticated:
         if request.user.is_teacher:
             return redirect('teachers:quiz_change_list')
-        else:
+        elif request.user.is_student:
             return redirect('students:quiz_list')
     return render(request, 'classroom/home.html')
 
@@ -30,7 +40,7 @@ def login_view(request):
             else:
                 return redirect('/')
 
-    return render(request, 'authentication/login.html', {'form': form})
+    return render(request, 'authentication/login.html', {'form': form, 'title': 'Login'})
 
 
 def logout_view(request):
@@ -38,7 +48,7 @@ def logout_view(request):
     return redirect('/')
 
 
-def signup_page(request):
+def register_page(request):
     if request.user.is_authenticated:
         return redirect('home')
-    return render(request, 'authentication/signup.html')
+    return render(request, 'authentication/register.html')

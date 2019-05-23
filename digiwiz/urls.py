@@ -20,6 +20,7 @@ from django.urls import include, path
 
 urlpatterns = [
     path('', include('classroom.urls')),
+    path('about-us/', classroom.about, name='about_us'),
     path('activate-student/<uidb64>/<token>', students.activate, name='activate_student'),
     path('activate-teacher/<uidb64>/<token>', teachers.activate, name='activate_teacher'),
     path('admin/', admin.site.urls),
@@ -37,8 +38,8 @@ urlpatterns = [
     path('password-reset-confirm/<uidb64>/<token>/',
          auth_views.PasswordResetConfirmView.as_view(template_name='authentication/password_reset_confirm.html'),
          name='password_reset_confirm'),
-    path('signup/', classroom.signup_page, name='signup'),
-    path('signup/student/', students.signup, name='student_signup'),
-    path('signup/teacher/', teachers.signup, name='teacher_signup'),
+    path('register/', classroom.register_page, name='register'),
+    path('register/student/', students.register, name='student_register'),
+    path('register/teacher/', teachers.register, name='teacher_register'),
 
 ]
