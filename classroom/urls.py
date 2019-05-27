@@ -13,10 +13,11 @@ urlpatterns = [
     ], 'classroom'), namespace='students')),
 
     path('teacher/', include(([
-        path('', teachers.QuizListView.as_view(), name='quiz_change_list'),
-        path('quiz/add/', teachers.QuizCreateView.as_view(), name='quiz_add'),
-        path('quiz/<int:pk>/', teachers.QuizUpdateView.as_view(), name='quiz_change'),
-        path('quiz/<int:pk>/delete/', teachers.QuizDeleteView.as_view(), name='quiz_delete'),
+        path('', teachers.CourseListView.as_view(), name='course_change_list'),
+        path('course/add/', teachers.CourseCreateView.as_view(), name='course_add'),
+        path('course/details/<int:pk>/', teachers.CourseDetailView.as_view(), name='course_details'),
+        path('course/<int:pk>/', teachers.CourseUpdateView.as_view(), name='course_change'),
+        path('course/<int:pk>/delete/', teachers.CourseDeleteView.as_view(), name='course_delete'),
         path('quiz/<int:pk>/results/', teachers.QuizResultsView.as_view(), name='quiz_results'),
         path('quiz/<int:pk>/question/add/', teachers.question_add, name='question_add'),
         path('quiz/<int:quiz_pk>/question/<int:question_pk>/', teachers.question_change, name='question_change'),

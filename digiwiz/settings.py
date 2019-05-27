@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'classroom.apps.ClassroomConfig',
     'crispy_forms',
+    # 'sweetify'
 ]
 
 MIDDLEWARE = [
@@ -151,3 +152,8 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'digiwiz.sq@gmail.com'
 EMAIL_HOST_PASSWORD = '!#digiwiz#!'
 EMAIL_PORT = 587
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# SWEETIFY_SWEETALERT_LIBRARY = 'sweetalert2'

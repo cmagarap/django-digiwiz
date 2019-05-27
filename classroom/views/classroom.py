@@ -16,7 +16,7 @@ def about(request):
 def home(request):
     if request.user.is_authenticated:
         if request.user.is_teacher:
-            return redirect('teachers:quiz_change_list')
+            return redirect('teachers:course_change_list')
         elif request.user.is_student:
             return redirect('students:quiz_list')
     return render(request, 'classroom/home.html')

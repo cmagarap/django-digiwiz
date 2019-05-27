@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <!--=======Page Heading
+    ================================-->
+    <section class="page-heading-section before-bg bg-image" style="background-image: url({% static 'images/header/p-header4.jpg' %});">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 col-sm-12">
+                    <div class="page-heading">
+                        <h2 class="page-name text-capitalize">Course Details</h2>
+                        <a href="{% url 'home' %}" class="btn btn-default btn-primary">back to home</a>
+                    </div><!--/.page-heading-->
+                </div><!--/.col-md-12-->
+            </div><!--/.row-->
+        </div><!--/.container-->
+    </section><!--/.page-heading-area-->
+
+    <div class="courses-page page-wrapper">
+        <!--=======Courses Page Content
+        ==================================-->
+        <div class="courses-page-content">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-3 col-md-12">
+                        <div class="courses-sidebar">
+                            <aside class="widget widget-courses-category">
+                                <h2>Categories</h2>
+                                <ul class="list-unstyled">
+                                    <li><a href="#">Design course</a></li>
+                                    <li><a href="#">Languages</a></li>
+                                    <li><a href="#">Food Learnind</a></li>
+                                    <li><a href="#">Driving School</a></li>
+                                </ul>
+                            </aside><!--/.widget-courses-category-->
+                            <aside class="widget widget-courses-level">
+                                <h2>Age level</h2>
+                                <ul class="list-unstyled">
+                                    <li><a href="#">Post-Secondary</a></li>
+                                    <li><a href="#">Beginner</a></li>
+                                    <li><a href="#">Expert</a></li>
+                                    <li><a href="#">Intermediate</a></li>
+                                </ul>
+                            </aside><!--/.widget-courses-level-->
+                            <aside class="widget widget-courses-location">
+                                <h2>durations</h2>
+                                <ul class="list-unstyled">
+                                    <li><a href="#">1 days - 7 days</a></li>
+                                    <li><a href="#">8 days - 14 days</a></li>
+                                    <li><a href="#">15 days - 21 days</a></li>
+                                    <li><a href="#">3 months</a></li>
+                                </ul>
+                            </aside><!--/.widget-courses-location-->
+                            <aside class="widget widget-courses-location">
+                                <h2>location</h2>
+                                <ul class="list-unstyled">
+                                    <li><a href="#">Your city</a></li>
+                                    <li><a href="#">San Francisco</a></li>
+                                    <li><a href="#">Ho Chi Minh City</a></li>
+                                    <li><a href="#">Hong Kong</a></li>
+                                </ul>
+                            </aside><!--/.widget-courses-location-->
+                        </div><!--/.courses-sidebar-->
+                    </div><!--/.col-lg-3-->
+
+                    <div class="col-lg-9">
+						<div class="course-details">
+							<div class="course-title">
+								<h2>{{ course.title }}</h2>
+                                <small>{{ course.subject.get_html_badge }}</small>
+								<span class="course-date">Added on: {{ course.created_at|date:"F d, Y" }}</span>
+							</div>
+							<div class="course-thumb">
+								<img src="{{ course.image.url }}" alt="" />
+							</div>
+							<div class="course-desc">
+								<p>{{ course.description }}</p>
+                                <p>Lessons</p>
+								<ul>
+									<li>There are many variations of passages of Lorem Ipsum available</li>
+									<li>Contrary to popular belief, Lorem Ipsum is not simply random</li>
+									<li>It over 2000 years old. Richard McClintock</li>
+									<li>Lorem Ipsum is simply dummy text of the printing</li>
+									<li>Consectetur, from a Lorem Ipsum passage</li>
+									<li>The point of using Lorem Ipsum is that it has</li>
+								</ul>
+							</div>
+                        </div>
+                    </div>
+                </div><!--/.row-->
+            </div><!--/.container-->
+        </div><!--/.courses-page-content-->
+    </div><!--/.courses-page-->
+{% endblock %}

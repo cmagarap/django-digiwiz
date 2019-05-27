@@ -16,8 +16,93 @@ from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   UpdateView)
 from ..decorators import teacher_required
 from ..forms import BaseAnswerInlineFormSet, QuestionForm, TeacherSignUpForm
-from ..models import Answer, Question, Quiz, User
+from ..models import Answer, Course, Question, Quiz, User
 from ..tokens import account_activation_token
+
+
+@method_decorator([login_required, teacher_required], name='dispatch')
+class CourseCreateView(CreateView):
+    model = Course
+    fields = ('title', 'code', 'subject', 'description', 'image')
+    template_name = 'classroom/teachers/course_add_form.html'
+    extra_context = {
+        'title': 'New Course'
+    }
+
+    def form_valid(self, form):
+        quiz = form.save(commit=False)
+        quiz.owner = self.request.user
+        quiz.save()
+        messages.success(self.request, 'The course was created with success!')
+        return redirect('teachers:course_change_list')
+
+
+@method_decorator([login_required, teacher_required], name='dispatch')
+class CourseDeleteView(DeleteView):
+    model = Course
+    context_object_name = 'course'
+    template_name = 'classroom/teachers/course_delete_confirm.html'
+    success_url = reverse_lazy('teachers:course_change_list')
+
+    def delete(self, request, *args, **kwargs):
+        course = self.get_object()
+        messages.success(request, f'The course {course.title} was deleted with success!')
+        return super().delete(request, *args, **kwargs)
+
+    def get_queryset(self):
+        """This method is an implicit object-level permission management.
+        This view will only match the ids of existing courses that belongs
+        to the logged in user."""
+        return self.request.user.courses.all()
+
+
+@method_decorator([login_required, teacher_required], name='dispatch')
+class CourseDetailView(DetailView):
+    model = Course
+    context_object_name = 'course'
+    template_name = 'classroom/teachers/course_details.html'
+
+    def get_queryset(self):
+        return self.request.user.courses.all()
+
+
+@method_decorator([login_required, teacher_required], name='dispatch')
+class CourseListView(ListView):
+    model = Course
+    ordering = ('title', )
+    context_object_name = 'courses'
+    extra_context = {
+        'title': 'My Courses'
+    }
+    template_name = 'classroom/teachers/course_change_list.html'
+
+    def get_queryset(self):
+        queryset = self.request.user.courses \
+            .select_related('subject')
+        return queryset
+
+
+@method_decorator([login_required, teacher_required], name='dispatch')
+class CourseUpdateView(UpdateView):
+    model = Course
+    fields = ('title', 'code', 'subject', 'description', 'image')
+    context_object_name = 'course'
+    template_name = 'classroom/teachers/course_change_form.html'
+    extra_context = {
+        'title': 'Edit Course'
+    }
+
+    # def get_context_data(self, **kwargs):
+    #     kwargs['questions'] = self.get_object().questions.annotate(answers_count=Count('answers'))
+    #     return super().get_context_data(**kwargs)
+    #
+    def get_queryset(self):
+        return self.request.user.courses.all()
+
+    def get_success_url(self):
+        title = self.get_object()
+        messages.success(self.request, f'{title} has been successfully updated.')
+        return reverse('teachers:course_change_list')
 
 
 class TeacherSignUpView(CreateView):
@@ -76,11 +161,9 @@ class QuizUpdateView(UpdateView):
         return super().get_context_data(**kwargs)
 
     def get_queryset(self):
-        """
-        This method is an implicit object-level permission management
+        """This method is an implicit object-level permission management
         This view will only match the ids of existing quizzes that belongs
-        to the logged in user.
-        """
+        to the logged in user."""
         return self.request.user.quizzes.all()
 
     def get_success_url(self):

@@ -62,11 +62,12 @@
                                 <ul id="nav">
                                     {% if user.is_authenticated %}
                                         {% if user.is_student %}
+                                            <li class="login"><a href="#">{{ user.first_name }}</a></li>
                                             <li class="login"><a href="#">Search Courses</a></li>
                                             <li class="login"><a href="#">My Courses</a></li>
                                         {% elif user.is_teacher %}
-                                            <li class="login"><a href="#">Profile</a></li>
-                                            <li class="login"><a href="#">My Courses</a></li>
+                                            <li class="login"><a href="#">{{ user.first_name }}</a></li>
+                                            <li class="login"><a href="{% url 'teachers:course_change_list' %}">My Courses</a></li>
                                         {% endif %}
                                         <li class="login"><a href="{% url 'logout' %}">Logout</a></li>
                                 </ul>
@@ -98,14 +99,11 @@
         </div>
     </header><!--/.header-area-->
 
-
     {% block content %}
     {% endblock %}
 
     <!-- Start footer area -->
     <footer id="footer" class="site-footer">
-
-
         <!-- Start footer widgets area -->
         <div class="footer-widgets-area">
             <div class="container">
@@ -164,7 +162,6 @@
         </div><!--End footer copyright area -->
     </footer><!--End footer area -->
 
-
     <!-- All JS files are included here.
 	============================================== -->
 
@@ -179,6 +176,4 @@
     <!-- Main JS file that contents all jQuery Plugins activation. -->
     <script src="{% static 'js/main.js' %}"></script>
 </body>
-
-<!-- Mirrored from bdevs.net/edulab/edulab/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 12 May 2019 04:44:00 GMT -->
 </html>
