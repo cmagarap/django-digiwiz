@@ -112,7 +112,6 @@
                         </div><!--/.courses-sidebar-->
                     </div><!--/.col-lg-3-->
 
-
                     <div class="col-lg-9">
                         <div class="courses-page-content">
                             <div class="courses-content">
@@ -148,6 +147,7 @@
                                                             <p>{{ course.created_at|date:"F d, Y" }}</p>
                                                         </div>
                                                         <div class="course-cat text-capitalize text-right">
+                                                            {# if user is not enrolled in the course #}
                                                             <a href="{% url 'students:enroll' course.pk %}">Enroll</a>
                                                         </div>
                                                     </div><!--/.trainer-profile-->

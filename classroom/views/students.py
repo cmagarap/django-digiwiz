@@ -58,7 +58,7 @@ class QuizListView(ListView):
 @method_decorator([login_required, student_required], name='dispatch')
 class CourseListView(ListView):
     model = TakenCourse
-    # ordering = ('title', )
+    ordering = ('title', )
     context_object_name = 'taken_courses'
     extra_context = {
         'title': 'My Courses'
@@ -77,10 +77,17 @@ class BrowseCourseView(ListView):
     model = Course
     ordering = ('title', )
     context_object_name = 'courses'
+    extra_context = {
+        'title': 'Browse Courses'
+    }
     template_name = 'classroom/students/courses_list.html'
 
-    # def get_queryset(self):
-    #     return self.request.user.courses.all()
+    # Get only the courses that the student is NOT enrolled
+    def get_queryset(self):
+        student = self.request.user.student
+        taken_courses = student.courses.values_list('pk', flat=True)
+        queryset = Course.objects.exclude(pk__in=taken_courses)
+        return queryset
 
 
 @method_decorator([login_required, student_required], name='dispatch')
