@@ -1,11 +1,10 @@
+from classroom.models import (Answer, Question, Student, StudentAnswer,
+                              Subject, User, TakenCourse)
 from django import forms
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.db import transaction
 from django.forms.utils import ValidationError
-
-from classroom.models import (Answer, Question, Student, StudentAnswer,
-                              Subject, User)
 
 
 class UserLoginForm(forms.Form):

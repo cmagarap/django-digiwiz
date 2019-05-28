@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
+    {# include 'classroom/students/_header.html' with active='new' #}
     {% if messages %}
         {% for message in messages %}
             <div class="alert alert-info">{{ message }}</div>
@@ -13,18 +14,17 @@
 				<div class="col-lg-8">
 				    <div class="section-heading-area text-center">
 					    <h2 class="section-heading text-capitalize">My Courses</h2>
-                        <a href="{% url 'teachers:course_add' %}" class="btn btn-primary mb-3" role="button">Add a Course</a>
 				    </div><!--/.section-heading-area-->
 				</div><!--/.col-lg-8-->
 			</div><!--/.row-->
 
             <div class="row courses-item-content">
-                {% for course in courses %}
+                {% for taken_course in taken_courses %}
                 <div class="col-lg-4 col-sm-6 design photography">
                     <!--Single Course Item Start-->
                     <div class="single-course-item border-radius">
                         <div class="course-thumb-area">
-                            <img class="img-fluid" src="{{ course.image.url }}" alt="img">
+                            <img class="img-fluid" src="{{ taken_course.course.image.url }}" alt="img">
                             <div class="course-meta">
                                 <a href="#"><i class="fa fa-heart-o"></i></a>
                                 <a href="#"><i class="fa fa-share-alt"></i></a>
@@ -32,8 +32,8 @@
                             <span class="course-duration">students enrolled</span>
                         </div><!--/.course-thumb-area-->
                         <div class="course-content">
-                            <h2><a href="{% url 'course_details' course.pk %}">{{ course.title }}</a></h2>
-                            <p>{{ course.description }}</p>
+                            <h2><a href="{# url 'teachers:course_details' taken_course.course.pk #}">{{ taken_course.course.title }}</a></h2>
+                            <p>{{ taken_course.course.description }}</p>
                             <small>{{ course.subject.get_html_badge }}</small>
                             <div class="course-reviews">
                                 <i class="fa fa-star" aria-hidden="true"></i>
@@ -46,19 +46,18 @@
                             <div class="trainer-profile clearfix">
                                 <img class="rounded-circle" src="images/author/author-1.jpg" alt="img">
                                 <div class="trainer-info">
-                                    <h3>{{ course.status.upper }}</h3>
-                                    <p>{{ course.created_at|date:"F d, Y" }}</p>
+                                    <h3>{{ taken_course.course.status.upper }}</h3>
+                                    <p>{{ taken_course.course.created_at|date:"F d, Y" }}</p>
                                 </div>
                                 <div class="course-cat text-capitalize text-right">
-                                    <a href="{% url 'teachers:course_change' course.pk %}">Edit</a>
+                                    <a href="{# url 'teachers:course_change' course.pk #}">Edit</a>
                                 </div>
                             </div><!--/.trainer-profile-->
                         </div><!--/.course-content-->
                     </div><!--/.single-course-item-end-->
-
                 </div><!--/.col-lg-4-->
                 {% empty %}
-                    no subjects
+                    You are not yet enrolled in any subjects.
                 {% endfor %}
             </div>
         </div>

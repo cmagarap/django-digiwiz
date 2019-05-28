@@ -15,7 +15,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.generic import CreateView, ListView, UpdateView
 from ..decorators import student_required
 from ..forms import StudentInterestsForm, StudentSignUpForm, TakeQuizForm
-from ..models import Quiz, Student, TakenQuiz, User
+from ..models import Course, Quiz, Student, TakenCourse, TakenQuiz, User
 from ..tokens import account_activation_token
 
 
@@ -53,6 +53,34 @@ class QuizListView(ListView):
             .annotate(questions_count=Count('questions')) \
             .filter(questions_count__gt=0)
         return queryset
+
+
+@method_decorator([login_required, student_required], name='dispatch')
+class CourseListView(ListView):
+    model = TakenCourse
+    # ordering = ('title', )
+    context_object_name = 'taken_courses'
+    extra_context = {
+        'title': 'My Courses'
+    }
+    template_name = 'classroom/students/mycourses_list.html'
+
+    def get_queryset(self):
+        queryset = self.request.user.student.taken_courses \
+            .select_related('course', 'course__subject') \
+            .order_by('course__title')
+        return queryset
+
+
+# @student_required
+class BrowseCourseView(ListView):
+    model = Course
+    ordering = ('title', )
+    context_object_name = 'courses'
+    template_name = 'classroom/students/courses_list.html'
+
+    # def get_queryset(self):
+    #     return self.request.user.courses.all()
 
 
 @method_decorator([login_required, student_required], name='dispatch')
@@ -183,3 +211,14 @@ def take_quiz(request, pk):
         'form': form,
         'progress': progress
     })
+
+
+@login_required
+@student_required
+def enroll(request, pk):
+    course = get_object_or_404(Course, pk=pk)
+    student = request.user.student
+    take = TakenCourse.objects.create(student=student, course=course)
+    take.save()
+
+    return redirect('browse_courses')

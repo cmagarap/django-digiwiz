@@ -63,8 +63,8 @@
                                     {% if user.is_authenticated %}
                                         {% if user.is_student %}
                                             <li class="login"><a href="#">{{ user.first_name }}</a></li>
-                                            <li class="login"><a href="#">Search Courses</a></li>
-                                            <li class="login"><a href="#">My Courses</a></li>
+                                            <li class="login"><a href="{% url 'browse_courses' %}">Search Courses</a></li>
+                                            <li class="login"><a href="{% url 'students:mycourses_list' %}">My Courses</a></li>
                                         {% elif user.is_teacher %}
                                             <li class="login"><a href="#">{{ user.first_name }}</a></li>
                                             <li class="login"><a href="{% url 'teachers:course_change_list' %}">My Courses</a></li>
@@ -74,7 +74,7 @@
                             </nav>
                                     {% else %}
                                         <li class="login"><a href="{% url 'home' %}">Home</a></li>
-                                        <li class="login"><a href="#">Courses</a></li>
+                                        <li class="login"><a href="{% url 'browse_courses' %}">Courses</a></li>
                                          <li class="login"><a href="{% url 'about_us' %}">About Us</a></li>
                                         <li class="login"><a href="{% url 'register' %}">Register</a></li>
                                         <li class="login"><a href="{% url 'login' %}">Login</a></li>

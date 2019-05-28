@@ -6,16 +6,16 @@ urlpatterns = [
     path('', classroom.home, name='home'),
 
     path('student/', include(([
-        path('', students.QuizListView.as_view(), name='quiz_list'),
+        path('', students.CourseListView.as_view(), name='mycourses_list'),
         path('interests/', students.StudentInterestsView.as_view(), name='student_interests'),
         path('taken/', students.TakenQuizListView.as_view(), name='taken_quiz_list'),
         path('quiz/<int:pk>/', students.take_quiz, name='take_quiz'),
+        path('enroll/<int:pk>/', students.enroll, name='enroll')
     ], 'classroom'), namespace='students')),
 
     path('teacher/', include(([
         path('', teachers.CourseListView.as_view(), name='course_change_list'),
         path('course/add/', teachers.CourseCreateView.as_view(), name='course_add'),
-        path('course/details/<int:pk>/', teachers.CourseDetailView.as_view(), name='course_details'),
         path('course/<int:pk>/', teachers.CourseUpdateView.as_view(), name='course_change'),
         path('course/<int:pk>/delete/', teachers.CourseDeleteView.as_view(), name='course_delete'),
         path('quiz/<int:pk>/results/', teachers.QuizResultsView.as_view(), name='quiz_results'),

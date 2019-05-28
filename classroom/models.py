@@ -82,7 +82,7 @@ class Answer(models.Model):
 
 class Student(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    quizzes = models.ManyToManyField(Quiz, through='TakenQuiz')
+    courses = models.ManyToManyField(Course, through='TakenCourse')
     interests = models.ManyToManyField(Subject, related_name='interested_students')
 
     def get_unanswered_questions(self, quiz):
@@ -94,6 +94,12 @@ class Student(models.Model):
 
     def __str__(self):
         return self.user.username
+
+
+class TakenCourse(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='taken_courses')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='taken_courses')
+    date = models.DateTimeField(auto_now_add=True)
 
 
 class TakenQuiz(models.Model):

@@ -57,16 +57,6 @@ class CourseDeleteView(DeleteView):
 
 
 @method_decorator([login_required, teacher_required], name='dispatch')
-class CourseDetailView(DetailView):
-    model = Course
-    context_object_name = 'course'
-    template_name = 'classroom/teachers/course_details.html'
-
-    def get_queryset(self):
-        return self.request.user.courses.all()
-
-
-@method_decorator([login_required, teacher_required], name='dispatch')
 class CourseListView(ListView):
     model = Course
     ordering = ('title', )

@@ -1,6 +1,17 @@
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import redirect, render
+from django.views.generic import DetailView
 from ..forms import UserLoginForm
+from ..models import Course
+
+
+class CourseDetailView(DetailView):
+    model = Course
+    context_object_name = 'course'
+    extra_context = {
+        'title': 'Course Details'
+    }
+    template_name = 'classroom/course_details.html'
 
 
 def about(request):
@@ -18,7 +29,7 @@ def home(request):
         if request.user.is_teacher:
             return redirect('teachers:course_change_list')
         elif request.user.is_student:
-            return redirect('students:quiz_list')
+            return redirect('students:mycourses_list')
     return render(request, 'classroom/home.html')
 
 

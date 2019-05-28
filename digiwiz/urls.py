@@ -27,6 +27,8 @@ urlpatterns = [
     path('activate-student/<uidb64>/<token>', students.activate, name='activate_student'),
     path('activate-teacher/<uidb64>/<token>', teachers.activate, name='activate_teacher'),
     path('admin/', admin.site.urls),
+    path('browse-courses/', students.BrowseCourseView.as_view(), name='browse_courses'),
+    path('course/details/<int:pk>/', classroom.CourseDetailView.as_view(), name='course_details'),
     path('login/', classroom.login_view, name='login'),
     path('logout/', classroom.logout_view, name='logout'),
     path('password-reset/',
