@@ -10,9 +10,9 @@
                     <div class="page-heading">
                         <h2 class="page-name text-capitalize">Course Details</h2>
                         {% if user.is_student %}
-                            <a href="{% url 'browse_courses' %}" class="btn btn-default btn-primary">go back</a>
+                            <a href="javascript:history.back();" class="btn btn-default btn-primary">go back</a>
                         {% elif user.is_teacher %}
-                            <a href="{% url 'home' %}" class="btn btn-default btn-primary">go back</a>
+                            <a href="javascript:history.back();" class="btn btn-default btn-primary">go back</a>
                         {% endif %}
                     </div><!--/.page-heading-->
                 </div><!--/.col-md-12-->
@@ -68,27 +68,42 @@
                     </div><!--/.col-lg-3-->
 
                     <div class="col-lg-9">
-						<div class="course-details">
-							<div class="course-title">
-								<h2>{{ course.title }}</h2>
+                        <div class="course-details">
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <div class="alert alert-info">{{ message }}</div>
+                                {% endfor %}
+                            {% endif %}
+                            <div class="course-title">
+                                {% if user.is_student %}
+                                    {% if enrolled %}
+                                        {{ enrolled.status }}
+                                        <div class="course-cat text-capitalize text-right">
+                                            <a href="{% url 'students:unenroll' course.pk %}">Unenroll</a>
+                                        </div>
+                                    {% else %}
+                                        Not enrolled
+                                    {% endif %}
+                                {% endif %}
+                                <h2>{{ course.title }}</h2>
                                 <small>{{ course.subject.get_html_badge }}</small>
-								<span class="course-date">Added on: {{ course.created_at|date:"F d, Y" }}</span>
-							</div>
-							<div class="course-thumb">
-								<img src="{{ course.image.url }}" alt="" />
-							</div>
-							<div class="course-desc">
-								<p>{{ course.description }}</p>
+                                <span class="course-date">Added on: {{ course.created_at|date:"F d, Y" }}</span>
+                            </div>
+                            <div class="course-thumb">
+                                <img src="{{ course.image.url }}" alt="" />
+                            </div>
+                            <div class="course-desc">
+                                <p>{{ course.description }}</p>
                                 <p>Lessons</p>
-								<ul>
-									<li>There are many variations of passages of Lorem Ipsum available</li>
-									<li>Contrary to popular belief, Lorem Ipsum is not simply random</li>
-									<li>It over 2000 years old. Richard McClintock</li>
-									<li>Lorem Ipsum is simply dummy text of the printing</li>
-									<li>Consectetur, from a Lorem Ipsum passage</li>
-									<li>The point of using Lorem Ipsum is that it has</li>
-								</ul>
-							</div>
+                                <ul>
+                                    <li>There are many variations of passages of Lorem Ipsum available</li>
+                                    <li>Contrary to popular belief, Lorem Ipsum is not simply random</li>
+                                    <li>It over 2000 years old. Richard McClintock</li>
+                                    <li>Lorem Ipsum is simply dummy text of the printing</li>
+                                    <li>Consectetur, from a Lorem Ipsum passage</li>
+                                    <li>The point of using Lorem Ipsum is that it has</li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div><!--/.row-->
