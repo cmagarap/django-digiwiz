@@ -1,5 +1,5 @@
-from classroom.models import (Answer, Question, Student, StudentAnswer,
-                              Subject, User, TakenCourse)
+from classroom.models import (Answer, Lesson, Question, Student, StudentAnswer,
+                              Subject, User)
 from django import forms
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import UserCreationForm
@@ -77,6 +77,12 @@ class QuestionForm(forms.ModelForm):
     class Meta:
         model = Question
         fields = ('text', )
+
+
+class LessonForm(forms.ModelForm):
+    class Meta:
+        model = Lesson
+        fields = ('title', 'number', 'description')
 
 
 class BaseAnswerInlineFormSet(forms.BaseInlineFormSet):

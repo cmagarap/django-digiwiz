@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'teachers:course_change_list' %}">My Course</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'teachers:course_change' course.pk %}">{{ course.title }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Edit lesson</li>
+        </ol>
+    </nav>
+
+    <div class="login-page page-wrapper s-pd100">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 col-md-6 col-sm-8">
+                    <div class="login-form-area">
+                        <h2 class="mb-3">Edit lesson</h2>
+                        <form method="post" enctype="multipart/form-data" novalidate>
+                            {% csrf_token %}
+                            {{ form|crispy }}
+                            <button type="submit" class="btn btn-success">Save changes</button>
+                            <a href="{% url 'teachers:course_change' course.pk %}" class="btn btn-outline-secondary" role="button">Cancel</a>
+                            <a href="{% url 'teachers:delete_lesson' course.pk lesson.pk %}" class="btn btn-danger float-right">Delete</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

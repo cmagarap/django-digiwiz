@@ -15,8 +15,8 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   UpdateView)
 from ..decorators import teacher_required
-from ..forms import BaseAnswerInlineFormSet, QuestionForm, TeacherSignUpForm
-from ..models import Answer, Course, Question, Quiz, User
+from ..forms import BaseAnswerInlineFormSet, LessonForm, QuestionForm, TeacherSignUpForm
+from ..models import Answer, Course, Lesson, Question, Quiz, User
 from ..tokens import account_activation_token
 
 
@@ -30,9 +30,9 @@ class CourseCreateView(CreateView):
     }
 
     def form_valid(self, form):
-        quiz = form.save(commit=False)
-        quiz.owner = self.request.user
-        quiz.save()
+        course = form.save(commit=False)
+        course.owner = self.request.user
+        course.save()
         messages.success(self.request, 'The course was created with success!')
         return redirect('teachers:course_change_list')
 
@@ -93,6 +93,31 @@ class CourseUpdateView(UpdateView):
         title = self.get_object()
         messages.success(self.request, f'{title} has been successfully updated.')
         return reverse('teachers:course_change_list')
+
+
+@method_decorator([login_required, teacher_required], name='dispatch')
+class LessonDeleteView(DeleteView):
+    model = Lesson
+    context_object_name = 'lesson'
+    template_name = 'classroom/teachers/lesson_delete_confirm.html'
+    pk_url_kwarg = 'lesson_pk'
+
+    def get_context_data(self, **kwargs):
+        lesson = self.get_object()
+        kwargs['course'] = lesson.course
+        return super().get_context_data(**kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        lesson = self.get_object()
+        messages.success(request, f'The lesson {lesson.title} was deleted with success!')
+        return super().delete(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return Lesson.objects.filter(course__owner=self.request.user)
+
+    def get_success_url(self):
+        lesson = self.get_object()
+        return reverse('teachers:course_change', kwargs={'pk': lesson.course_id})
 
 
 class TeacherSignUpView(CreateView):
@@ -224,6 +249,50 @@ def activate(request, uidb64, token):
             'alert': 'danger'
         }
     return render(request, 'authentication/activation.html', context)
+
+
+@login_required
+@teacher_required
+def add_lesson(request, pk):
+    course = get_object_or_404(Course, pk=pk, owner=request.user)
+
+    if request.method == 'POST':
+        form = LessonForm(request.POST)
+        if form.is_valid():
+            lesson = form.save(commit=False)
+            lesson.course = course
+            lesson.save()
+            messages.success(request, 'The lesson was successfully created.')
+            return redirect('teachers:course_change_list')  #, quiz.pk, question.pk)
+    else:
+        form = LessonForm()
+
+    return render(request, 'classroom/teachers/lesson_add_form.html', {'course': course, 'form': form})
+
+
+@login_required
+@teacher_required
+def edit_lesson(request, course_pk, lesson_pk):
+    course = get_object_or_404(Course, pk=course_pk, owner=request.user)
+    lesson = get_object_or_404(Lesson, pk=lesson_pk, course=course)
+
+    if request.method == 'POST':
+        form = LessonForm(request.POST, instance=lesson)
+        if form.is_valid():
+            lesson = form.save(commit=False)
+            lesson.course = course
+            lesson.save()
+            messages.success(request, 'The lesson was successfully changed.')
+            return redirect('teachers:course_change_list')
+    else:
+        form = LessonForm(instance=lesson)
+
+    context = {
+        'course': course,
+        'lesson': lesson,
+        'form': form
+    }
+    return render(request, 'classroom/teachers/lesson_change_form.html', context)
 
 
 def register(request):
