@@ -32,9 +32,9 @@
                             <span class="course-duration">students enrolled</span>
                         </div><!--/.course-thumb-area-->
                         <div class="course-content">
-                            <h2><a href="{# url 'teachers:course_details' taken_course.course.pk #}">{{ taken_course.course.title }}</a></h2>
+                            <h2><a href="{% url 'course_details' taken_course.course.pk %}">{{ taken_course.course.title }}</a></h2>
                             <p>{{ taken_course.course.description }}</p>
-                            <small>{{ course.subject.get_html_badge }}</small>
+                            <small>{{ taken_course.course.subject.get_html_badge }}</small>
                             <div class="course-reviews">
                                 <i class="fa fa-star" aria-hidden="true"></i>
                                 <i class="fa fa-star" aria-hidden="true"></i>
@@ -46,11 +46,11 @@
                             <div class="trainer-profile clearfix">
                                 <img class="rounded-circle" src="images/author/author-1.jpg" alt="img">
                                 <div class="trainer-info">
-                                    <h3>{{ taken_course.course.status.upper }}</h3>
+                                    <h3>{{ taken_course.course.owner.first_name }} {{ taken_course.course.owner.last_name }}</h3>
                                     <p>{{ taken_course.course.created_at|date:"F d, Y" }}</p>
                                 </div>
                                 <div class="course-cat text-capitalize text-right">
-                                    <a href="{# url 'teachers:course_change' course.pk #}">Edit</a>
+                                    <a href="{# url 'teachers:course_change' course.pk #}">{{ taken_course.status }}</a>
                                 </div>
                             </div><!--/.trainer-profile-->
                         </div><!--/.course-content-->

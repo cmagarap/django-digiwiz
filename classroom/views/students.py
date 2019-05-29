@@ -22,19 +22,45 @@ from ..tokens import account_activation_token
 User = get_user_model()
 
 
+class BrowseCoursesView(ListView):
+    model = Course
+    ordering = ('title', )
+    context_object_name = 'courses'
+    extra_context = {
+        'title': 'Browse Courses'
+    }
+    template_name = 'classroom/students/courses_list.html'
+
+    # Get only the courses that the student is NOT enrolled and Pending
+    def get_queryset(self):
+        if self.request.user.is_authenticated:
+            if self.request.user.is_student:
+                student = self.request.user.student
+                taken_courses = student.courses.values_list('pk', flat=True)
+                queryset = Course.objects.exclude(pk__in=taken_courses)
+            else:
+                queryset = Course.objects.all()
+        else:
+            queryset = Course.objects.all()
+        return queryset
+
+
 @method_decorator([login_required, student_required], name='dispatch')
-class StudentInterestsView(UpdateView):
-    model = Student
-    form_class = StudentInterestsForm
-    template_name = 'classroom/students/interests_form.html'
-    success_url = reverse_lazy('students:quiz_list')
+class MyCoursesListView(ListView):
+    model = TakenCourse
+    ordering = ('title', )
+    context_object_name = 'taken_courses'
+    extra_context = {
+        'title': 'My Courses'
+    }
+    template_name = 'classroom/students/mycourses_list.html'
 
-    def get_object(self):
-        return self.request.user.student
-
-    def form_valid(self, form):
-        messages.success(self.request, 'Interests updated with success!')
-        return super().form_valid(form)
+    def get_queryset(self):
+        queryset = self.request.user.student.taken_courses \
+            .select_related('course', 'course__subject') \
+            .order_by('course__title')\
+            .filter(status__in=['Enrolled', 'Pending'])
+        return queryset
 
 
 @method_decorator([login_required, student_required], name='dispatch')
@@ -56,31 +82,18 @@ class QuizListView(ListView):
 
 
 @method_decorator([login_required, student_required], name='dispatch')
-class CourseListView(ListView):
-    model = TakenCourse
-    # ordering = ('title', )
-    context_object_name = 'taken_courses'
-    extra_context = {
-        'title': 'My Courses'
-    }
-    template_name = 'classroom/students/mycourses_list.html'
+class StudentInterestsView(UpdateView):
+    model = Student
+    form_class = StudentInterestsForm
+    template_name = 'classroom/students/interests_form.html'
+    success_url = reverse_lazy('students:quiz_list')
 
-    def get_queryset(self):
-        queryset = self.request.user.student.taken_courses \
-            .select_related('course', 'course__subject') \
-            .order_by('course__title')
-        return queryset
+    def get_object(self):
+        return self.request.user.student
 
-
-# @student_required
-class BrowseCourseView(ListView):
-    model = Course
-    ordering = ('title', )
-    context_object_name = 'courses'
-    template_name = 'classroom/students/courses_list.html'
-
-    # def get_queryset(self):
-    #     return self.request.user.courses.all()
+    def form_valid(self, form):
+        messages.success(self.request, 'Interests updated with success!')
+        return super().form_valid(form)
 
 
 @method_decorator([login_required, student_required], name='dispatch')
@@ -121,6 +134,29 @@ def activate(request, uidb64, token):
             'alert': 'danger'
         }
     return render(request, 'authentication/activation.html', context)
+
+
+@login_required
+@student_required
+def enroll(request, pk):
+    course = get_object_or_404(Course, pk=pk)
+    student = request.user.student
+    take = TakenCourse.objects.create(student=student, course=course)
+    take.save()
+
+    messages.info(request, 'You have successfully sent an enrollment request to the teacher in charge.')
+    return redirect('course_details', pk)
+
+
+@login_required
+@student_required
+def unenroll(request, pk):
+    course = get_object_or_404(Course, pk=pk)
+    student = request.user.student
+    TakenCourse.objects.filter(student=student, course=course).delete()
+
+    messages.success(request, 'You have successfully unenrolled from this course.')
+    return redirect('course_details', pk)
 
 
 def register(request):
@@ -211,14 +247,3 @@ def take_quiz(request, pk):
         'form': form,
         'progress': progress
     })
-
-
-@login_required
-@student_required
-def enroll(request, pk):
-    course = get_object_or_404(Course, pk=pk)
-    student = request.user.student
-    take = TakenCourse.objects.create(student=student, course=course)
-    take.save()
-
-    return redirect('browse_courses')
