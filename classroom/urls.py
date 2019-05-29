@@ -6,11 +6,12 @@ urlpatterns = [
     path('', classroom.home, name='home'),
 
     path('student/', include(([
-        path('', students.CourseListView.as_view(), name='mycourses_list'),
+        path('', students.MyCoursesListView.as_view(), name='mycourses_list'),
         path('interests/', students.StudentInterestsView.as_view(), name='student_interests'),
         path('taken/', students.TakenQuizListView.as_view(), name='taken_quiz_list'),
         path('quiz/<int:pk>/', students.take_quiz, name='take_quiz'),
-        path('enroll/<int:pk>/', students.enroll, name='enroll')
+        path('enroll/<int:pk>/', students.enroll, name='enroll'),
+        path('unenroll/<int:pk>/', students.unenroll, name='unenroll')
     ], 'classroom'), namespace='students')),
 
     path('teacher/', include(([

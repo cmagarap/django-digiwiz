@@ -2,16 +2,28 @@ from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import redirect, render
 from django.views.generic import DetailView
 from ..forms import UserLoginForm
-from ..models import Course
+from ..models import Course, TakenCourse, User
 
 
 class CourseDetailView(DetailView):
     model = Course
     context_object_name = 'course'
-    extra_context = {
-        'title': 'Course Details'
-    }
     template_name = 'classroom/course_details.html'
+
+    def get_context_data(self, **kwargs):
+        if self.request.user.is_authenticated:
+            if self.request.user.is_student:
+                # if the logged in user is a student, check if he/she is enrolled in the displayed course
+                student = self.request.user.student.taken_courses.filter(course__id=self.kwargs['pk']).first()
+            else:
+                student = None
+        else:
+            student = None
+
+        kwargs['enrolled'] = student
+        kwargs['title'] = 'Course Details'
+
+        return super().get_context_data(**kwargs)
 
 
 def about(request):

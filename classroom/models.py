@@ -32,7 +32,7 @@ class Course(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='courses')
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='courses')
+    subject = models.OneToOneField(Subject, on_delete=models.CASCADE, related_name='courses')
 
     def __str__(self):
         return self.title
@@ -99,7 +99,11 @@ class Student(models.Model):
 class TakenCourse(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='taken_courses')
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='taken_courses')
+    status = models.CharField(max_length=12, default='Pending')
     date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.student.user.username}: {self.course.title}'
 
 
 class TakenQuiz(models.Model):

@@ -50,7 +50,7 @@
                                     <p>{{ taken_course.course.created_at|date:"F d, Y" }}</p>
                                 </div>
                                 <div class="course-cat text-capitalize text-right">
-                                    <a href="{# url 'teachers:course_change' course.pk #}">TBD</a>
+                                    <a href="{# url 'teachers:course_change' course.pk #}">{{ taken_course.status }}</a>
                                 </div>
                             </div><!--/.trainer-profile-->
                         </div><!--/.course-content-->
