@@ -79,8 +79,9 @@
                                     {% if enrolled %}
                                         {{ enrolled.status }}
                                         <div class="course-cat text-capitalize text-right">
-                                            <a href="{% url 'students:unenroll' course.pk %}">Unenroll</a>
+                                         <a href="{% url 'students:unenroll' course.pk %}" class="btn btn-default btn-primary" >Enrolled</a>
                                         </div>
+
                                     {% else %}
                                         Not enrolled
                                     {% endif %}
