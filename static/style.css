@@ -361,11 +361,12 @@ header {
     padding: 7px 15px;
     border-bottom: 1px solid #e5e5e5;
     font-weight: 400;
-    color: #ececec;
+    color: #f78888;
     text-transform: capitalize;
 }
 .logo-menu-wrap .menu > ul > li > ul.dropdown-content > li:hover > a {
-    color: #f78888;
+    background: #f78888;
+    color: #ececec;
     padding-left: 20px;
 }
 .logo-menu-wrap .menu ul li ul.dropdown-content li:last-child a {
