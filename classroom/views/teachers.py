@@ -117,7 +117,7 @@ class LessonDeleteView(DeleteView):
 
     def get_success_url(self):
         lesson = self.get_object()
-        return reverse('teachers:course_change', kwargs={'pk': lesson.course_id})
+        return reverse('teachers:course_change_list')
 
 
 class TeacherSignUpView(CreateView):
@@ -253,21 +253,23 @@ def activate(request, uidb64, token):
 
 @login_required
 @teacher_required
-def add_lesson(request, pk):
-    course = get_object_or_404(Course, pk=pk, owner=request.user)
-
+def add_lesson(request):
     if request.method == 'POST':
-        form = LessonForm(request.POST)
+        form = LessonForm(request.user, data=request.POST)
         if form.is_valid():
             lesson = form.save(commit=False)
-            lesson.course = course
+            # lesson.course = course
             lesson.save()
             messages.success(request, 'The lesson was successfully created.')
-            return redirect('teachers:course_change_list')  #, quiz.pk, question.pk)
+            return redirect('teachers:course_change_list')
     else:
-        form = LessonForm()
+        form = LessonForm(current_user=request.user)
 
-    return render(request, 'classroom/teachers/lesson_add_form.html', {'course': course, 'form': form})
+    context = {
+        'form': form,
+        'title': 'Add a Lesson'
+    }
+    return render(request, 'classroom/teachers/lesson_add_form.html', context)
 
 
 @login_required
@@ -277,20 +279,20 @@ def edit_lesson(request, course_pk, lesson_pk):
     lesson = get_object_or_404(Lesson, pk=lesson_pk, course=course)
 
     if request.method == 'POST':
-        form = LessonForm(request.POST, instance=lesson)
+        form = LessonForm(request.user, data=request.POST, instance=lesson)
         if form.is_valid():
             lesson = form.save(commit=False)
-            lesson.course = course
             lesson.save()
             messages.success(request, 'The lesson was successfully changed.')
             return redirect('teachers:course_change_list')
     else:
-        form = LessonForm(instance=lesson)
+        form = LessonForm(current_user=request.user, instance=lesson)
 
     context = {
         'course': course,
         'lesson': lesson,
-        'form': form
+        'form': form,
+        'title': 'Edit Lesson'
     }
     return render(request, 'classroom/teachers/lesson_change_form.html', context)
 

@@ -1,5 +1,5 @@
-from classroom.models import (Answer, Lesson, Question, Student, StudentAnswer,
-                              Subject, User)
+from classroom.models import (Answer, Course, Lesson, Question, Student,
+                              StudentAnswer, Subject, User)
 from django import forms
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import UserCreationForm
@@ -7,37 +7,61 @@ from django.db import transaction
 from django.forms.utils import ValidationError
 
 
-class UserLoginForm(forms.Form):
-    username = forms.CharField()
-    password = forms.CharField(widget=forms.PasswordInput)
+class BaseAnswerInlineFormSet(forms.BaseInlineFormSet):
+    def clean(self):
+        super().clean()
 
-    def clean(self, *args, **kwargs):
-        username = self.cleaned_data.get('username')
-        password = self.cleaned_data.get('password')
-
-        if username and password:
-            user = authenticate(username=username, password=password)
-            if user is None:
-                raise forms.ValidationError('You entered an invalid username and/or password. Please try again.')
-
-        return super(UserLoginForm, self).clean()
+        has_one_correct_answer = False
+        for form in self.forms:
+            if not form.cleaned_data.get('DELETE', False):
+                if form.cleaned_data.get('is_correct', False):
+                    has_one_correct_answer = True
+                    break
+        if not has_one_correct_answer:
+            raise ValidationError('Mark at least one answer as correct.', code='no_correct_answer')
 
 
-class TeacherSignUpForm(UserCreationForm):
-    email = forms.EmailField()
-    first_name = forms.CharField()
-    last_name = forms.CharField()
+class LessonForm(forms.ModelForm):
+    title = forms.CharField(max_length=50)
+    number = forms.IntegerField()
+    description = forms.Textarea()
 
-    class Meta(UserCreationForm.Meta):
-        model = User
-        fields = ['username', 'email', 'first_name', 'last_name']
+    class Meta:
+        model = Lesson
+        fields = ('title', 'number', 'description', 'course')
 
-    def save(self, commit=True):
-        user = super().save(commit=False)
-        user.is_teacher = True
-        if commit:
-            user.save()
-        return user
+    def __init__(self, current_user, *args, **kwargs):
+        super(LessonForm, self).__init__(*args, **kwargs)
+
+        # This makes the course field disabled when editing:
+        instance = getattr(self, 'instance', None)
+        if instance and instance.pk:
+            self.fields['course'].widget.attrs['readonly'] = True
+
+        # Gets only the courses that the logged in teacher owns:
+        self.fields['course'].queryset = self.fields['course'].queryset.filter(owner=current_user.id)
+
+    def clean_course(self):
+        instance = getattr(self, 'instance', None)
+        if instance and instance.pk:
+            return instance.course
+        else:
+            return self.cleaned_data['course']
+
+
+class QuestionForm(forms.ModelForm):
+    class Meta:
+        model = Question
+        fields = ('text', )
+
+
+class StudentInterestsForm(forms.ModelForm):
+    class Meta:
+        model = Student
+        fields = ('interests', )
+        widgets = {
+            'interests': forms.CheckboxSelectMultiple
+        }
 
 
 class StudentSignUpForm(UserCreationForm):
@@ -64,41 +88,6 @@ class StudentSignUpForm(UserCreationForm):
         return user
 
 
-class StudentInterestsForm(forms.ModelForm):
-    class Meta:
-        model = Student
-        fields = ('interests', )
-        widgets = {
-            'interests': forms.CheckboxSelectMultiple
-        }
-
-
-class QuestionForm(forms.ModelForm):
-    class Meta:
-        model = Question
-        fields = ('text', )
-
-
-class LessonForm(forms.ModelForm):
-    class Meta:
-        model = Lesson
-        fields = ('title', 'number', 'description')
-
-
-class BaseAnswerInlineFormSet(forms.BaseInlineFormSet):
-    def clean(self):
-        super().clean()
-
-        has_one_correct_answer = False
-        for form in self.forms:
-            if not form.cleaned_data.get('DELETE', False):
-                if form.cleaned_data.get('is_correct', False):
-                    has_one_correct_answer = True
-                    break
-        if not has_one_correct_answer:
-            raise ValidationError('Mark at least one answer as correct.', code='no_correct_answer')
-
-
 class TakeQuizForm(forms.ModelForm):
     answer = forms.ModelChoiceField(
         queryset=Answer.objects.none(),
@@ -114,3 +103,36 @@ class TakeQuizForm(forms.ModelForm):
         question = kwargs.pop('question')
         super().__init__(*args, **kwargs)
         self.fields['answer'].queryset = question.answers.order_by('text')
+
+
+class TeacherSignUpForm(UserCreationForm):
+    email = forms.EmailField()
+    first_name = forms.CharField()
+    last_name = forms.CharField()
+
+    class Meta(UserCreationForm.Meta):
+        model = User
+        fields = ['username', 'email', 'first_name', 'last_name']
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.is_teacher = True
+        if commit:
+            user.save()
+        return user
+
+
+class UserLoginForm(forms.Form):
+    username = forms.CharField()
+    password = forms.CharField(widget=forms.PasswordInput)
+
+    def clean(self, *args, **kwargs):
+        username = self.cleaned_data.get('username')
+        password = self.cleaned_data.get('password')
+
+        if username and password:
+            user = authenticate(username=username, password=password)
+            if user is None:
+                raise forms.ValidationError('You entered an invalid username and/or password. Please try again.')
+
+        return super(UserLoginForm, self).clean()

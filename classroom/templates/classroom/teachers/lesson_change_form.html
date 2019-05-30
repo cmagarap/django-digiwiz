@@ -21,8 +21,8 @@
                             {% csrf_token %}
                             {{ form|crispy }}
                             <button type="submit" class="btn btn-success">Save changes</button>
-                            <a href="{% url 'teachers:course_change' course.pk %}" class="btn btn-outline-secondary" role="button">Cancel</a>
-                            <a href="{% url 'teachers:delete_lesson' course.pk lesson.pk %}" class="btn btn-danger float-right">Delete</a>
+                            <a href="javascript:history.back();" class="btn btn-outline-secondary" role="button">Cancel</a>
+                            <a href="{% url 'teachers:lesson_delete' course.pk lesson.pk %}" class="btn btn-danger float-right">Delete</a>
                         </form>
                     </div>
                 </div>

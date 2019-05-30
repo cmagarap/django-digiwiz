@@ -2,7 +2,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import redirect, render
 from django.views.generic import DetailView
 from ..forms import UserLoginForm
-from ..models import Course, TakenCourse, User
+from ..models import Course, Lesson, TakenCourse, User
 
 
 class CourseDetailView(DetailView):
@@ -11,17 +11,22 @@ class CourseDetailView(DetailView):
     template_name = 'classroom/course_details.html'
 
     def get_context_data(self, **kwargs):
+        student = None
+        teacher = None
         if self.request.user.is_authenticated:
             if self.request.user.is_student:
                 # if the logged in user is a student, check if he/she is enrolled in the displayed course
                 student = self.request.user.student.taken_courses.filter(course__id=self.kwargs['pk']).first()
-            else:
+                teacher = None
+            elif self.request.user.is_teacher:
+                # if the logged in user is a teacher, check if he/she owns the displayed course
+                teacher = self.request.user.courses.get(id=self.kwargs['pk'])
                 student = None
-        else:
-            student = None
 
         kwargs['enrolled'] = student
-        kwargs['title'] = 'Course Details'
+        kwargs['owns'] = teacher
+        kwargs['title'] = Course.objects.get(id=self.kwargs['pk'])
+        kwargs['lessons'] = Lesson.objects.filter(course__id=self.kwargs['pk'])
 
         return super().get_context_data(**kwargs)
 
@@ -74,4 +79,4 @@ def logout_view(request):
 def register_page(request):
     if request.user.is_authenticated:
         return redirect('home')
-    return render(request, 'authentication/register.html')
+    return render(request, 'authentication/register.html', {'title': 'Register'})

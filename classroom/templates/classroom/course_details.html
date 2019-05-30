@@ -83,6 +83,9 @@
                                         </div>
                                     {% else %}
                                         Not enrolled
+                                        <div class="course-cat text-capitalize text-right">
+                                            <a href="{% url 'students:enroll' course.pk %}">Enroll</a>
+                                        </div>
                                     {% endif %}
                                 {% endif %}
                                 <h2>{{ course.title }}</h2>
@@ -96,12 +99,17 @@
                                 <p>{{ course.description }}</p>
                                 <p>Lessons</p>
                                 <ul>
-                                    <li>There are many variations of passages of Lorem Ipsum available</li>
-                                    <li>Contrary to popular belief, Lorem Ipsum is not simply random</li>
-                                    <li>It over 2000 years old. Richard McClintock</li>
-                                    <li>Lorem Ipsum is simply dummy text of the printing</li>
-                                    <li>Consectetur, from a Lorem Ipsum passage</li>
-                                    <li>The point of using Lorem Ipsum is that it has</li>
+                                    {% for lesson in lessons %}
+                                        <li>{{ lesson.title }}</li>
+                                        {% if user.is_teacher %}
+                                            {% if owns != None %}
+                                                <a href="{% url 'teachers:lesson_edit' course.pk lesson.pk %}" class="btn btn-primary mb-3" role="button">Edit</a>
+                                                <a href="{% url 'teachers:lesson_delete' course.pk lesson.pk %}" class="btn btn-primary mb-3" role="button">Delete</a>
+                                            {% endif %}
+                                        {% endif %}
+                                    {% empty %}
+                                        No Lessons
+                                    {% endfor %}
                                 </ul>
                             </div>
                         </div>
