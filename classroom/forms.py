@@ -1,4 +1,4 @@
-from classroom.models import (Answer, Course, Lesson, Question, Student,
+from classroom.models import (Answer, Lesson, Question, Student,
                               StudentAnswer, Subject, User)
 from django import forms
 from django.contrib.auth import authenticate
@@ -21,7 +21,7 @@ class BaseAnswerInlineFormSet(forms.BaseInlineFormSet):
             raise ValidationError('Mark at least one answer as correct.', code='no_correct_answer')
 
 
-class LessonForm(forms.ModelForm):
+class LessonAddForm(forms.ModelForm):
     title = forms.CharField(max_length=50)
     number = forms.IntegerField()
     description = forms.Textarea()
@@ -31,7 +31,7 @@ class LessonForm(forms.ModelForm):
         fields = ('title', 'number', 'description', 'course')
 
     def __init__(self, current_user, *args, **kwargs):
-        super(LessonForm, self).__init__(*args, **kwargs)
+        super(LessonAddForm, self).__init__(*args, **kwargs)
 
         # This makes the course field disabled when editing:
         instance = getattr(self, 'instance', None)
@@ -47,6 +47,16 @@ class LessonForm(forms.ModelForm):
             return instance.course
         else:
             return self.cleaned_data['course']
+
+
+class LessonEditForm(forms.ModelForm):
+    title = forms.CharField(max_length=50)
+    number = forms.IntegerField()
+    description = forms.Textarea()
+
+    class Meta:
+        model = Lesson
+        fields = ('title', 'number', 'description')
 
 
 class QuestionForm(forms.ModelForm):

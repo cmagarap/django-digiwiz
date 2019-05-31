@@ -2,7 +2,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import redirect, render
 from django.views.generic import DetailView
 from ..forms import UserLoginForm
-from ..models import Course, Lesson, TakenCourse, User
+from ..models import Course, Lesson
 
 
 class CourseDetailView(DetailView):

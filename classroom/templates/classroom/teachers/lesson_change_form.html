@@ -20,6 +20,12 @@
                         <form method="post" enctype="multipart/form-data" novalidate>
                             {% csrf_token %}
                             {{ form|crispy }}
+                            {# The course field will be ignored in the backend since it is not included in LessonEditForm class #}
+                            <label for="course" class="col-form-label  requiredField">
+                                Course<span class="asteriskField">*</span>
+                            </label>
+                            <input type="text" class="textinput textInput form-control" value="{{ course.title }}" id="course" readonly>
+                            <br>
                             <button type="submit" class="btn btn-success">Save changes</button>
                             <a href="javascript:history.back();" class="btn btn-outline-secondary" role="button">Cancel</a>
                             <a href="{% url 'teachers:lesson_delete' course.pk lesson.pk %}" class="btn btn-danger float-right">Delete</a>

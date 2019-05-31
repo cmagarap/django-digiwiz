@@ -15,7 +15,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   UpdateView)
 from ..decorators import teacher_required
-from ..forms import BaseAnswerInlineFormSet, LessonForm, QuestionForm, TeacherSignUpForm
+from ..forms import BaseAnswerInlineFormSet, LessonAddForm, LessonEditForm, QuestionForm, TeacherSignUpForm
 from ..models import Answer, Course, Lesson, Question, Quiz, User
 from ..tokens import account_activation_token
 
@@ -255,7 +255,7 @@ def activate(request, uidb64, token):
 @teacher_required
 def add_lesson(request):
     if request.method == 'POST':
-        form = LessonForm(request.user, data=request.POST)
+        form = LessonAddForm(request.user, data=request.POST)
         if form.is_valid():
             lesson = form.save(commit=False)
             # lesson.course = course
@@ -263,7 +263,7 @@ def add_lesson(request):
             messages.success(request, 'The lesson was successfully created.')
             return redirect('teachers:course_change_list')
     else:
-        form = LessonForm(current_user=request.user)
+        form = LessonAddForm(current_user=request.user)
 
     context = {
         'form': form,
@@ -279,14 +279,14 @@ def edit_lesson(request, course_pk, lesson_pk):
     lesson = get_object_or_404(Lesson, pk=lesson_pk, course=course)
 
     if request.method == 'POST':
-        form = LessonForm(request.user, data=request.POST, instance=lesson)
+        form = LessonEditForm(data=request.POST, instance=lesson)
         if form.is_valid():
             lesson = form.save(commit=False)
             lesson.save()
             messages.success(request, 'The lesson was successfully changed.')
             return redirect('teachers:course_change_list')
     else:
-        form = LessonForm(current_user=request.user, instance=lesson)
+        form = LessonEditForm(instance=lesson)
 
     context = {
         'course': course,
