@@ -62,18 +62,28 @@
                                 <ul id="nav">
                                     {% if user.is_authenticated %}
                                         {% if user.is_student %}
-                                            <li class="login"><a href="#">Search Courses</a></li>
-                                            <li class="login"><a href="#">My Courses</a></li>
+                                        <li><form class="product-search-form" action="#" method="get"   >
+                                <div class="form-group"style="width: 300px"  >
+                                    <input class="form-controllar" name="search" placeholder="Search here" type="text" >
+                                    <button class="btn btn-default btn-primary" type="submit">search</button>
+                                 </div>
+                            </form></li>
+                                            <li class="dropdown-trigger"><a href="#">{{ user.first_name }}</a>
+                                            <ul class="dropdown-content">
+                                            <li ><a href="{% url 'browse_courses' %}">Search Courses</a></li>
+                                            <li><a href="{% url 'students:mycourses_list' %}">My Courses</a></li>
+                                            </ul></li>
+                                           
                                         {% elif user.is_teacher %}
-                                            <li class="login"><a href="#">Profile</a></li>
-                                            <li class="login"><a href="#">My Courses</a></li>
+                                            <li class="login"><a href="#">{{ user.first_name }}</a></li>
+                                            <li class="login"><a href="{% url 'teachers:course_change_list' %}">My Courses</a></li>
                                         {% endif %}
                                         <li class="login"><a href="{% url 'logout' %}">Logout</a></li>
                                 </ul>
                             </nav>
                                     {% else %}
                                         <li class="login"><a href="{% url 'home' %}">Home</a></li>
-                                        <li class="login"><a href="#">Courses</a></li>
+                                        <li class="login"><a href="{% url 'browse_courses' %}">Courses</a></li>
                                          <li class="login"><a href="{% url 'about_us' %}">About Us</a></li>
                                         <li class="login"><a href="{% url 'register' %}">Register</a></li>
                                         <li class="login"><a href="{% url 'login' %}">Login</a></li>
@@ -98,14 +108,11 @@
         </div>
     </header><!--/.header-area-->
 
-
     {% block content %}
     {% endblock %}
 
     <!-- Start footer area -->
     <footer id="footer" class="site-footer">
-
-
         <!-- Start footer widgets area -->
         <div class="footer-widgets-area">
             <div class="container">
@@ -164,7 +171,6 @@
         </div><!--End footer copyright area -->
     </footer><!--End footer area -->
 
-
     <!-- All JS files are included here.
 	============================================== -->
 
@@ -179,6 +185,4 @@
     <!-- Main JS file that contents all jQuery Plugins activation. -->
     <script src="{% static 'js/main.js' %}"></script>
 </body>
-
-<!-- Mirrored from bdevs.net/edulab/edulab/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 12 May 2019 04:44:00 GMT -->
 </html>

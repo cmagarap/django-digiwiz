@@ -17,6 +17,9 @@ from classroom.views import classroom, students, teachers
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import include, path
+from . import settings
+from django.contrib.staticfiles.urls import static
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 urlpatterns = [
     path('', include('classroom.urls')),
@@ -24,6 +27,8 @@ urlpatterns = [
     path('activate-student/<uidb64>/<token>', students.activate, name='activate_student'),
     path('activate-teacher/<uidb64>/<token>', teachers.activate, name='activate_teacher'),
     path('admin/', admin.site.urls),
+    path('browse-courses/', students.BrowseCoursesView.as_view(), name='browse_courses'),
+    path('course/details/<int:pk>/', classroom.CourseDetailView.as_view(), name='course_details'),
     path('login/', classroom.login_view, name='login'),
     path('logout/', classroom.logout_view, name='logout'),
     path('password-reset/',
@@ -43,3 +48,6 @@ urlpatterns = [
     path('register/teacher/', teachers.register, name='teacher_register'),
 
 ]
+
+urlpatterns += staticfiles_urlpatterns()
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

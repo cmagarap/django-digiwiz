@@ -19,17 +19,48 @@ class Subject(models.Model):
     def get_html_badge(self):
         name = escape(self.name)
         color = escape(self.color)
-        html = '<span class="badge badge-primary" style="background-color: %s">%s</span>' % (color, name)
+        html = f'<span class="badge badge-primary" style="background-color: {color}">{name}</span>'
         return mark_safe(html)
 
 
-class Quiz(models.Model):
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='quizzes')
-    name = models.CharField(max_length=255)
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='quizzes')
+class Course(models.Model):
+    title = models.CharField(max_length=255)
+    code = models.CharField(max_length=20)
+    description = models.TextField()
+    image = models.ImageField(upload_to='courses')
+    status = models.CharField(max_length=10, default='Pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='courses')
+    subject = models.OneToOneField(Subject, on_delete=models.CASCADE, related_name='courses')
 
     def __str__(self):
-        return self.name
+        return self.title
+
+    def save(self, *args, **kwargs):
+        for field_name in ['title']:  # also capitalize course code
+            val = getattr(self, field_name, False)
+            if val:
+                setattr(self, field_name, val.title())
+        super(Course, self).save(*args, **kwargs)
+
+
+class Lesson(models.Model):
+    title = models.CharField(max_length=50)
+    number = models.IntegerField()
+    description = models.TextField()
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='lessons')
+
+    def __str__(self):
+        return self.title
+
+
+class Quiz(models.Model):
+    title = models.CharField(max_length=255)
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='quizzes', default=1)
+
+    def __str__(self):
+        return self.title
 
 
 class Question(models.Model):
@@ -51,7 +82,7 @@ class Answer(models.Model):
 
 class Student(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    quizzes = models.ManyToManyField(Quiz, through='TakenQuiz')
+    courses = models.ManyToManyField(Course, through='TakenCourse')
     interests = models.ManyToManyField(Subject, related_name='interested_students')
 
     def get_unanswered_questions(self, quiz):
@@ -63,6 +94,16 @@ class Student(models.Model):
 
     def __str__(self):
         return self.user.username
+
+
+class TakenCourse(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='taken_courses')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='taken_courses')
+    status = models.CharField(max_length=12, default='Pending')
+    date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.student.user.username}: {self.course.title}'
 
 
 class TakenQuiz(models.Model):
