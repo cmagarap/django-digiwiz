@@ -77,9 +77,9 @@
                             <div class="course-title">
                                 {% if user.is_student %}
                                     {% if enrolled %}
-                                        {{ enrolled.status }}
                                         <div class="course-cat text-capitalize text-right">
-                                         <a href="{% url 'students:unenroll' course.pk %}" class="btn btn-default btn-primary" >Enrolled</a>
+                                       {#  <a href="{% url 'students:unenroll' course.pk %}" class="btn btn-default btn-primary" >Enrolled</a> #}
+										 <button href="{% url 'students:unenroll' course.pk %}" class="button" type="button" data-hover="UNENROLL" data-active="I'M ACTIVE"><a href="{% url 'students:unenroll' course.pk %}"><span>{{ enrolled.status.upper }}</span></a></button>
                                         </div>
 
                                     {% else %}
