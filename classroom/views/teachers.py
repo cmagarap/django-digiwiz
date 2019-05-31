@@ -316,7 +316,7 @@ def register(request):
                     'user': user,
                     'domain': current_site,
                     # use .decode to convert byte to string (b'NDc' -> NDc)
-                    'uid': urlsafe_base64_encode(force_bytes(user.pk)).decode('utf-8'),
+                    'uid': urlsafe_base64_encode(force_bytes(user.pk)),
                     'token': account_activation_token.make_token(user),
                 })
 
