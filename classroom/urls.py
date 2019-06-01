@@ -26,6 +26,7 @@ urlpatterns = [
         path('enrollment-requests/accept/<int:taken_course_pk>', teachers.accept_enrollment, name='enrollment_accept'),
         path('enrollment-requests/reject/<int:taken_course_pk>', teachers.reject_enrollment, name='enrollment_reject'),
         path('lesson/add/', teachers.add_lesson, name='lesson_add'),
+        path('profile/', teachers.profile, name='profile'),
         path('quiz/<int:pk>/results/', teachers.QuizResultsView.as_view(), name='quiz_results'),
         path('quiz/<int:pk>/question/add/', teachers.question_add, name='question_add'),
         path('quiz/<int:quiz_pk>/question/<int:question_pk>/', teachers.question_change, name='question_change'),

@@ -4,6 +4,7 @@ from django.utils.html import escape, mark_safe
 
 
 class User(AbstractUser):
+    email = models.EmailField(unique=True)
     is_student = models.BooleanField(default=False)
     is_teacher = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
@@ -80,8 +81,17 @@ class Answer(models.Model):
         return self.text
 
 
+class Teacher(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    image = models.ImageField(default='profile_pics/default-user.png', upload_to='profile_pics')
+
+    def __str__(self):
+        return f'{self.user.username} - teacher'
+
+
 class Student(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    image = models.ImageField(default='profile_pics/default-user.png', upload_to='profile_pics')
     courses = models.ManyToManyField(Course, through='TakenCourse')
     interests = models.ManyToManyField(Subject, related_name='interested_students')
 
@@ -93,7 +103,7 @@ class Student(models.Model):
         return questions
 
     def __str__(self):
-        return self.user.username
+        return f'{self.user.username} - student'
 
 
 class TakenCourse(models.Model):

@@ -15,7 +15,9 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   UpdateView)
 from ..decorators import teacher_required
-from ..forms import BaseAnswerInlineFormSet, LessonAddForm, LessonEditForm, QuestionForm, TeacherSignUpForm
+from ..forms import (BaseAnswerInlineFormSet, LessonAddForm, LessonEditForm,
+                     QuestionForm, TeacherProfileForm, TeacherSignUpForm,
+                     UserUpdateForm)
 from ..models import Answer, Course, Lesson, Question, Quiz, TakenCourse, User
 from ..tokens import account_activation_token
 
@@ -23,7 +25,7 @@ from ..tokens import account_activation_token
 @method_decorator([login_required, teacher_required], name='dispatch')
 class CourseCreateView(CreateView):
     model = Course
-    fields = ('title', 'code', 'subject', 'description', 'tag', 'image')
+    fields = ('title', 'code', 'subject', 'description', 'image')
     template_name = 'classroom/teachers/course_add_form.html'
     extra_context = {
         'title': 'New Course'
@@ -316,6 +318,32 @@ def edit_lesson(request, course_pk, lesson_pk):
         'title': 'Edit Lesson'
     }
     return render(request, 'classroom/teachers/lesson_change_form.html', context)
+
+
+@login_required
+@teacher_required
+def profile(request):
+    if request.method == 'POST':
+        user_update_form = UserUpdateForm(request.POST, instance=request.user)
+        profile_form = TeacherProfileForm(request.POST, request.FILES, instance=request.user.teacher)
+
+        if user_update_form.is_valid() and profile_form.is_valid():
+            user_update_form.save()
+            profile_form.save()
+            messages.success(request, 'Your account has been updated!')
+            return redirect('teachers:profile')
+
+    else:
+        user_update_form = UserUpdateForm(instance=request.user)
+        profile_form = TeacherProfileForm(instance=request.user.teacher)
+
+    context = {
+        'u_form': user_update_form,
+        'p_form': profile_form,
+        'title': 'My Profile'
+    }
+
+    return render(request, 'classroom/teachers/teacher_profile.html', context)
 
 
 @login_required

@@ -1,5 +1,5 @@
 from classroom.models import (Answer, Lesson, Question, Student,
-                              StudentAnswer, Subject, User)
+                              StudentAnswer, Subject, Teacher, User)
 from django import forms
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import UserCreationForm
@@ -109,6 +109,12 @@ class TakeQuizForm(forms.ModelForm):
         self.fields['answer'].queryset = question.answers.order_by('text')
 
 
+class TeacherProfileForm(forms.ModelForm):
+    class Meta:
+        model = Teacher
+        fields = ['image']
+
+
 class TeacherSignUpForm(UserCreationForm):
     email = forms.EmailField()
     first_name = forms.CharField()
@@ -123,6 +129,7 @@ class TeacherSignUpForm(UserCreationForm):
         user.is_teacher = True
         if commit:
             user.save()
+        Teacher.objects.create(user=user)
         return user
 
 
@@ -140,3 +147,13 @@ class UserLoginForm(forms.Form):
                 raise forms.ValidationError('You entered an invalid username and/or password. Please try again.')
 
         return super(UserLoginForm, self).clean()
+
+
+class UserUpdateForm(forms.ModelForm):
+    email = forms.EmailField()
+    first_name = forms.CharField()
+    last_name = forms.CharField()
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'first_name', 'last_name']
