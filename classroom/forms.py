@@ -32,12 +32,6 @@ class LessonAddForm(forms.ModelForm):
 
     def __init__(self, current_user, *args, **kwargs):
         super(LessonAddForm, self).__init__(*args, **kwargs)
-
-        # This makes the course field disabled when editing:
-        instance = getattr(self, 'instance', None)
-        if instance and instance.pk:
-            self.fields['course'].widget.attrs['readonly'] = True
-
         # Gets only the courses that the logged in teacher owns:
         self.fields['course'].queryset = self.fields['course'].queryset.filter(owner=current_user.id)
 

@@ -23,7 +23,7 @@ from ..tokens import account_activation_token
 @method_decorator([login_required, teacher_required], name='dispatch')
 class CourseCreateView(CreateView):
     model = Course
-    fields = ('title', 'code', 'subject', 'description', 'image')
+    fields = ('title', 'code', 'subject', 'description', 'tag', 'image')
     template_name = 'classroom/teachers/course_add_form.html'
     extra_context = {
         'title': 'New Course'
@@ -59,7 +59,6 @@ class CourseDeleteView(DeleteView):
 @method_decorator([login_required, teacher_required], name='dispatch')
 class CourseListView(ListView):
     model = Course
-    ordering = ('title', )
     context_object_name = 'courses'
     extra_context = {
         'title': 'My Courses'
@@ -67,15 +66,15 @@ class CourseListView(ListView):
     template_name = 'classroom/teachers/course_change_list.html'
 
     def get_queryset(self):
-        queryset = self.request.user.courses \
-            .select_related('subject')
+        # Get only the courses that the logged in teacher owns
+        queryset = self.request.user.courses.order_by('title')
         return queryset
 
 
 @method_decorator([login_required, teacher_required], name='dispatch')
 class CourseUpdateView(UpdateView):
     model = Course
-    fields = ('title', 'code', 'subject', 'description', 'image')
+    fields = ('title', 'code', 'subject', 'description', 'tag', 'image')
     context_object_name = 'course'
     template_name = 'classroom/teachers/course_change_form.html'
     extra_context = {
@@ -85,8 +84,11 @@ class CourseUpdateView(UpdateView):
     # def get_context_data(self, **kwargs):
     #     kwargs['questions'] = self.get_object().questions.annotate(answers_count=Count('answers'))
     #     return super().get_context_data(**kwargs)
-    #
+
     def get_queryset(self):
+        """This method is an implicit object-level permission management.
+        This view will only match the ids of existing courses that belongs
+        to the logged in user."""
         return self.request.user.courses.all()
 
     def get_success_url(self):
@@ -258,7 +260,6 @@ def add_lesson(request):
         form = LessonAddForm(request.user, data=request.POST)
         if form.is_valid():
             lesson = form.save(commit=False)
-            # lesson.course = course
             lesson.save()
             messages.success(request, 'The lesson was successfully created.')
             return redirect('teachers:course_change_list')
