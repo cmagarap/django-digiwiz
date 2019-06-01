@@ -16,7 +16,7 @@ from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   UpdateView)
 from ..decorators import teacher_required
 from ..forms import BaseAnswerInlineFormSet, LessonAddForm, LessonEditForm, QuestionForm, TeacherSignUpForm
-from ..models import Answer, Course, Lesson, Question, Quiz, User
+from ..models import Answer, Course, Lesson, Question, Quiz, TakenCourse, User
 from ..tokens import account_activation_token
 
 
@@ -65,10 +65,11 @@ class CourseListView(ListView):
     }
     template_name = 'classroom/teachers/course_change_list.html'
 
-    def get_queryset(self):
+    def get_context_data(self, **kwargs):
         # Get only the courses that the logged in teacher owns
-        queryset = self.request.user.courses.order_by('title')
-        return queryset
+        kwargs['courses'] = self.request.user.courses.order_by('title')
+
+        return super().get_context_data(**kwargs)
 
 
 @method_decorator([login_required, teacher_required], name='dispatch')
@@ -81,10 +82,6 @@ class CourseUpdateView(UpdateView):
         'title': 'Edit Course'
     }
 
-    # def get_context_data(self, **kwargs):
-    #     kwargs['questions'] = self.get_object().questions.annotate(answers_count=Count('answers'))
-    #     return super().get_context_data(**kwargs)
-
     def get_queryset(self):
         """This method is an implicit object-level permission management.
         This view will only match the ids of existing courses that belongs
@@ -95,6 +92,20 @@ class CourseUpdateView(UpdateView):
         title = self.get_object()
         messages.success(self.request, f'{title} has been successfully updated.')
         return reverse('teachers:course_change_list')
+
+
+class EnrollmentRequestsListView(ListView):
+    model = Course
+    context_object_name = 'taken_courses'
+    extra_context = {
+        'title': 'Enrollment Requests'
+    }
+    template_name = 'classroom/teachers/enrollment_requests_list.html'
+
+    def get_queryset(self):
+        """This method gets the enrollment requests of students."""
+        return TakenCourse.objects.filter(course__in=self.request.user.courses.all(),
+                                          status__iexact='pending')
 
 
 @method_decorator([login_required, teacher_required], name='dispatch')
@@ -226,6 +237,15 @@ class QuizResultsView(DetailView):
         return self.request.user.quizzes.all()
 
 
+@login_required
+@teacher_required
+def accept_enrollment(request, taken_course_pk):
+    TakenCourse.objects.filter(id=taken_course_pk).update(status='Enrolled')
+
+    messages.success(request, 'The student has been successfully enrolled.')
+    return redirect('teachers:enrollment_requests_list')
+
+
 def activate(request, uidb64, token):
     try:
         uid = force_text(urlsafe_base64_decode(uidb64))
@@ -296,6 +316,15 @@ def edit_lesson(request, course_pk, lesson_pk):
         'title': 'Edit Lesson'
     }
     return render(request, 'classroom/teachers/lesson_change_form.html', context)
+
+
+@login_required
+@teacher_required
+def reject_enrollment(request, taken_course_pk):
+    TakenCourse.objects.filter(id=taken_course_pk).delete()
+
+    messages.success(request, 'The student\'s request has been successfully rejected.')
+    return redirect('teachers:enrollment_requests_list')
 
 
 def register(request):

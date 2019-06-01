@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2 class="section-heading text-capitalize">Enrollment Requests</h2>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                <p{% if forloop.last %} class="mb-0"{% endif %}>{{ message }}</p>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if taken_courses %}
+        <table class="table mb-0">
+            <thead>
+            <tr>
+                <th>Course Title</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for taken_course in taken_courses %}
+                <tr>
+                    <td>{{ taken_course.student.user.first_name }} {{ taken_course.student.user.last_name }}</td>
+                    <td>{{ taken_course.course.title }}</td>
+                    <td>{{ taken_course.course.code }}</td>
+                    <td><a href="{% url 'teachers:enrollment_accept' taken_course.pk %}">Accept Request</a></td>
+                    <td><a href="{% url 'teachers:enrollment_reject' taken_course.pk %}">Reject</a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        There are no requests
+    {% endif %}
+{% endblock %}

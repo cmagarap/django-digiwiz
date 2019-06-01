@@ -3,7 +3,12 @@
 {% block content %}
     {% if messages %}
         {% for message in messages %}
-            <div class="alert alert-info">{{ message }}</div>
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                <p{% if forloop.last %} class="mb-0"{% endif %}>{{ message }}</p>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
         {% endfor %}
     {% endif %}
 
@@ -30,7 +35,7 @@
                                 <a href="#"><i class="fa fa-heart-o"></i></a>
                                 <a href="#"><i class="fa fa-share-alt"></i></a>
                             </div>
-                            <span class="course-duration">students enrolled</span>
+                            <span class="course-duration"><b>[count query]</b> students enrolled</span>
                         </div><!--/.course-thumb-area-->
                         <div class="course-content">
                             <h2><a href="{% url 'course_details' course.pk %}">{{ course.title }}</a></h2>
