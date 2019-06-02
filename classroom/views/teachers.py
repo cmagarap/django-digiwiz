@@ -40,25 +40,6 @@ class CourseCreateView(CreateView):
 
 
 @method_decorator([login_required, teacher_required], name='dispatch')
-class CourseDeleteView(DeleteView):
-    model = Course
-    context_object_name = 'course'
-    template_name = 'classroom/teachers/course_delete_confirm.html'
-    success_url = reverse_lazy('teachers:course_change_list')
-
-    def delete(self, request, *args, **kwargs):
-        course = self.get_object()
-        messages.success(request, f'The course {course.title} was deleted with success!')
-        return super().delete(request, *args, **kwargs)
-
-    def get_queryset(self):
-        """This method is an implicit object-level permission management.
-        This view will only match the ids of existing courses that belongs
-        to the logged in user."""
-        return self.request.user.courses.all()
-
-
-@method_decorator([login_required, teacher_required], name='dispatch')
 class CourseListView(ListView):
     model = Course
     context_object_name = 'courses'
@@ -69,7 +50,9 @@ class CourseListView(ListView):
 
     def get_context_data(self, **kwargs):
         # Get only the courses that the logged in teacher owns
-        kwargs['courses'] = self.request.user.courses.order_by('title')
+        kwargs['courses'] = self.request.user.courses \
+            .exclude(status__iexact='deleted') \
+            .order_by('title')
 
         return super().get_context_data(**kwargs)
 
@@ -77,7 +60,7 @@ class CourseListView(ListView):
 @method_decorator([login_required, teacher_required], name='dispatch')
 class CourseUpdateView(UpdateView):
     model = Course
-    fields = ('title', 'code', 'subject', 'description', 'tag', 'image')
+    fields = ('title', 'code', 'subject', 'description', 'image')
     context_object_name = 'course'
     template_name = 'classroom/teachers/course_change_form.html'
     extra_context = {
@@ -293,6 +276,14 @@ def add_lesson(request):
         'title': 'Add a Lesson'
     }
     return render(request, 'classroom/teachers/lesson_add_form.html', context)
+
+
+@login_required
+@teacher_required
+def delete_course(request, pk):
+    request.user.courses.filter(id=pk).update(status='Deleted')
+    messages.success(request, 'The course has been successfully deleted.')
+    return redirect('teachers:course_change_list')
 
 
 @login_required

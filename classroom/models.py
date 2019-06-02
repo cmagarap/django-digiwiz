@@ -7,7 +7,6 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     is_student = models.BooleanField(default=False)
     is_teacher = models.BooleanField(default=False)
-    is_staff = models.BooleanField(default=False)
 
 
 class Subject(models.Model):
