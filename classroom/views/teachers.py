@@ -93,29 +93,29 @@ class EnrollmentRequestsListView(ListView):
                                           status__iexact='pending')
 
 
-@method_decorator([login_required, teacher_required], name='dispatch')
-class LessonDeleteView(DeleteView):
-    model = Lesson
-    context_object_name = 'lesson'
-    template_name = 'classroom/teachers/lesson_delete_confirm.html'
-    pk_url_kwarg = 'lesson_pk'
-
-    def get_context_data(self, **kwargs):
-        lesson = self.get_object()
-        kwargs['course'] = lesson.course
-        return super().get_context_data(**kwargs)
-
-    def delete(self, request, *args, **kwargs):
-        lesson = self.get_object()
-        messages.success(request, f'The lesson {lesson.title} was deleted with success!')
-        return super().delete(request, *args, **kwargs)
-
-    def get_queryset(self):
-        return Lesson.objects.filter(course__owner=self.request.user)
-
-    def get_success_url(self):
-        lesson = self.get_object()
-        return reverse('teachers:course_change_list')
+# @method_decorator([login_required, teacher_required], name='dispatch')
+# class LessonDeleteView(DeleteView):
+#     model = Lesson
+#     context_object_name = 'lesson'
+#     template_name = 'classroom/teachers/lesson_delete_confirm.html'
+#     pk_url_kwarg = 'lesson_pk'
+#
+#     def get_context_data(self, **kwargs):
+#         lesson = self.get_object()
+#         kwargs['course'] = lesson.course
+#         return super().get_context_data(**kwargs)
+#
+#     def delete(self, request, *args, **kwargs):
+#         lesson = self.get_object()
+#         messages.success(request, f'The lesson {lesson.title} was deleted with success!')
+#         return super().delete(request, *args, **kwargs)
+#
+#     def get_queryset(self):
+#         return Lesson.objects.filter(course__owner=self.request.user)
+#
+#     def get_success_url(self):
+#         lesson = self.get_object()
+#         return reverse('teachers:course_change_list')
 
 
 class TeacherSignUpView(CreateView):
@@ -284,6 +284,16 @@ def delete_course(request, pk):
     request.user.courses.filter(id=pk).update(status='Deleted')
     messages.success(request, 'The course has been successfully deleted.')
     return redirect('teachers:course_change_list')
+
+
+@login_required
+@teacher_required
+def delete_lesson(request, course_pk, lesson_pk):
+    teacher = request.user
+    Lesson.objects.filter(id=lesson_pk, course__owner=teacher).delete()
+    messages.success(request, 'The lesson has been successfully deleted.')
+
+    return redirect('course_details', course_pk)
 
 
 @login_required

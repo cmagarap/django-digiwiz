@@ -71,7 +71,12 @@
                         <div class="course-details">
                             {% if messages %}
                                 {% for message in messages %}
-                                    <div class="alert alert-info">{{ message }}</div>
+                                    <div class="alert alert-info alert-dismissible fade show" role="alert">
+                                        <p{% if forloop.last %} class="mb-0"{% endif %}>{{ message }}</p>
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
                                 {% endfor %}
                             {% endif %}
                             <div class="course-title">
@@ -104,7 +109,7 @@
                                         {% if user.is_teacher %}
                                             {% if owns != None %}
                                                 <a href="{% url 'teachers:lesson_edit' course.pk lesson.pk %}" class="btn btn-primary mb-3" role="button">Edit</a>
-                                                <a href="{% url 'teachers:lesson_delete' course.pk lesson.pk %}" class="btn btn-primary mb-3" role="button">Delete</a>
+                                                <a href="#" class="btn btn-primary mb-3 delete" data-id="{{ lesson.pk }}" role="button">Delete</a>
                                             {% endif %}
                                         {% endif %}
                                     {% empty %}
@@ -118,4 +123,23 @@
             </div><!--/.container-->
         </div><!--/.courses-page-content-->
     </div><!--/.courses-page-->
+
+    <script>
+        $(".delete").click(function () {
+            var url = "{% url 'teachers:course_change' course.pk %}";
+            var id = $(this).data('id');
+            swal({
+                title: "Are you sure you want to delete this lesson?",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            })
+            .then((willDelete) => {
+                if (willDelete) {
+                    {# This will follow the url pattern of 'teachers:lesson_delete' #}
+                    window.location = url + 'lesson/' + id + '/delete/';
+                }
+            });
+        });
+    </script>
 {% endblock %}
