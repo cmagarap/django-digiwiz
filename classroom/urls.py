@@ -1,9 +1,16 @@
 from django.urls import include, path
 
-from .views import classroom, students, teachers
+from .views import classroom, staff, students, teachers
 
 urlpatterns = [
     path('', classroom.home, name='home'),
+
+    path('staff/', include(([
+        path('', staff.dashboard, name='dashboard'),
+        path('course-requests/', staff.CourseRequestsView.as_view(), name='course_requests'),
+        path('course-requests/accept-course/<int:course_pk>/', staff.accept_course, name='accept_course'),
+        path('course-requests/reject-course/<int:course_pk>/', staff.reject_course, name='reject_course')
+    ], 'classroom'), namespace='staff')),
 
     path('student/', include(([
         path('', students.MyCoursesListView.as_view(), name='mycourses_list'),

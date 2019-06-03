@@ -47,6 +47,8 @@ def home(request):
             return redirect('teachers:course_change_list')
         elif request.user.is_student:
             return redirect('students:mycourses_list')
+        elif request.user.is_staff:
+            return redirect('staff:dashboard')
     return render(request, 'classroom/home.html')
 
 
