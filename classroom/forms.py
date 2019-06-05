@@ -75,6 +75,14 @@ class QuizAddForm(forms.ModelForm):
             self.fields['lesson'].queryset = self.instance.course.lesson_set.order_by('title')
 
 
+class QuizEditForm(forms.ModelForm):
+    title = forms.CharField(max_length=255)
+
+    class Meta:
+        model = Quiz
+        fields = ('title', )
+
+
 class QuestionForm(forms.ModelForm):
     class Meta:
         model = Question

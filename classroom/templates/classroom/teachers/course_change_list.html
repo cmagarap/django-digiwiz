@@ -1,69 +1,68 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-info alert-dismissible fade show" role="alert">
-                <p{% if forloop.last %} class="mb-0"{% endif %}>{{ message }}</p>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-        {% endfor %}
-    {% endif %}
-
     <section id="courses-section" class="popular-courses-area bg-white s-pd2">
-		<div class="container">
+        <div class="container">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-info alert-dismissible fade show" role="alert">
+                        <p{% if forloop.last %} class="mb-0"{% endif %}>{{ message }}</p>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
             <div class="row justify-content-md-center">
-				<div class="col-lg-8">
-				    <div class="section-heading-area text-center">
-					    <h2 class="section-heading text-capitalize">My Courses</h2>
+                <div class="col-lg-8">
+                    <div class="section-heading-area text-center">
+                        <h2 class="section-heading text-capitalize">My Courses</h2>
                         <a href="{% url 'teachers:course_add' %}" class="btn btn-primary mb-3" role="button">Add a Course</a>
                         <a href="{% url 'teachers:lesson_add' %}" class="btn btn-primary mb-3" role="button">Add a Lesson</a>
                         <a href="{% url 'teachers:quiz_add' %}" class="btn btn-primary mb-3" role="button">Add a Quiz</a>
-				    </div><!--/.section-heading-area-->
-				</div><!--/.col-lg-8-->
-			</div><!--/.row-->
+                    </div><!--/.section-heading-area-->
+                </div><!--/.col-lg-8-->
+            </div><!--/.row-->
 
             <div class="row courses-item-content">
                 {% for course in courses %}
-                <div class="col-lg-4 col-sm-6 design photography">
-                    <!--Single Course Item Start-->
-                    <div class="single-course-item border-radius">
-                        <div class="course-thumb-area">
-                            <img class="img-fluid" src="{{ course.image.url }}" alt="img">
-                            <div class="course-meta">
-                                <a href="#"><i class="fa fa-heart-o"></i></a>
-                                <a href="#"><i class="fa fa-share-alt"></i></a>
-                            </div>
-                            <span class="course-duration"><b>[count query]</b> students enrolled</span>
-                        </div><!--/.course-thumb-area-->
-                        <div class="course-content">
-                            <h2><a href="{% url 'course_details' course.pk %}">{{ course.title }}</a></h2>
-                            <p>{{ course.description }}</p>
-                            <small>{{ course.subject.get_html_badge }}</small>
-                            <div class="course-reviews">
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                <i class="fa fa-star-o" aria-hidden="true"></i>
-                                <span class="total-reviews">(105 reviews)</span>
-                            </div><!--/.course-reviews-->
-                            <div class="trainer-profile clearfix">
-                                <img class="rounded-circle" src="images/author/author-1.jpg" alt="img">
-                                <div class="trainer-info">
-                                    <h3>{{ course.status.upper }}</h3>
-                                    <p>{{ course.created_at|date:"F d, Y" }}</p>
+                    <div class="col-lg-4 col-sm-6 design photography">
+                        <!--Single Course Item Start-->
+                        <div class="single-course-item border-radius">
+                            <div class="course-thumb-area">
+                                <img class="img-fluid" src="{{ course.image.url }}" alt="img">
+                                <div class="course-meta">
+                                    <a href="#"><i class="fa fa-heart-o"></i></a>
+                                    <a href="#"><i class="fa fa-share-alt"></i></a>
                                 </div>
-                                <div class="course-cat text-capitalize text-right">
-                                    <a href="{% url 'teachers:course_change' course.pk %}">Edit</a>
-                                </div>
-                            </div><!--/.trainer-profile-->
-                        </div><!--/.course-content-->
-                    </div><!--/.single-course-item-end-->
+                                <span class="course-duration"><b>[count query]</b> students enrolled</span>
+                            </div><!--/.course-thumb-area-->
+                            <div class="course-content">
+                                <h2><a href="{% url 'course_details' course.pk %}">{{ course.title }}</a></h2>
+                                <p>{{ course.description }}</p>
+                                <small>{{ course.subject.get_html_badge }}</small>
+                                <div class="course-reviews">
+                                    <i class="fa fa-star" aria-hidden="true"></i>
+                                    <i class="fa fa-star" aria-hidden="true"></i>
+                                    <i class="fa fa-star" aria-hidden="true"></i>
+                                    <i class="fa fa-star" aria-hidden="true"></i>
+                                    <i class="fa fa-star-o" aria-hidden="true"></i>
+                                    <span class="total-reviews">(105 reviews)</span>
+                                </div><!--/.course-reviews-->
+                                <div class="trainer-profile clearfix">
+                                    <img class="rounded-circle" src="images/author/author-1.jpg" alt="img">
+                                    <div class="trainer-info">
+                                        <h3>{{ course.status.upper }}</h3>
+                                        <p>{{ course.created_at|date:"F d, Y" }}</p>
+                                    </div>
+                                    <div class="course-cat text-capitalize text-right">
+                                        <a href="{% url 'teachers:course_change' course.pk %}">Edit</a>
+                                    </div>
+                                </div><!--/.trainer-profile-->
+                            </div><!--/.course-content-->
+                        </div><!--/.single-course-item-end-->
 
-                </div><!--/.col-lg-4-->
+                    </div><!--/.col-lg-4-->
                 {% empty %}
                     no subjects
                 {% endfor %}

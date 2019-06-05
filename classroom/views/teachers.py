@@ -16,8 +16,8 @@ from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   UpdateView)
 from ..decorators import teacher_required
 from ..forms import (BaseAnswerInlineFormSet, LessonAddForm, LessonEditForm,
-                     QuizAddForm, QuestionForm, TeacherProfileForm, TeacherSignUpForm,
-                     UserUpdateForm)
+                     QuizAddForm, QuizEditForm, QuestionForm, TeacherProfileForm,
+                     TeacherSignUpForm, UserUpdateForm)
 from ..models import Answer, Course, Lesson, Question, Quiz, TakenCourse, User
 from ..tokens import account_activation_token
 
@@ -151,7 +151,7 @@ class QuizListView(ListView):
 @method_decorator([login_required, teacher_required], name='dispatch')
 class QuizUpdateView(UpdateView):
     model = Quiz
-    fields = ('name', 'subject', )
+    fields = ('title', )
     context_object_name = 'quiz'
     template_name = 'classroom/teachers/quiz_change_form.html'
 
@@ -159,11 +159,11 @@ class QuizUpdateView(UpdateView):
         kwargs['questions'] = self.get_object().questions.annotate(answers_count=Count('answers'))
         return super().get_context_data(**kwargs)
 
-    def get_queryset(self):
-        """This method is an implicit object-level permission management
-        This view will only match the ids of existing quizzes that belongs
-        to the logged in user."""
-        return self.request.user.quizzes.all()
+    # def get_queryset(self):
+    #     """This method is an implicit object-level permission management
+    #     This view will only match the ids of existing quizzes that belongs
+    #     to the logged in user."""
+    #     return self.request.user.courses.all()
 
     def get_success_url(self):
         return reverse('teachers:quiz_change', kwargs={'pk': self.object.pk})
@@ -264,20 +264,6 @@ def add_lesson(request):
     return render(request, 'classroom/teachers/lesson_add_form.html', context)
 
 
-# @method_decorator([login_required, teacher_required], name='dispatch')
-# class QuizCreateView(CreateView):
-#     model = Quiz
-#     fields = ('title', 'course', 'lesson', )
-#     template_name = 'classroom/teachers/quiz_add_form.html'
-#
-#     def form_valid(self, form):
-#         quiz = form.save(commit=False)
-#         quiz.owner = self.request.user
-#         quiz.save()
-#         messages.success(self.request, 'The quiz was created with success! Go ahead and add some questions now.')
-#         return redirect('teachers:quiz_change', quiz.pk)
-
-
 @login_required
 @teacher_required
 def add_quiz(request):
@@ -286,8 +272,8 @@ def add_quiz(request):
         if form.is_valid():
             quiz = form.save(commit=False)
             quiz.save()
-            messages.success(request, 'The quiz was successfully created.')
-            return redirect('teachers:course_change_list')
+            messages.success(request, 'The quiz was successfully created. You may now add some questions.')
+            return redirect('teachers:quiz_edit', quiz.course.pk, quiz.pk)
     else:
         form = QuizAddForm(current_user=request.user)
 
@@ -318,6 +304,16 @@ def delete_lesson(request, course_pk, lesson_pk):
 
 @login_required
 @teacher_required
+def delete_quiz(request, quiz_pk):
+    teacher = request.user
+    Quiz.objects.filter(id=quiz_pk, course__owner=teacher).delete()
+    messages.success(request, 'The quiz has been successfully deleted.')
+
+    return redirect('teachers:course_change_list')
+
+
+@login_required
+@teacher_required
 def edit_lesson(request, course_pk, lesson_pk):
     course = get_object_or_404(Course, pk=course_pk, owner=request.user)
     lesson = get_object_or_404(Lesson, pk=lesson_pk, course=course)
@@ -339,6 +335,31 @@ def edit_lesson(request, course_pk, lesson_pk):
         'title': 'Edit Lesson'
     }
     return render(request, 'classroom/teachers/lesson_change_form.html', context)
+
+
+@login_required
+@teacher_required
+def edit_quiz(request, course_pk, quiz_pk):
+    course = get_object_or_404(Course, pk=course_pk, owner=request.user)
+    quiz = get_object_or_404(Quiz, pk=quiz_pk, course=course)
+
+    if request.method == 'POST':
+        form = QuizEditForm(data=request.POST, instance=quiz)
+        if form.is_valid():
+            quiz = form.save(commit=False)
+            quiz.save()
+            messages.success(request, 'The quiz was successfully changed.')
+            return redirect('teachers:quiz_edit', quiz.course.pk, quiz.pk)
+    else:
+        form = QuizEditForm(instance=quiz)
+
+    context = {
+        'course': course,
+        'quiz': quiz,
+        'form': form,
+        'title': 'Edit Quiz'
+    }
+    return render(request, 'classroom/teachers/quiz_change_form.html', context)
 
 
 @login_required
