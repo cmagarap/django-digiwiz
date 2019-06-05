@@ -23,6 +23,7 @@ urlpatterns = [
 
     path('teacher/', include(([
         path('', teachers.CourseListView.as_view(), name='course_change_list'),
+        path('ajax/load-lessons/', teachers.load_lessons, name='ajax_load_lessons'),
         path('course/add/', teachers.CourseCreateView.as_view(), name='course_add'),
         path('course/<int:pk>/', teachers.CourseUpdateView.as_view(), name='course_change'),
         path('course/<int:pk>/delete/', teachers.delete_course, name='course_delete'),
@@ -34,6 +35,7 @@ urlpatterns = [
         path('enrollment-requests/reject/<int:taken_course_pk>', teachers.reject_enrollment, name='enrollment_reject'),
         path('lesson/add/', teachers.add_lesson, name='lesson_add'),
         path('profile/', teachers.profile, name='profile'),
+        path('quiz/add/', teachers.add_quiz, name='quiz_add'),
         path('quiz/<int:pk>/results/', teachers.QuizResultsView.as_view(), name='quiz_results'),
         path('quiz/<int:pk>/question/add/', teachers.question_add, name='question_add'),
         path('quiz/<int:quiz_pk>/question/<int:question_pk>/', teachers.question_change, name='question_change'),

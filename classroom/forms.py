@@ -1,4 +1,4 @@
-from classroom.models import (Answer, Lesson, Question, Student,
+from classroom.models import (Answer, Lesson, Question, Quiz, Student,
                               StudentAnswer, Subject, Teacher, User)
 from django import forms
 from django.contrib.auth import authenticate
@@ -51,6 +51,28 @@ class LessonEditForm(forms.ModelForm):
     class Meta:
         model = Lesson
         fields = ('title', 'number', 'description')
+
+
+class QuizAddForm(forms.ModelForm):
+    class Meta:
+        model = Quiz
+        fields = ('title', 'course', 'lesson', )
+
+    def __init__(self, current_user, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Gets only the courses that the logged in teacher owns:
+        self.fields['course'].queryset = self.fields['course'].queryset.filter(owner=current_user.id)
+        # The lesson field is dependent on course field
+        self.fields['lesson'].queryset = Lesson.objects.none()
+
+        if 'course' in self.data:
+            try:
+                course_id = int(self.data.get('course'))
+                self.fields['lesson'].queryset = Lesson.objects.filter(course_id=course_id).order_by('title')
+            except (ValueError, TypeError):
+                pass  # invalid input from the client; ignore and fallback to empty Lesson queryset
+        elif self.instance.pk:
+            self.fields['lesson'].queryset = self.instance.course.lesson_set.order_by('title')
 
 
 class QuestionForm(forms.ModelForm):

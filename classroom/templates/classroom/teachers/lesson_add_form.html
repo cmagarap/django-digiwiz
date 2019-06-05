@@ -16,7 +16,7 @@
                 <div class="col-lg-8 col-md-6 col-sm-8">
                     <div class="login-form-area">
                         <h2 class="mb-3">Add a lesson</h2>
-                        <form method="post" enctype="multipart/form-data" novalidate>
+                        <form method="post" novalidate>
                             {% csrf_token %}
                             {{ form|crispy }}
                             <center>

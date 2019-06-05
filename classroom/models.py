@@ -57,7 +57,8 @@ class Lesson(models.Model):
 
 class Quiz(models.Model):
     title = models.CharField(max_length=255)
-    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='quizzes', default=1)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='quizzes')
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='quizzes')
 
     def __str__(self):
         return self.title

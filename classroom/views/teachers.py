@@ -16,7 +16,7 @@ from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   UpdateView)
 from ..decorators import teacher_required
 from ..forms import (BaseAnswerInlineFormSet, LessonAddForm, LessonEditForm,
-                     QuestionForm, TeacherProfileForm, TeacherSignUpForm,
+                     QuizAddForm, QuestionForm, TeacherProfileForm, TeacherSignUpForm,
                      UserUpdateForm)
 from ..models import Answer, Course, Lesson, Question, Quiz, TakenCourse, User
 from ..tokens import account_activation_token
@@ -149,20 +149,6 @@ class QuizListView(ListView):
 
 
 @method_decorator([login_required, teacher_required], name='dispatch')
-class QuizCreateView(CreateView):
-    model = Quiz
-    fields = ('name', 'subject', )
-    template_name = 'classroom/teachers/quiz_add_form.html'
-
-    def form_valid(self, form):
-        quiz = form.save(commit=False)
-        quiz.owner = self.request.user
-        quiz.save()
-        messages.success(self.request, 'The quiz was created with success! Go ahead and add some questions now.')
-        return redirect('teachers:quiz_change', quiz.pk)
-
-
-@method_decorator([login_required, teacher_required], name='dispatch')
 class QuizUpdateView(UpdateView):
     model = Quiz
     fields = ('name', 'subject', )
@@ -278,6 +264,40 @@ def add_lesson(request):
     return render(request, 'classroom/teachers/lesson_add_form.html', context)
 
 
+# @method_decorator([login_required, teacher_required], name='dispatch')
+# class QuizCreateView(CreateView):
+#     model = Quiz
+#     fields = ('title', 'course', 'lesson', )
+#     template_name = 'classroom/teachers/quiz_add_form.html'
+#
+#     def form_valid(self, form):
+#         quiz = form.save(commit=False)
+#         quiz.owner = self.request.user
+#         quiz.save()
+#         messages.success(self.request, 'The quiz was created with success! Go ahead and add some questions now.')
+#         return redirect('teachers:quiz_change', quiz.pk)
+
+
+@login_required
+@teacher_required
+def add_quiz(request):
+    if request.method == 'POST':
+        form = QuizAddForm(request.user, data=request.POST)
+        if form.is_valid():
+            quiz = form.save(commit=False)
+            quiz.save()
+            messages.success(request, 'The quiz was successfully created.')
+            return redirect('teachers:course_change_list')
+    else:
+        form = QuizAddForm(current_user=request.user)
+
+    context = {
+        'form': form,
+        'title': 'Add a Quiz'
+    }
+    return render(request, 'classroom/teachers/quiz_add_form.html', context)
+
+
 @login_required
 @teacher_required
 def delete_course(request, pk):
@@ -319,6 +339,14 @@ def edit_lesson(request, course_pk, lesson_pk):
         'title': 'Edit Lesson'
     }
     return render(request, 'classroom/teachers/lesson_change_form.html', context)
+
+
+@login_required
+@teacher_required
+def load_lessons(request):
+    course_id = request.GET.get('course')
+    lessons = Lesson.objects.filter(course_id=course_id).order_by('title')
+    return render(request, 'classroom/teachers/lesson_dropdown_list_options.html', {'lessons': lessons})
 
 
 @login_required
