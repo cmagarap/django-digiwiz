@@ -93,31 +93,6 @@ class EnrollmentRequestsListView(ListView):
                                           status__iexact='pending')
 
 
-# @method_decorator([login_required, teacher_required], name='dispatch')
-# class LessonDeleteView(DeleteView):
-#     model = Lesson
-#     context_object_name = 'lesson'
-#     template_name = 'classroom/teachers/lesson_delete_confirm.html'
-#     pk_url_kwarg = 'lesson_pk'
-#
-#     def get_context_data(self, **kwargs):
-#         lesson = self.get_object()
-#         kwargs['course'] = lesson.course
-#         return super().get_context_data(**kwargs)
-#
-#     def delete(self, request, *args, **kwargs):
-#         lesson = self.get_object()
-#         messages.success(request, f'The lesson {lesson.title} was deleted with success!')
-#         return super().delete(request, *args, **kwargs)
-#
-#     def get_queryset(self):
-#         return Lesson.objects.filter(course__owner=self.request.user)
-#
-#     def get_success_url(self):
-#         lesson = self.get_object()
-#         return reverse('teachers:course_change_list')
-
-
 class TeacherSignUpView(CreateView):
     model = User
     form_class = TeacherSignUpForm
@@ -146,43 +121,6 @@ class QuizListView(ListView):
             .annotate(questions_count=Count('questions', distinct=True)) \
             .annotate(taken_count=Count('taken_quizzes', distinct=True))
         return queryset
-
-
-@method_decorator([login_required, teacher_required], name='dispatch')
-class QuizUpdateView(UpdateView):
-    model = Quiz
-    fields = ('title', )
-    context_object_name = 'quiz'
-    template_name = 'classroom/teachers/quiz_change_form.html'
-
-    def get_context_data(self, **kwargs):
-        kwargs['questions'] = self.get_object().questions.annotate(answers_count=Count('answers'))
-        return super().get_context_data(**kwargs)
-
-    # def get_queryset(self):
-    #     """This method is an implicit object-level permission management
-    #     This view will only match the ids of existing quizzes that belongs
-    #     to the logged in user."""
-    #     return self.request.user.courses.all()
-
-    def get_success_url(self):
-        return reverse('teachers:quiz_change', kwargs={'pk': self.object.pk})
-
-
-@method_decorator([login_required, teacher_required], name='dispatch')
-class QuizDeleteView(DeleteView):
-    model = Quiz
-    context_object_name = 'quiz'
-    template_name = 'classroom/teachers/quiz_delete_confirm.html'
-    success_url = reverse_lazy('teachers:quiz_change_list')
-
-    def delete(self, request, *args, **kwargs):
-        quiz = self.get_object()
-        messages.success(request, 'The quiz %s was deleted with success!' % quiz.name)
-        return super().delete(request, *args, **kwargs)
-
-    def get_queryset(self):
-        return self.request.user.quizzes.all()
 
 
 @method_decorator([login_required, teacher_required], name='dispatch')
@@ -266,6 +204,26 @@ def add_lesson(request):
 
 @login_required
 @teacher_required
+def add_question(request, course_pk, quiz_pk):
+    course = get_object_or_404(Course, pk=course_pk, owner=request.user)
+    quiz = get_object_or_404(Quiz, pk=quiz_pk, course=course)
+
+    if request.method == 'POST':
+        form = QuestionForm(request.POST)
+        if form.is_valid():
+            question = form.save(commit=False)
+            question.quiz = quiz
+            question.save()
+            messages.success(request, 'You may now add answers/options to the question.')
+            return redirect('teachers:question_change', quiz.course.pk, quiz.pk, question.pk)
+    else:
+        form = QuestionForm()
+
+    return render(request, 'classroom/teachers/question_add_form.html', {'quiz': quiz, 'form': form})
+
+
+@login_required
+@teacher_required
 def add_quiz(request):
     if request.method == 'POST':
         form = QuizAddForm(request.user, data=request.POST)
@@ -300,6 +258,17 @@ def delete_lesson(request, course_pk, lesson_pk):
     messages.success(request, 'The lesson has been successfully deleted.')
 
     return redirect('course_details', course_pk)
+
+
+@login_required
+@teacher_required
+def delete_question(request, course_pk, quiz_pk, question_pk):
+    teacher = request.user
+    quiz = Quiz.objects.get(id=quiz_pk, course__owner=teacher)
+    Question.objects.get(id=question_pk, quiz=quiz).delete()
+    messages.success(request, 'The question has been successfully deleted.')
+
+    return redirect('teachers:quiz_edit', course_pk, quiz_pk)
 
 
 @login_required
@@ -339,9 +308,56 @@ def edit_lesson(request, course_pk, lesson_pk):
 
 @login_required
 @teacher_required
+def edit_question(request, course_pk, quiz_pk, question_pk):
+    # Similar to the `question_add` view, this view is also managing
+    # the permissions at object-level. By querying both `quiz` and
+    # `question` we are making sure only the owner of the quiz can
+    # change its details and also only questions that belongs to this
+    # specific quiz can be changed via this url (in cases where the
+    # user might have forged/player with the url params.
+
+    course = get_object_or_404(Course, pk=course_pk, owner=request.user)
+    quiz = get_object_or_404(Quiz, pk=quiz_pk, course=course)
+    question = get_object_or_404(Question, pk=question_pk, quiz=quiz)
+
+    AnswerFormSet = inlineformset_factory(
+        Question,  # parent model
+        Answer,  # base model
+        formset=BaseAnswerInlineFormSet,
+        fields=('text', 'is_correct'),
+        min_num=2,
+        validate_min=True,
+        max_num=10,
+        validate_max=True
+    )
+
+    if request.method == 'POST':
+        form = QuestionForm(request.POST, instance=question)
+        formset = AnswerFormSet(request.POST, instance=question)
+        if form.is_valid() and formset.is_valid():
+            with transaction.atomic():
+                form.save()
+                formset.save()
+            messages.success(request, 'Question and answers saved with success!')
+            return redirect('teachers:quiz_edit', course.pk, quiz.pk)
+    else:
+        form = QuestionForm(instance=question)
+        formset = AnswerFormSet(instance=question)
+
+    return render(request, 'classroom/teachers/question_change_form.html', {
+        'quiz': quiz,
+        'question': question,
+        'form': form,
+        'formset': formset
+    })
+
+
+@login_required
+@teacher_required
 def edit_quiz(request, course_pk, quiz_pk):
     course = get_object_or_404(Course, pk=course_pk, owner=request.user)
     quiz = get_object_or_404(Quiz, pk=quiz_pk, course=course)
+    question = Question.objects.filter(quiz=quiz).annotate(answers_count=Count('answers'))
 
     if request.method == 'POST':
         form = QuizEditForm(data=request.POST, instance=quiz)
@@ -356,6 +372,7 @@ def edit_quiz(request, course_pk, quiz_pk):
     context = {
         'course': course,
         'quiz': quiz,
+        'questions': question,
         'form': form,
         'title': 'Edit Quiz'
     }
@@ -449,95 +466,3 @@ def register(request):
         'title': 'Register as Teacher'
     }
     return render(request, 'authentication/register_form.html', context)
-
-
-@login_required
-@teacher_required
-def question_add(request, pk):
-    # By filtering the quiz by the url keyword argument `pk` and
-    # by the owner, which is the logged in user, we are protecting
-    # this view at the object-level. Meaning only the owner of
-    # quiz will be able to add questions to it.
-    quiz = get_object_or_404(Quiz, pk=pk, owner=request.user)
-
-    if request.method == 'POST':
-        form = QuestionForm(request.POST)
-        if form.is_valid():
-            question = form.save(commit=False)
-            question.quiz = quiz
-            question.save()
-            messages.success(request, 'You may now add answers/options to the question.')
-            return redirect('teachers:question_change', quiz.pk, question.pk)
-    else:
-        form = QuestionForm()
-
-    return render(request, 'classroom/teachers/question_add_form.html', {'quiz': quiz, 'form': form})
-
-
-@login_required
-@teacher_required
-def question_change(request, quiz_pk, question_pk):
-    # Similar to the `question_add` view, this view is also managing
-    # the permissions at object-level. By querying both `quiz` and
-    # `question` we are making sure only the owner of the quiz can
-    # change its details and also only questions that belongs to this
-    # specific quiz can be changed via this url (in cases where the
-    # user might have forged/player with the url params.
-    quiz = get_object_or_404(Quiz, pk=quiz_pk, owner=request.user)
-    question = get_object_or_404(Question, pk=question_pk, quiz=quiz)
-
-    AnswerFormSet = inlineformset_factory(
-        Question,  # parent model
-        Answer,  # base model
-        formset=BaseAnswerInlineFormSet,
-        fields=('text', 'is_correct'),
-        min_num=2,
-        validate_min=True,
-        max_num=10,
-        validate_max=True
-    )
-
-    if request.method == 'POST':
-        form = QuestionForm(request.POST, instance=question)
-        formset = AnswerFormSet(request.POST, instance=question)
-        if form.is_valid() and formset.is_valid():
-            with transaction.atomic():
-                form.save()
-                formset.save()
-            messages.success(request, 'Question and answers saved with success!')
-            return redirect('teachers:quiz_change', quiz.pk)
-    else:
-        form = QuestionForm(instance=question)
-        formset = AnswerFormSet(instance=question)
-
-    return render(request, 'classroom/teachers/question_change_form.html', {
-        'quiz': quiz,
-        'question': question,
-        'form': form,
-        'formset': formset
-    })
-
-
-@method_decorator([login_required, teacher_required], name='dispatch')
-class QuestionDeleteView(DeleteView):
-    model = Question
-    context_object_name = 'question'
-    template_name = 'classroom/teachers/question_delete_confirm.html'
-    pk_url_kwarg = 'question_pk'
-
-    def get_context_data(self, **kwargs):
-        question = self.get_object()
-        kwargs['quiz'] = question.quiz
-        return super().get_context_data(**kwargs)
-
-    def delete(self, request, *args, **kwargs):
-        question = self.get_object()
-        messages.success(request, 'The question %s was deleted with success!' % question.text)
-        return super().delete(request, *args, **kwargs)
-
-    def get_queryset(self):
-        return Question.objects.filter(quiz__owner=self.request.user)
-
-    def get_success_url(self):
-        question = self.get_object()
-        return reverse('teachers:quiz_change', kwargs={'pk': question.quiz_id})

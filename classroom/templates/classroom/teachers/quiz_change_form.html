@@ -23,7 +23,7 @@
                 {% endfor %}
             {% endif %}
             <div class="row justify-content-center">
-                <div class="col-lg-8 col-md-6 col-sm-8">
+                <div class="col-lg-10 col-md-6 col-sm-8">
                     <div class="login-form-area">
                         <h2 class="mb-3">{{ quiz.title }}</h2>
                         <a href="{% url 'teachers:quiz_results' quiz.pk %}" class="btn btn-primary float-right">View results</a>
@@ -45,48 +45,56 @@
                             <a href="#" class="btn btn-danger float-right delete">Delete</a>
                         </form>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="card">
-        <div class="card-header">
-            <div class="row">
-                <div class="col-10">
-                    <strong>Questions</strong>
-                </div>
-                <div class="col-2">
-                    <strong>Answers</strong>
-                </div>
-            </div>
-        </div>
-        <div class="list-group list-group-flush list-group-formset">
-            {% for question in questions %}
-                <div class="list-group-item">
-                    <div class="row">
-                        <div class="col-10">
-                            <a href="{% url 'teachers:question_change' quiz.pk question.pk %}">{{ question.text }}</a>
+                    <br><br>
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-10">
+                                    <strong>Questions</strong>
+                                </div>
+                                <div class="col-2">
+                                    <strong>Choices</strong>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-2">
-                            {{ question.answers_count }}
+                        <div class="list-group list-group-flush list-group-formset">
+                            {% for question in questions %}
+                                <div class="list-group-item">
+                                    <div class="row">
+                                        <div class="col-10">
+                                            <a href="{% url 'teachers:question_change' course.pk quiz.pk question.pk %}">{{ question.text }}</a>
+                                        </div>
+                                        <div class="col-2">
+                                            {{ question.answers_count }}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% empty %}
+                                <div class="list-group-item text-center">
+                                    <p class="text-muted font-italic mb-0">You haven't created any questions yet. Go ahead and <a href="{% url 'teachers:question_add' course.pk quiz.pk %}">add the first question</a>.</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="card-footer">
+                            <a href="{% url 'teachers:question_add' course.pk quiz.pk %}" class="btn btn-primary btn-sm">Add question</a>
                         </div>
                     </div>
                 </div>
-            {% empty %}
-                <div class="list-group-item text-center">
-                    <p class="text-muted font-italic mb-0">You haven't created any questions yet. Go ahead and <a href="{% url 'teachers:question_add' quiz.pk %}">add the first question</a>.</p>
-                </div>
-            {% endfor %}
+
+            </div>
         </div>
-        <div class="card-footer">
-            <a href="{% url 'teachers:question_add' quiz.pk %}" class="btn btn-primary btn-sm">Add question</a>
+    </div>
+    <div class="login-page page-wrapper s-pd100">
+        <div class="container">
+
         </div>
     </div>
 
     <script>
         $(".delete").click(function () {
             swal({
-                title: "Are you sure you want to delete this quiz?",
+                title: "WARNING: Are you sure you want to delete this quiz?",
+                text: "Once you delete this, you will never recover it.",
                 icon: "warning",
                 buttons: true,
                 dangerMode: true,
