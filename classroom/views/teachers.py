@@ -12,7 +12,7 @@ from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
+from django.views.generic import (CreateView, DetailView, ListView,
                                   UpdateView)
 from ..decorators import teacher_required
 from ..forms import (BaseAnswerInlineFormSet, LessonAddForm, LessonEditForm,
@@ -93,21 +93,6 @@ class EnrollmentRequestsListView(ListView):
                                           status__iexact='pending')
 
 
-class TeacherSignUpView(CreateView):
-    model = User
-    form_class = TeacherSignUpForm
-    template_name = 'authentication/register_form.html'
-
-    def get_context_data(self, **kwargs):
-        kwargs['user_type'] = 'teacher'
-        return super().get_context_data(**kwargs)
-
-    def form_valid(self, form):
-        user = form.save()
-        login(self.request, user)
-        return redirect('teachers:quiz_change_list')
-
-
 @method_decorator([login_required, teacher_required], name='dispatch')
 class QuizListView(ListView):
     model = Quiz
@@ -144,6 +129,21 @@ class QuizResultsView(DetailView):
 
     def get_queryset(self):
         return self.request.user.quizzes.all()
+
+
+class TeacherSignUpView(CreateView):
+    model = User
+    form_class = TeacherSignUpForm
+    template_name = 'authentication/register_form.html'
+
+    def get_context_data(self, **kwargs):
+        kwargs['user_type'] = 'teacher'
+        return super().get_context_data(**kwargs)
+
+    def form_valid(self, form):
+        user = form.save()
+        login(self.request, user)
+        return redirect('teachers:quiz_change_list')
 
 
 @login_required
@@ -309,13 +309,6 @@ def edit_lesson(request, course_pk, lesson_pk):
 @login_required
 @teacher_required
 def edit_question(request, course_pk, quiz_pk, question_pk):
-    # Similar to the `question_add` view, this view is also managing
-    # the permissions at object-level. By querying both `quiz` and
-    # `question` we are making sure only the owner of the quiz can
-    # change its details and also only questions that belongs to this
-    # specific quiz can be changed via this url (in cases where the
-    # user might have forged/player with the url params.
-
     course = get_object_or_404(Course, pk=course_pk, owner=request.user)
     quiz = get_object_or_404(Quiz, pk=quiz_pk, course=course)
     question = get_object_or_404(Question, pk=question_pk, quiz=quiz)
@@ -413,15 +406,6 @@ def profile(request):
     return render(request, 'classroom/teachers/teacher_profile.html', context)
 
 
-@login_required
-@teacher_required
-def reject_enrollment(request, taken_course_pk):
-    TakenCourse.objects.filter(id=taken_course_pk).delete()
-
-    messages.success(request, 'The student\'s request has been successfully rejected.')
-    return redirect('teachers:enrollment_requests_list')
-
-
 def register(request):
     if request.user.is_authenticated:
         return redirect('home')
@@ -466,3 +450,12 @@ def register(request):
         'title': 'Register as Teacher'
     }
     return render(request, 'authentication/register_form.html', context)
+
+
+@login_required
+@teacher_required
+def reject_enrollment(request, taken_course_pk):
+    TakenCourse.objects.filter(id=taken_course_pk).delete()
+
+    messages.success(request, 'The student\'s request has been successfully rejected.')
+    return redirect('teachers:enrollment_requests_list')
