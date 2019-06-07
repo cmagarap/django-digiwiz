@@ -46,7 +46,7 @@ class CourseListView(ListView):
     extra_context = {
         'title': 'My Courses'
     }
-    template_name = 'classroom/teachers/course_change_list.html'
+    template_name = 'classroom/teachers/course_list.html'
 
     def get_context_data(self, **kwargs):
         # Get only the courses that the logged in teacher owns
@@ -55,6 +55,19 @@ class CourseListView(ListView):
             .order_by('title')
 
         return super().get_context_data(**kwargs)
+
+
+class LessonListView(ListView):
+    model = Lesson
+    context_object_name = 'lessons'
+    extra_context = {
+        'title': 'My Lessons'
+    }
+    template_name = 'classroom/teachers/lesson_list.html'
+
+    def get_queryset(self):
+        """Gets the lesson that the user owns through course FK."""
+        return Lesson.objects.filter(course__in=self.request.user.courses.all())
 
 
 @method_decorator([login_required, teacher_required], name='dispatch')
@@ -191,7 +204,7 @@ def add_lesson(request):
             lesson = form.save(commit=False)
             lesson.save()
             messages.success(request, 'The lesson was successfully created.')
-            return redirect('teachers:course_change_list')
+            return redirect('teachers:lesson_list')
     else:
         form = LessonAddForm(current_user=request.user)
 
@@ -262,6 +275,15 @@ def delete_lesson(request, course_pk, lesson_pk):
 
 @login_required
 @teacher_required
+def delete_lesson_from_list(request, lesson_pk):
+    Lesson.objects.filter(id=lesson_pk, course__owner=request.user).delete()
+    messages.success(request, 'The lesson has been successfully deleted.')
+
+    return redirect('teachers:lesson_list')
+
+
+@login_required
+@teacher_required
 def delete_question(request, course_pk, quiz_pk, question_pk):
     teacher = request.user
     quiz = Quiz.objects.get(id=quiz_pk, course__owner=teacher)
@@ -293,7 +315,7 @@ def edit_lesson(request, course_pk, lesson_pk):
             lesson = form.save(commit=False)
             lesson.save()
             messages.success(request, 'The lesson was successfully changed.')
-            return redirect('teachers:course_change_list')
+            return redirect('teachers:lesson_list')
     else:
         form = LessonEditForm(instance=lesson)
 
@@ -424,7 +446,6 @@ def register(request):
                 message = render_to_string('authentication/email_teacher_confirm.html', {
                     'user': user,
                     'domain': current_site,
-                    # use .decode to convert byte to string (b'NDc' -> NDc)
                     'uid': urlsafe_base64_encode(force_bytes(user.pk)),
                     'token': account_activation_token.make_token(user),
                 })

@@ -79,6 +79,7 @@
                                         {% elif user.is_teacher %}
                                             <li class="login"><a href="#">{{ user.first_name }}</a></li>
                                             <li class="login"><a href="{% url 'teachers:course_change_list' %}">My Courses</a></li>
+                                            <li class="login"><a href="{% url 'teachers:lesson_list' %}">My Lessons</a></li>
                                         {% endif %}
                                         <li class="login"><a href="{% url 'logout' %}">Logout</a></li>
                                 </ul>
