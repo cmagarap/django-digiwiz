@@ -26,7 +26,7 @@ class CourseDetailView(DetailView):
         kwargs['enrolled'] = student
         kwargs['owns'] = teacher
         kwargs['title'] = Course.objects.get(id=self.kwargs['pk'])
-        kwargs['lessons'] = Lesson.objects.get(course__id=self.kwargs['pk'])
+        kwargs['lessons'] = Lesson.objects.filter(course__id=self.kwargs['pk'])
 
         return super().get_context_data(**kwargs)
 

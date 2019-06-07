@@ -50,13 +50,14 @@ class CourseListView(ListView):
 
     def get_context_data(self, **kwargs):
         # Get only the courses that the logged in teacher owns
+        # and count the enrolled students
         kwargs['courses'] = self.request.user.courses \
-            .exclude(status__iexact='deleted') \
-            .order_by('title')
+            .annotate(taken_count=Count('taken_courses', distinct=True))\
 
         return super().get_context_data(**kwargs)
 
 
+@method_decorator([login_required, teacher_required], name='dispatch')
 class LessonListView(ListView):
     model = Lesson
     context_object_name = 'lessons'
@@ -67,7 +68,7 @@ class LessonListView(ListView):
 
     def get_queryset(self):
         """Gets the lesson that the user owns through course FK."""
-        return Lesson.objects.filter(course__in=self.request.user.courses.all())
+        return Lesson.objects.filter(course__in=self.request.user.courses.all()).order_by('title')
 
 
 @method_decorator([login_required, teacher_required], name='dispatch')
@@ -109,16 +110,25 @@ class EnrollmentRequestsListView(ListView):
 @method_decorator([login_required, teacher_required], name='dispatch')
 class QuizListView(ListView):
     model = Quiz
-    ordering = ('name', )
     context_object_name = 'quizzes'
-    template_name = 'classroom/teachers/quiz_change_list.html'
+    template_name = 'classroom/teachers/quiz_list.html'
 
     def get_queryset(self):
-        queryset = self.request.user.quizzes \
-            .select_related('subject') \
-            .annotate(questions_count=Count('questions', distinct=True)) \
-            .annotate(taken_count=Count('taken_quizzes', distinct=True))
+        # queryset = self.request.user.quizzes \
+        #     .select_related('subject') \
+        #     .annotate(questions_count=Count('questions', distinct=True)) \
+        #     .annotate(taken_count=Count('taken_quizzes', distinct=True))
+
+        queryset = Quiz.objects.filter(course__owner=self.request.user) \
+            .annotate(questions_count=Count('questions', distinct=True))
         return queryset
+
+    # def get_context_data(self, **kwargs):
+    #     # Get only the courses that the logged in teacher owns
+    #     kwargs['quizzes'] = Quiz.objects.filter(course__owner=self.request.user) \
+    #         .annotate(questions_count=Count('questions', distinct=True))
+    #
+    #     return super().get_context_data(**kwargs)
 
 
 @method_decorator([login_required, teacher_required], name='dispatch')
