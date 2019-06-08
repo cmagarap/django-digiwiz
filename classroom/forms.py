@@ -1,5 +1,5 @@
-from classroom.models import (Answer, Course, Lesson, Question, Student,
-                              StudentAnswer, Subject, User)
+from classroom.models import (Answer, Lesson, Question, Quiz, Student,
+                              StudentAnswer, Subject, Teacher, User)
 from django import forms
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import UserCreationForm
@@ -21,23 +21,18 @@ class BaseAnswerInlineFormSet(forms.BaseInlineFormSet):
             raise ValidationError('Mark at least one answer as correct.', code='no_correct_answer')
 
 
-class LessonForm(forms.ModelForm):
+class LessonAddForm(forms.ModelForm):
     title = forms.CharField(max_length=50)
     number = forms.IntegerField()
     description = forms.Textarea()
+    content = forms.Textarea()
 
     class Meta:
         model = Lesson
         fields = ('title', 'number', 'description', 'course')
 
     def __init__(self, current_user, *args, **kwargs):
-        super(LessonForm, self).__init__(*args, **kwargs)
-
-        # This makes the course field disabled when editing:
-        instance = getattr(self, 'instance', None)
-        if instance and instance.pk:
-            self.fields['course'].widget.attrs['readonly'] = True
-
+        super(LessonAddForm, self).__init__(*args, **kwargs)
         # Gets only the courses that the logged in teacher owns:
         self.fields['course'].queryset = self.fields['course'].queryset.filter(owner=current_user.id)
 
@@ -47,6 +42,46 @@ class LessonForm(forms.ModelForm):
             return instance.course
         else:
             return self.cleaned_data['course']
+
+
+class LessonEditForm(forms.ModelForm):
+    title = forms.CharField(max_length=50)
+    number = forms.IntegerField()
+    description = forms.Textarea()
+
+    class Meta:
+        model = Lesson
+        fields = ('title', 'number', 'description')
+
+
+class QuizAddForm(forms.ModelForm):
+    class Meta:
+        model = Quiz
+        fields = ('title', 'course', 'lesson', )
+
+    def __init__(self, current_user, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Gets only the courses that the logged in teacher owns:
+        self.fields['course'].queryset = self.fields['course'].queryset.filter(owner=current_user.id)
+        # The lesson field is dependent on course field
+        self.fields['lesson'].queryset = Lesson.objects.none()
+
+        if 'course' in self.data:
+            try:
+                course_id = int(self.data.get('course'))
+                self.fields['lesson'].queryset = Lesson.objects.filter(course_id=course_id).order_by('title')
+            except (ValueError, TypeError):
+                pass  # invalid input from the client; ignore and fallback to empty Lesson queryset
+        elif self.instance.pk:
+            self.fields['lesson'].queryset = self.instance.course.lesson_set.order_by('title')
+
+
+class QuizEditForm(forms.ModelForm):
+    title = forms.CharField(max_length=255)
+
+    class Meta:
+        model = Quiz
+        fields = ('title', )
 
 
 class QuestionForm(forms.ModelForm):
@@ -105,6 +140,12 @@ class TakeQuizForm(forms.ModelForm):
         self.fields['answer'].queryset = question.answers.order_by('text')
 
 
+class TeacherProfileForm(forms.ModelForm):
+    class Meta:
+        model = Teacher
+        fields = ['image']
+
+
 class TeacherSignUpForm(UserCreationForm):
     email = forms.EmailField()
     first_name = forms.CharField()
@@ -119,6 +160,7 @@ class TeacherSignUpForm(UserCreationForm):
         user.is_teacher = True
         if commit:
             user.save()
+        Teacher.objects.create(user=user)
         return user
 
 
@@ -136,3 +178,13 @@ class UserLoginForm(forms.Form):
                 raise forms.ValidationError('You entered an invalid username and/or password. Please try again.')
 
         return super(UserLoginForm, self).clean()
+
+
+class UserUpdateForm(forms.ModelForm):
+    email = forms.EmailField()
+    first_name = forms.CharField()
+    last_name = forms.CharField()
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'first_name', 'last_name']

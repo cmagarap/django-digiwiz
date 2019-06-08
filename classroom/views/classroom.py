@@ -2,7 +2,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import redirect, render
 from django.views.generic import DetailView
 from ..forms import UserLoginForm
-from ..models import Course, Lesson, TakenCourse, User
+from ..models import Course, Lesson
 
 
 class CourseDetailView(DetailView):
@@ -47,6 +47,8 @@ def home(request):
             return redirect('teachers:course_change_list')
         elif request.user.is_student:
             return redirect('students:mycourses_list')
+        elif request.user.is_staff:
+            return redirect('staff:dashboard')
     return render(request, 'classroom/home.html')
 
 

@@ -5,7 +5,7 @@
 {% block content %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'teachers:course_change_list' %}">My Course</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'teachers:course_change_list' %}">My Courses</a></li>
             <li class="breadcrumb-item active" aria-current="page">Add a new lesson</li>
         </ol>
     </nav>
@@ -16,7 +16,7 @@
                 <div class="col-lg-8 col-md-6 col-sm-8">
                     <div class="login-form-area">
                         <h2 class="mb-3">Add a lesson</h2>
-                        <form method="post" enctype="multipart/form-data" novalidate>
+                        <form method="post" novalidate>
                             {% csrf_token %}
                             {{ form|crispy }}
                             <center>
