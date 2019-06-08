@@ -31,8 +31,13 @@ class BrowseCoursesView(ListView):
     }
     template_name = 'classroom/students/courses_list.html'
 
-    # Get only the courses that the student is NOT enrolled and Pending
+    # Get only the courses that the student is NOT enrolled
     def get_queryset(self):
+        queryset = Course.objects.all() \
+            .annotate(taken_count=Count('taken_courses',
+                                        filter=Q(taken_courses__status__iexact='enrolled'),
+                                        distinct=True))
+
         if self.request.user.is_authenticated:
             if self.request.user.is_student:
                 student = self.request.user.student
@@ -41,13 +46,7 @@ class BrowseCoursesView(ListView):
                     .annotate(taken_count=Count('taken_courses',
                                                 filter=Q(taken_courses__status__iexact='enrolled'),
                                                 distinct=True))
-            else:
-                queryset = Course.objects.all() \
-                    .annotate(taken_count=Count('taken_courses',
-                                                filter=Q(taken_courses__status__iexact='enrolled'),
-                                                distinct=True))
-        else:
-            queryset = Course.objects.all()
+
         return queryset
 
 

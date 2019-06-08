@@ -126,7 +126,13 @@
                                                         <a href="#"><i class="fa fa-heart-o"></i></a>
                                                         <a href="#"><i class="fa fa-share-alt"></i></a>
                                                     </div>
-                                                    <span class="course-duration"><b>{{ course.taken_count }}</b> students enrolled</span>
+                                                    <span class="course-duration"><b>{{ course.taken_count }}</b>
+                                                        {% if couse.taken_count > 1 %}
+                                                            students
+                                                        {% else %}
+                                                            student
+                                                        {% endif %}
+                                                        enrolled</span>
                                                 </div><!--/.course-thumb-area-->
                                                 <div class="course-content">
                                                     <h2><a href="{% url 'course_details' course.pk %}">{{ course.title }}</a></h2>
