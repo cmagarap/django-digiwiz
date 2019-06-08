@@ -123,13 +123,6 @@ class QuizListView(ListView):
             .annotate(questions_count=Count('questions', distinct=True))
         return queryset
 
-    # def get_context_data(self, **kwargs):
-    #     # Get only the courses that the logged in teacher owns
-    #     kwargs['quizzes'] = Quiz.objects.filter(course__owner=self.request.user) \
-    #         .annotate(questions_count=Count('questions', distinct=True))
-    #
-    #     return super().get_context_data(**kwargs)
-
 
 @method_decorator([login_required, teacher_required], name='dispatch')
 class QuizResultsView(DetailView):
