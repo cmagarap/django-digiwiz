@@ -25,6 +25,7 @@ class LessonAddForm(forms.ModelForm):
     title = forms.CharField(max_length=50)
     number = forms.IntegerField()
     description = forms.Textarea()
+    content = forms.Textarea()
 
     class Meta:
         model = Lesson

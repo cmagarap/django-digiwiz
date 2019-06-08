@@ -49,6 +49,7 @@ class Lesson(models.Model):
     title = models.CharField(max_length=50)
     number = models.IntegerField()
     description = models.TextField()
+    content = models.TextField(default='')
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='lessons')
 
     def __str__(self):

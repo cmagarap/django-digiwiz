@@ -52,7 +52,7 @@ class CourseListView(ListView):
         # Get only the courses that the logged in teacher owns
         # and count the enrolled students
         kwargs['courses'] = self.request.user.courses \
-            .annotate(taken_count=Count('taken_courses', distinct=True))\
+            .annotate(taken_count=Count('taken_courses', distinct=True))
 
         return super().get_context_data(**kwargs)
 
