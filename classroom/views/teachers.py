@@ -315,6 +315,15 @@ def delete_quiz(request, quiz_pk):
 
 @login_required
 @teacher_required
+def delete_quiz_from_list(request, quiz_pk):
+    Quiz.objects.filter(id=quiz_pk, course__owner=request.user).delete()
+    messages.success(request, 'The quiz has been successfully deleted.')
+
+    return redirect('teachers:quiz_list')
+
+
+@login_required
+@teacher_required
 def edit_lesson(request, course_pk, lesson_pk):
     course = get_object_or_404(Course, pk=course_pk, owner=request.user)
     lesson = get_object_or_404(Lesson, pk=lesson_pk, course=course)
