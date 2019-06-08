@@ -8,8 +8,14 @@ urlpatterns = [
     path('staff/', include(([
         path('', staff.dashboard, name='dashboard'),
         path('course-requests/', staff.CourseRequestsView.as_view(), name='course_requests'),
-        path('course-requests/accept-course/<int:course_pk>/', staff.accept_course, name='accept_course'),
-        path('course-requests/reject-course/<int:course_pk>/', staff.reject_course, name='reject_course')
+        path('course-requests/accept/<int:course_pk>/', staff.accept_course, name='accept_course'),
+        path('course-requests/reject/<int:course_pk>/', staff.reject_course, name='reject_course'),
+        path('courses/', staff.CourseListView.as_view(), name='course_list'),
+        path('courses/<int:course_pk>/delete/', staff.delete_course, name='course_delete'),
+        path('subjects/', staff.SubjectListView.as_view(), name='subject_list'),
+        path('course/add/', staff.SubjectCreateView.as_view(), name='subject_add'),
+        path('subjects/<int:pk>/', staff.SubjectUpdateView.as_view(), name='subject_change'),
+        path('subjects/<int:pk>/delete/', staff.delete_subject, name='subject_delete')
     ], 'classroom'), namespace='staff')),
 
     path('student/', include(([

@@ -22,6 +22,13 @@ class Subject(models.Model):
         html = f'<span class="badge badge-primary" style="background-color: {color}">{name}</span>'
         return mark_safe(html)
 
+    def save(self, *args, **kwargs):
+        for field_name in ['name']:  # also capitalize course code
+            val = getattr(self, field_name, False)
+            if val:
+                setattr(self, field_name, val.title())
+        super(Subject, self).save(*args, **kwargs)
+
 
 class Course(models.Model):
     title = models.CharField(max_length=255)
@@ -32,7 +39,7 @@ class Course(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='courses')
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='courses')
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='courses')  # NOT SURE with the on_delete
 
     def __str__(self):
         return self.title

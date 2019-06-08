@@ -5,6 +5,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.db import transaction
 from django.forms.utils import ValidationError
+from django.forms.widgets import TextInput
 
 
 class BaseAnswerInlineFormSet(forms.BaseInlineFormSet):
@@ -88,6 +89,15 @@ class QuestionForm(forms.ModelForm):
     class Meta:
         model = Question
         fields = ('text', )
+
+
+class SubjectUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Subject
+        fields = ('name', 'color')
+        widgets = {
+            'color': TextInput(attrs={'type': 'color'}),
+        }
 
 
 class StudentInterestsForm(forms.ModelForm):
