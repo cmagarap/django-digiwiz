@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
 from django.db import transaction
-from django.db.models import Avg, Count
+from django.db.models import Avg, Count, Q
 from django.forms import inlineformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
@@ -52,7 +52,9 @@ class CourseListView(ListView):
         # Get only the courses that the logged in teacher owns
         # and count the enrolled students
         kwargs['courses'] = self.request.user.courses \
-            .annotate(taken_count=Count('taken_courses', distinct=True))
+            .annotate(taken_count=Count('taken_courses',
+                                        filter=Q(taken_courses__status__iexact='enrolled'),
+                                        istinct=True))
 
         return super().get_context_data(**kwargs)
 

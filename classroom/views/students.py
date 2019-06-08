@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
 from django.db import transaction
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
@@ -37,9 +37,15 @@ class BrowseCoursesView(ListView):
             if self.request.user.is_student:
                 student = self.request.user.student
                 taken_courses = student.courses.values_list('pk', flat=True)
-                queryset = Course.objects.exclude(pk__in=taken_courses)
+                queryset = Course.objects.exclude(pk__in=taken_courses) \
+                    .annotate(taken_count=Count('taken_courses',
+                                                filter=Q(taken_courses__status__iexact='enrolled'),
+                                                distinct=True))
             else:
-                queryset = Course.objects.all()
+                queryset = Course.objects.all() \
+                    .annotate(taken_count=Count('taken_courses',
+                                                filter=Q(taken_courses__status__iexact='enrolled'),
+                                                distinct=True))
         else:
             queryset = Course.objects.all()
         return queryset
