@@ -1,0 +1,4 @@
+<option value="">---------</option>
+{% for lesson in lessons %}
+<option value="{{ lesson.pk }}">{{ lesson.title }}</option>
+{% endfor %}

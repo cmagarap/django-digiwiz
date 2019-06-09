@@ -4,9 +4,9 @@ from django.utils.html import escape, mark_safe
 
 
 class User(AbstractUser):
+    email = models.EmailField(unique=True)
     is_student = models.BooleanField(default=False)
     is_teacher = models.BooleanField(default=False)
-    is_staff = models.BooleanField(default=False)
 
 
 class Subject(models.Model):
@@ -32,16 +32,19 @@ class Course(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='courses')
-    subject = models.OneToOneField(Subject, on_delete=models.CASCADE, related_name='courses')
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='courses')
 
     def __str__(self):
         return self.title
 
     def save(self, *args, **kwargs):
-        for field_name in ['title']:  # also capitalize course code
+        for field_name in ['title', 'description']:
             val = getattr(self, field_name, False)
             if val:
+                # Set the first letter of the strings to Capital letter
                 setattr(self, field_name, val.title())
+        # Set the course code to ALL CAPS
+        setattr(self, 'code', getattr(self, 'code', False).upper())
         super(Course, self).save(*args, **kwargs)
 
 
@@ -49,18 +52,37 @@ class Lesson(models.Model):
     title = models.CharField(max_length=50)
     number = models.IntegerField()
     description = models.TextField()
+    content = models.TextField(default='')
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='lessons')
 
     def __str__(self):
         return self.title
 
+    def save(self, *args, **kwargs):
+        for field_name in ['title', 'description', 'content']:
+            val = getattr(self, field_name, False)
+            if val:
+                # Set the first letter of the string to Capital letter
+                setattr(self, field_name, val.title())
+        super(Lesson, self).save(*args, **kwargs)
+
 
 class Quiz(models.Model):
     title = models.CharField(max_length=255)
-    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='quizzes', default=1)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='quizzes')
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='quizzes')
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        for field_name in ['title']:
+            val = getattr(self, field_name, False)
+            if val:
+                # Set the first letter of the string to Capital letter
+                setattr(self, field_name, val.title())
+        super(Quiz, self).save(*args, **kwargs)
+
 
 
 class Question(models.Model):
@@ -80,8 +102,17 @@ class Answer(models.Model):
         return self.text
 
 
+class Teacher(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    image = models.ImageField(default='profile_pics/default-user.png', upload_to='profile_pics')
+
+    def __str__(self):
+        return f'{self.user.username} - teacher'
+
+
 class Student(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    image = models.ImageField(default='profile_pics/default-user.png', upload_to='profile_pics')
     courses = models.ManyToManyField(Course, through='TakenCourse')
     interests = models.ManyToManyField(Subject, related_name='interested_students')
 
@@ -93,7 +124,7 @@ class Student(models.Model):
         return questions
 
     def __str__(self):
-        return self.user.username
+        return f'{self.user.username} - student'
 
 
 class TakenCourse(models.Model):

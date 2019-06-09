@@ -71,7 +71,12 @@
                         <div class="course-details">
                             {% if messages %}
                                 {% for message in messages %}
-                                    <div class="alert alert-info">{{ message }}</div>
+                                    <div class="alert alert-info alert-dismissible fade show" role="alert">
+                                        <p{% if forloop.last %} class="mb-0"{% endif %}>{{ message }}</p>
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
                                 {% endfor %}
                             {% endif %}
                             <div class="course-title">
@@ -84,6 +89,9 @@
 
                                     {% else %}
                                         Not enrolled
+                                        <div class="course-cat text-capitalize text-right">
+                                            <a href="{% url 'students:enroll' course.pk %}">Enroll</a>
+                                        </div>
                                     {% endif %}
                                 {% endif %}
                                 <h2>{{ course.title }}</h2>
@@ -97,12 +105,17 @@
                                 <p>{{ course.description }}</p>
                                 <p>Lessons</p>
                                 <ul>
-                                    <li>There are many variations of passages of Lorem Ipsum available</li>
-                                    <li>Contrary to popular belief, Lorem Ipsum is not simply random</li>
-                                    <li>It over 2000 years old. Richard McClintock</li>
-                                    <li>Lorem Ipsum is simply dummy text of the printing</li>
-                                    <li>Consectetur, from a Lorem Ipsum passage</li>
-                                    <li>The point of using Lorem Ipsum is that it has</li>
+                                    {% for lesson in lessons %}
+                                        <li>{{ lesson.title }}</li>
+                                        {% if user.is_teacher %}
+                                            {% if owns != None %}
+                                                <a href="{% url 'teachers:lesson_edit' course.pk lesson.pk %}" class="btn btn-primary mb-3" role="button">Edit</a>
+                                                <a href="#" class="btn btn-primary mb-3 delete" data-id="{{ lesson.pk }}" role="button">Delete</a>
+                                            {% endif %}
+                                        {% endif %}
+                                    {% empty %}
+                                        No Lessons
+                                    {% endfor %}
                                 </ul>
                             </div>
                         </div>
@@ -111,4 +124,24 @@
             </div><!--/.container-->
         </div><!--/.courses-page-content-->
     </div><!--/.courses-page-->
+
+    <script>
+        $(".delete").click(function () {
+            var url = "{% url 'teachers:course_change' course.pk %}";
+            var id = $(this).data('id');
+            swal({
+                title: "Are you sure you want to delete this lesson?",
+                text: "Once you delete this, you will never recover it.",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            })
+            .then((willDelete) => {
+                if (willDelete) {
+                    {# This will follow the url pattern of 'teachers:lesson_delete' #}
+                    window.location = url + "lesson/" + id + "/delete/";
+                }
+            });
+        });
+    </script>
 {% endblock %}

@@ -37,12 +37,13 @@
 
     <!--====== Custom CSS for themes =======-->
     <link href="{% static 'style.css' %}" rel="stylesheet">
-	<link href="{% static 'btn.css' %}" rel="stylesheet">
 
     <!--[if lt IE 8]>
         <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
     <script src="{% static 'js/vendor/modernizr-2.8.3.min.js' %}"></script>
+    <script src="{% static 'js/jquery-3.4.1.js' %}" type="text/javascript"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 </head>
 <body>
     <!--====Header Area
@@ -61,27 +62,25 @@
 
                             <nav class="menu">
                                 <ul id="nav">
-
                                     {% if user.is_authenticated %}
                                         {% if user.is_student %}
-                                        <li><form class="product-search-form" action="#" method="get" style=" padding:0 0 0 5px;   position: absolute; left: -280px; top: 10px;"  >
-                                <div class="form-group"style="width: 300px;  height: 50px; " >
-                                    <input class="form-controllar" name="search" placeholder="Search here" type="text" style=" padding: 2px 0 2px 20px; height: 50px;">
-                                   <input type="image" src="{% static 'images/icon/search.png' %}" style="height:30px;width:30px; margin: 8px;
-}" align = "right" alt="Submit">
+                                        <li><form class="product-search-form" action="#" method="get"   >
+                                <div class="form-group"style="width: 300px"  >
+                                    <input class="form-controllar" name="search" placeholder="Search here" type="text" >
+                                    <button class="btn btn-default btn-primary" type="submit">search</button>
                                  </div>
                             </form></li>
                                             <li class="dropdown-trigger"><a href="#">{{ user.first_name }}</a>
                                             <ul class="dropdown-content">
                                             <li ><a href="{% url 'browse_courses' %}">Search Courses</a></li>
                                             <li><a href="{% url 'students:mycourses_list' %}">My Courses</a></li>
-                                                <li class="login"><a href="{% url 'logout' %}">Logout</a></li>
                                             </ul></li>
                                            
                                         {% elif user.is_teacher %}
-                                            <li class="login"><a href="#">{{ user.first_name }}</a></li>
+                                            <li class="login"><a href="{% url 'teachers:profile' %}">{{ user.first_name }}</a></li>
                                             <li class="login"><a href="{% url 'teachers:course_change_list' %}">My Courses</a></li>
-                                               <li class="login"><a href="{% url 'logout' %}">Logout</a></li>
+                                            <li class="login"><a href="{% url 'teachers:lesson_list' %}">My Lessons</a></li>
+                                            <li class="login"><a href="{% url 'teachers:quiz_list' %}">My Quizzes</a></li>
                                         {% endif %}
                                         <li class="login"><a href="{% url 'logout' %}">Logout</a></li>
                                 </ul>
