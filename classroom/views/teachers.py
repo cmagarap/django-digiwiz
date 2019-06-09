@@ -15,7 +15,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.generic import (CreateView, DetailView, ListView,
                                   UpdateView)
 from ..decorators import teacher_required
-from ..forms import (BaseAnswerInlineFormSet, LessonAddForm, LessonEditForm,
+from ..forms import (BaseAnswerInlineFormSet, CourseAddForm, LessonAddForm, LessonEditForm,
                      QuizAddForm, QuizEditForm, QuestionForm, TeacherProfileForm,
                      TeacherSignUpForm, UserUpdateForm)
 from ..models import Answer, Course, Lesson, Question, Quiz, TakenCourse, User
@@ -25,7 +25,8 @@ from ..tokens import account_activation_token
 @method_decorator([login_required, teacher_required], name='dispatch')
 class CourseCreateView(CreateView):
     model = Course
-    fields = ('title', 'code', 'subject', 'description', 'image')
+    form_class = CourseAddForm
+    # fields = ('title', 'code', 'subject', 'description', 'image')
     template_name = 'classroom/teachers/course_add_form.html'
     extra_context = {
         'title': 'New Course'
@@ -50,27 +51,15 @@ class CourseListView(ListView):
 
     def get_context_data(self, **kwargs):
         # Get only the courses that the logged in teacher owns
-        # and count the enrolled students
+        # count the enrolled students, and order by title
         kwargs['courses'] = self.request.user.courses \
+            .exclude(status__iexact='deleted') \
             .annotate(taken_count=Count('taken_courses',
                                         filter=Q(taken_courses__status__iexact='enrolled'),
-                                        istinct=True))
+                                        istinct=True)) \
+            .order_by('title')
 
         return super().get_context_data(**kwargs)
-
-
-@method_decorator([login_required, teacher_required], name='dispatch')
-class LessonListView(ListView):
-    model = Lesson
-    context_object_name = 'lessons'
-    extra_context = {
-        'title': 'My Lessons'
-    }
-    template_name = 'classroom/teachers/lesson_list.html'
-
-    def get_queryset(self):
-        """Gets the lesson that the user owns through course FK."""
-        return Lesson.objects.filter(course__in=self.request.user.courses.all()).order_by('title')
 
 
 @method_decorator([login_required, teacher_required], name='dispatch')
@@ -110,6 +99,20 @@ class EnrollmentRequestsListView(ListView):
 
 
 @method_decorator([login_required, teacher_required], name='dispatch')
+class LessonListView(ListView):
+    model = Lesson
+    context_object_name = 'lessons'
+    extra_context = {
+        'title': 'My Lessons'
+    }
+    template_name = 'classroom/teachers/lesson_list.html'
+
+    def get_queryset(self):
+        """Gets the lesson that the user owns through course FK."""
+        return Lesson.objects.filter(course__in=self.request.user.courses.all()).order_by('title')
+
+
+@method_decorator([login_required, teacher_required], name='dispatch')
 class QuizListView(ListView):
     model = Quiz
     context_object_name = 'quizzes'
@@ -122,7 +125,8 @@ class QuizListView(ListView):
         #     .annotate(taken_count=Count('taken_quizzes', distinct=True))
 
         queryset = Quiz.objects.filter(course__owner=self.request.user) \
-            .annotate(questions_count=Count('questions', distinct=True))
+            .annotate(questions_count=Count('questions', distinct=True)) \
+            .order_by('title')
         return queryset
 
 
