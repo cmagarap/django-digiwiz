@@ -160,7 +160,7 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="#">
+                                <a class="nav-link {% if sidebar == 'student_list' %}active{% endif %}" href="{% url 'staff:student_list' %}">
                                     <i class="fas fa-fw fa-table"></i>Students
                                 </a>
                             </li>

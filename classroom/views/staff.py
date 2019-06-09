@@ -108,6 +108,22 @@ class SubjectListView(ListView):
 
 
 @method_decorator([login_required, staff_required], name='dispatch')
+class StudentListView(ListView):
+    model = User
+    context_object_name = 'students'
+    extra_context = {
+        'title': 'Students',
+        'sidebar': 'students_list'
+    }
+    template_name = 'classroom/staff/students_list.html'
+
+    def get_queryset(self):
+        """Gets all the student accounts."""
+        return User.objects.filter(is_student=True, is_active=True) \
+            .order_by('username')
+
+
+@method_decorator([login_required, staff_required], name='dispatch')
 class SubjectUpdateView(UpdateView):
     model = Subject
     form_class = SubjectUpdateForm
@@ -170,6 +186,15 @@ def deactivate_admin(request, pk):
 
     messages.success(request, 'The admin account has been successfully deleted.')
     return redirect('staff:admin_list')
+
+
+@login_required
+@staff_required
+def deactivate_student(request, pk):
+    User.objects.filter(id=pk).update(is_active=False)
+
+    messages.success(request, 'The student account has been successfully deleted.')
+    return redirect('staff:student_list')
 
 
 @login_required
