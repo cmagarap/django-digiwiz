@@ -56,7 +56,7 @@ class CourseListView(ListView):
             .exclude(status__iexact='deleted') \
             .annotate(taken_count=Count('taken_courses',
                                         filter=Q(taken_courses__status__iexact='enrolled'),
-                                        istinct=True)) \
+                                        distinct=True)) \
             .order_by('title')
 
         return super().get_context_data(**kwargs)
