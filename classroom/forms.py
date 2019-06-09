@@ -8,6 +8,23 @@ from django.forms.utils import ValidationError
 from django.forms.widgets import TextInput
 
 
+class AdminAddForm(UserCreationForm):
+    email = forms.EmailField()
+    last_name = forms.CharField()
+    first_name = forms.CharField()
+
+    class Meta(UserCreationForm.Meta):
+        model = User
+        fields = ('username', 'email', 'last_name', 'first_name')
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.is_staff = True
+        if commit:
+            user.save()
+        return user
+
+
 class BaseAnswerInlineFormSet(forms.BaseInlineFormSet):
     def clean(self):
         super().clean()

@@ -8,6 +8,13 @@ class User(AbstractUser):
     is_student = models.BooleanField(default=False)
     is_teacher = models.BooleanField(default=False)
 
+    def save(self, *args, **kwargs):
+        for field_name in ['last_name', 'first_name']:
+            val = getattr(self, field_name, False)
+            if val:
+                setattr(self, field_name, val.title())
+        super(User, self).save(*args, **kwargs)
+
 
 class Subject(models.Model):
     name = models.CharField(max_length=30)

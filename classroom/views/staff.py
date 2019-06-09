@@ -1,13 +1,46 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
-from django.views.generic import (CreateView, DetailView, ListView,
-                                  UpdateView)
-from ..decorators import staff_required
-from ..forms import SubjectUpdateForm
-from ..models import Course, Subject
+from django.views.generic import CreateView, ListView, UpdateView
+from ..decorators import staff_required, superuser_required
+from ..forms import AdminAddForm, SubjectUpdateForm
+from ..models import Course, Subject, User
+
+
+@method_decorator([login_required, superuser_required], name='dispatch')
+class AdminCreateView(CreateView):
+    model = User
+    form_class = AdminAddForm
+    template_name = 'classroom/staff/admin_add_form.html'
+    extra_context = {
+        'title': 'New Admin',
+        'sidebar': 'admin_list'
+    }
+
+    def form_valid(self, form):
+        user = form.save(commit=False)
+        user.save()
+        messages.success(self.request, 'The admin account has been successfully created!')
+        return redirect('staff:admin_list')
+
+
+@method_decorator([login_required, superuser_required], name='dispatch')
+class AdminListView(ListView):
+    model = User
+    context_object_name = 'admins'
+    extra_context = {
+        'title': 'Admin Accounts',
+        'sidebar': 'admin_list'
+    }
+    template_name = 'classroom/staff/admin_list.html'
+
+    def get_queryset(self):
+        """Gets all the admin/staff accounts but not the superuser."""
+        return User.objects.filter(is_staff=True, is_active=True) \
+            .exclude(is_superuser=True) \
+            .order_by('username')
 
 
 @method_decorator([login_required, staff_required], name='dispatch')
@@ -49,13 +82,13 @@ class SubjectCreateView(CreateView):
     template_name = 'classroom/staff/subject_add_form.html'
     extra_context = {
         'title': 'New Subject',
-        'side_bar': 'subject_list'
+        'sidebar': 'subject_list'
     }
 
     def form_valid(self, form):
         subject = form.save(commit=False)
         subject.save()
-        messages.success(self.request, 'The subject was created with success!')
+        messages.success(self.request, 'The subject has been successfully created!')
         return redirect('staff:subject_list')
 
 
@@ -112,6 +145,15 @@ def dashboard(request):
         'sidebar': 'dashboard'
     }
     return render(request, 'classroom/staff/dashboard.html', context)
+
+
+@login_required
+@superuser_required
+def deactivate_admin(request, pk):
+    User.objects.filter(id=pk).update(is_active=False)
+
+    messages.success(request, 'The admin account has been successfully deleted.')
+    return redirect('staff:admin_list')
 
 
 @login_required
