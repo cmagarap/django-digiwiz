@@ -113,7 +113,7 @@ class StudentListView(ListView):
     context_object_name = 'students'
     extra_context = {
         'title': 'Students',
-        'sidebar': 'students_list'
+        'sidebar': 'student_list'
     }
     template_name = 'classroom/staff/students_list.html'
 
