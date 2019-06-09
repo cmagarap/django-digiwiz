@@ -18,7 +18,9 @@ urlpatterns = [
         path('subjects/', staff.SubjectListView.as_view(), name='subject_list'),
         path('subjects/add/', staff.SubjectCreateView.as_view(), name='subject_add'),
         path('subjects/<int:pk>/', staff.SubjectUpdateView.as_view(), name='subject_change'),
-        path('subjects/<int:pk>/delete/', staff.delete_subject, name='subject_delete')
+        path('subjects/<int:pk>/delete/', staff.delete_subject, name='subject_delete'),
+        path('teachers/', staff.TeacherListView.as_view(), name='teacher_list'),
+        path('teachers/<int:pk>/delete/', staff.deactivate_teacher, name='teacher_deactivate'),
     ], 'classroom'), namespace='staff')),
 
     path('student/', include(([

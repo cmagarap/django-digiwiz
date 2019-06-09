@@ -155,7 +155,7 @@
                                 </li>
                             {% endif %}
                             <li class="nav-item">
-                                <a class="nav-link" href="#">
+                                <a class="nav-link {% if sidebar == 'teacher_list' %}active{% endif %}" href="{% url 'staff:teacher_list' %}">
                                     <i class="fas fa-fw fa-table"></i>Teachers
                                 </a>
                             </li>

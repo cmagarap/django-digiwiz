@@ -127,6 +127,22 @@ class SubjectUpdateView(UpdateView):
         return reverse('staff:subject_list')
 
 
+@method_decorator([login_required, staff_required], name='dispatch')
+class TeacherListView(ListView):
+    model = User
+    context_object_name = 'teachers'
+    extra_context = {
+        'title': 'Teachers',
+        'sidebar': 'teacher_list'
+    }
+    template_name = 'classroom/staff/teacher_list.html'
+
+    def get_queryset(self):
+        """Gets all the teacher accounts."""
+        return User.objects.filter(is_teacher=True, is_active=True) \
+            .order_by('username')
+
+
 @login_required
 @staff_required
 def accept_course(request, course_pk):
@@ -154,6 +170,15 @@ def deactivate_admin(request, pk):
 
     messages.success(request, 'The admin account has been successfully deleted.')
     return redirect('staff:admin_list')
+
+
+@login_required
+@staff_required
+def deactivate_teacher(request, pk):
+    User.objects.filter(id=pk).update(is_active=False)
+
+    messages.success(request, 'The teacher account has been successfully deleted.')
+    return redirect('staff:teacher_list')
 
 
 @login_required
