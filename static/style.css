@@ -92,6 +92,7 @@ a:focus {
     width: 100%;
 }
 
+
 /*=============================
 ## Heading
 ===============================*/
@@ -256,6 +257,7 @@ button:focus {
     -webkit-transition: ease-out 0.3s;
     transition: ease-out 0.3s;
 }
+
 .btn-default {
     background-color: transparent;
     border: 1px solid #f78888;
@@ -282,6 +284,7 @@ button:focus {
     background-color: transparent;
     color: #f78888;
 }
+
 
 /*=============================
 # Header Style
@@ -361,11 +364,12 @@ header {
     padding: 7px 15px;
     border-bottom: 1px solid #e5e5e5;
     font-weight: 400;
-    color: #ececec;
+    color: #f78888;
     text-transform: capitalize;
 }
 .logo-menu-wrap .menu > ul > li > ul.dropdown-content > li:hover > a {
-    color: #f78888;
+    background: #f78888;
+    color: #ececec;
     padding-left: 20px;
 }
 .logo-menu-wrap .menu ul li ul.dropdown-content li:last-child a {
@@ -2867,6 +2871,7 @@ ul.dropdown-content > .dropdown-trigger:hover > ul.dropdown-content > li:hover >
     transform: translateY(40px);
 }
 
+
 /*=============================
 # Responsive Css
 ===============================*/
@@ -3548,4 +3553,6 @@ ul.dropdown-content > .dropdown-trigger:hover > ul.dropdown-content > li:hover >
     .event-header .title {
         padding-left: 15px;
     }
+	
+	
 }
