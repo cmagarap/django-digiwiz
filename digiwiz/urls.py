@@ -43,6 +43,7 @@ urlpatterns = [
     path('password-reset-confirm/<str:uidb64>/<str:token>/',
          auth_views.PasswordResetConfirmView.as_view(template_name='authentication/password_reset_confirm.html'),
          name='password_reset_confirm'),
+    path('ratings/', include('star_ratings.urls', namespace='ratings')),
     path('register/', classroom.register_page, name='register'),
     path('register/student/', students.register, name='student_register'),
     path('register/teacher/', teachers.register, name='teacher_register'),
