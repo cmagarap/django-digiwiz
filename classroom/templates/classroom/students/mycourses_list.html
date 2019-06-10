@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load ratings %}
 {% block content %}
     {# include 'classroom/students/_header.html' with active='new' #}
     {% if messages %}
@@ -36,12 +36,7 @@
                             <p>{{ taken_course.course.description }}</p>
                             <small>{{ taken_course.course.subject.get_html_badge }}</small>
                             <div class="course-reviews">
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                <i class="fa fa-star-o" aria-hidden="true"></i>
-                                <span class="total-reviews">(105 reviews)</span>
+                                {% ratings taken_course.course %}
                             </div><!--/.course-reviews-->
                             <div class="trainer-profile clearfix">
                                 <img class="rounded-circle" src="images/author/author-1.jpg" alt="img">

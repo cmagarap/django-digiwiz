@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'classroom.apps.ClassroomConfig',
     'crispy_forms',
-    # 'sweetify'
+    'star_ratings'
 ]
 
 MIDDLEWARE = [
@@ -156,4 +156,5 @@ EMAIL_PORT = 587
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# SWEETIFY_SWEETALERT_LIBRARY = 'sweetalert2'
+TEMPLATE_CONTEXT_PROCESSOR = 'django.core.context_processors.request'
+STAR_RATINGS_STAR_HEIGHT = 20

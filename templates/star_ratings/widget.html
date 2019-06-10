@@ -1,0 +1,8 @@
+{% extends "star_ratings/widget_base.html" %}
+{% load i18n %}
+{% block rating_detail %}
+    {% block rating_average %}
+    <div class="star-ratings-rating-average">{% trans 'Average: ' %}<span class='star-ratings-rating-value'>{{ rating.average|floatformat:"-2" }}</span></div>
+    {% endblock rating_average %}
+
+{% endblock %}
