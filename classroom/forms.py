@@ -1,4 +1,4 @@
-from classroom.models import (Answer, Lesson, Question, Quiz, Student,
+from classroom.models import (Answer, Course, Lesson, Question, Quiz, Student,
                               StudentAnswer, Subject, Teacher, User)
 from django import forms
 from django.contrib.auth import authenticate
@@ -21,6 +21,23 @@ class BaseAnswerInlineFormSet(forms.BaseInlineFormSet):
             raise ValidationError('Mark at least one answer as correct.', code='no_correct_answer')
 
 
+class CourseAddForm(forms.ModelForm):
+    title = forms.CharField(max_length=255)
+    code = forms.CharField(max_length=20)
+    description = forms.Textarea()
+    image = forms.ImageField()
+
+    class Meta:
+        model = Course
+        fields = ('title', 'code', 'description', 'subject', 'image')
+
+    def __init__(self, *args, **kwargs):
+        super(CourseAddForm, self).__init__(*args, **kwargs)
+        # Gets all the subjects and order it by name
+        self.fields['subject'].queryset = self.fields['subject'].queryset \
+            .all().order_by('name')
+
+
 class LessonAddForm(forms.ModelForm):
     title = forms.CharField(max_length=50)
     number = forms.IntegerField()
@@ -29,19 +46,14 @@ class LessonAddForm(forms.ModelForm):
 
     class Meta:
         model = Lesson
-        fields = ('title', 'number', 'description', 'course')
+        fields = ('title', 'number', 'description', 'content', 'course')
 
     def __init__(self, current_user, *args, **kwargs):
         super(LessonAddForm, self).__init__(*args, **kwargs)
-        # Gets only the courses that the logged in teacher owns:
-        self.fields['course'].queryset = self.fields['course'].queryset.filter(owner=current_user.id)
-
-    def clean_course(self):
-        instance = getattr(self, 'instance', None)
-        if instance and instance.pk:
-            return instance.course
-        else:
-            return self.cleaned_data['course']
+        # Gets only the courses that the logged in teacher owns and order it by title
+        self.fields['course'].queryset = self.fields['course'].queryset \
+            .filter(owner=current_user.id) \
+            .order_by('title')
 
 
 class LessonEditForm(forms.ModelForm):

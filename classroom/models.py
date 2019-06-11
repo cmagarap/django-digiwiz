@@ -38,10 +38,13 @@ class Course(models.Model):
         return self.title
 
     def save(self, *args, **kwargs):
-        for field_name in ['title']:  # also capitalize course code
+        for field_name in ['title', 'description']:
             val = getattr(self, field_name, False)
             if val:
+                # Set the first letter of the strings to Capital letter
                 setattr(self, field_name, val.title())
+        # Set the course code to ALL CAPS
+        setattr(self, 'code', getattr(self, 'code', False).upper())
         super(Course, self).save(*args, **kwargs)
 
 
@@ -55,6 +58,14 @@ class Lesson(models.Model):
     def __str__(self):
         return self.title
 
+    def save(self, *args, **kwargs):
+        for field_name in ['title', 'description', 'content']:
+            val = getattr(self, field_name, False)
+            if val:
+                # Set the first letter of the string to Capital letter
+                setattr(self, field_name, val.title())
+        super(Lesson, self).save(*args, **kwargs)
+
 
 class Quiz(models.Model):
     title = models.CharField(max_length=255)
@@ -63,6 +74,15 @@ class Quiz(models.Model):
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        for field_name in ['title']:
+            val = getattr(self, field_name, False)
+            if val:
+                # Set the first letter of the string to Capital letter
+                setattr(self, field_name, val.title())
+        super(Quiz, self).save(*args, **kwargs)
+
 
 
 class Question(models.Model):
