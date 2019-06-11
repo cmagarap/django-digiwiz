@@ -78,19 +78,17 @@
                             <div class="course-title">
                                 {% if user.is_student %}
                                     {% if enrolled %}
-                                        {% if enrolled.status.upper == 'ENROLLED' %}
-                                            <div class="course-cat text-capitalize text-right">
+                                        <div class="course-cat text-capitalize text-right">
+                                            {% if enrolled.status.upper == 'ENROLLED' %}
                                                 <button href="{% url 'students:unenroll' course.pk %}" class="button" type="button" data-hover="UNENROLL" data-active="I'M ACTIVE">
                                                     <a href="{% url 'students:unenroll' course.pk %}"><span>{{ enrolled.status.upper }}</span></a>
                                                 </button>
-                                            </div>
-                                        {% elif enrolled.status.upper == 'PENDING' %}
-                                            <div class="course-cat text-capitalize text-right">
+                                            {% elif enrolled.status.upper == 'PENDING' %}
                                                 <button href="{% url 'students:unenroll' course.pk %}" class="button" type="button" data-hover="CANCEL" data-active="I'M ACTIVE">
                                                     <a href="{% url 'students:unenroll' course.pk %}"><span>{{ enrolled.status.upper }}</span></a>
                                                 </button>
-                                            </div>
-                                        {% endif %}
+                                            {% endif %}
+                                        </div>
                                     {% else %}
                                         <div class="course-cat text-capitalize text-right">
                                             <button href="{% url 'students:enroll' course.pk %}" class="button" type="button" data-hover="ENROLL">
@@ -123,7 +121,7 @@
                                             <div id="collapse{{ forloop.counter }}" class="panel-collapse collapse" role="tabpanel">
                                                 <div class="single-standard-content">
                                                     <p>{{ lesson.description }}</p><br>
-                                                    {% if enrolled %}
+                                                    {% if enrolled and enrolled.status.upper == 'ENROLLED' %}
                                                         <a href="{# url 'teachers:lesson_edit' course.pk lesson.pk #}" class="btn btn-primary mb-3" role="button">See More</a>
                                                     {% else %}
                                                         <i>enroll to see more</i>
