@@ -78,45 +78,69 @@
                             <div class="course-title">
                                 {% if user.is_student %}
                                     {% if enrolled %}
-                                        <div class="course-cat text-capitalize text-right">
-                                            <button href="{% url 'students:unenroll' course.pk %}" class="button" type="button" data-hover="UNENROLL" data-active="I'M ACTIVE"><a href="{% url 'students:unenroll' course.pk %}"><span>{{ enrolled.status.upper }}</span></a></button>
-                                        </div>
-
+                                        {% if enrolled.status.upper == 'ENROLLED' %}
+                                            <div class="course-cat text-capitalize text-right">
+                                                <button href="{% url 'students:unenroll' course.pk %}" class="button" type="button" data-hover="UNENROLL" data-active="I'M ACTIVE">
+                                                    <a href="{% url 'students:unenroll' course.pk %}"><span>{{ enrolled.status.upper }}</span></a>
+                                                </button>
+                                            </div>
+                                        {% elif enrolled.status.upper == 'PENDING' %}
+                                            <div class="course-cat text-capitalize text-right">
+                                                <button href="{% url 'students:unenroll' course.pk %}" class="button" type="button" data-hover="CANCEL" data-active="I'M ACTIVE">
+                                                    <a href="{% url 'students:unenroll' course.pk %}"><span>{{ enrolled.status.upper }}</span></a>
+                                                </button>
+                                            </div>
+                                        {% endif %}
                                     {% else %}
                                         <div class="course-cat text-capitalize text-right">
-                                            <button href="{% url 'students:enroll' course.pk %}" class="button" type="button" data-hover="ENROLL"><a href="{% url 'students:enroll' course.pk %}"><span>ENROLL</span></a></button>
+                                            <button href="{% url 'students:enroll' course.pk %}" class="button" type="button" data-hover="ENROLL">
+                                                <a href="{% url 'students:enroll' course.pk %}"><span>ENROLL</span></a>
+                                            </button>
                                         </div>
                                     {% endif %}
                                 {% endif %}
+
                                 <h2>{{ course.title }}</h2>
-                                <small>{{ course.subject.get_html_badge }}</small>
                                 <span class="course-date">Added on: {{ course.created_at|date:"F d, Y" }}</span>
+                                <br>
+                                <small>{{ course.subject.get_html_badge }}</small>
                             </div>
                             <div class="course-thumb">
                                 <img src="{{ course.image.url }}" alt="" />
                             </div>
                             <div class="course-desc">
+                            {% ratings course %}<br><br>
                                 <p>{{ course.description }}</p>
-                                {% ratings course %}
-                                <div class="panel panel-default single-standard">
-                                    <div class="panel-heading" role="tab">
-                                        <h4 class="panel-title">
-                                            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"><font color = "5da2d5">Lessons</a>
-                                        </h4>
-                                        <div id="collapseOne" class="panel-collapse collapse" role="tabpanel">
-                                            <div class="single-standard-content">
-                                                <ul>
-                                                    <li>There are many variations of passages of Lorem Ipsum available</li>
-                                                    <li>Contrary to popular belief, Lorem Ipsum is not simply random</li>
-                                                    <li>It over 2000 years old. Richard McClintock</li>
-                                                    <li>Lorem Ipsum is simply dummy text of the printing</li>
-                                                    <li>Consectetur, from a Lorem Ipsum passage</li>
-                                                    <li>The point of using Lorem Ipsum is that it has</li>
-                                                </ul>
+                                <br>
+                                {% for lesson in lessons %}
+                                    <div class="panel panel-default single-standard">
+                                        <div class="panel-heading" role="tab">
+                                            <h4 class="panel-title">
+                                                <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ forloop.counter }}">
+                                                    <font color="5da2d5">{{ lesson.title }}
+                                                </a>
+                                            </h4>
+                                            <div id="collapse{{ forloop.counter }}" class="panel-collapse collapse" role="tabpanel">
+                                                <div class="single-standard-content">
+                                                    <p>{{ lesson.description }}</p><br>
+                                                    {% if enrolled %}
+                                                        <a href="{# url 'teachers:lesson_edit' course.pk lesson.pk #}" class="btn btn-primary mb-3" role="button">See More</a>
+                                                    {% else %}
+                                                        <i>enroll to see more</i>
+                                                    {% endif %}
+
+                                                    {% if user.is_teacher %}
+                                                        {% if owns != None %}
+                                                            <a href="{% url 'teachers:lesson_edit' course.pk lesson.pk %}" class="btn btn-primary mb-3" role="button">Edit</a>
+                                                            <a href="#" class="btn btn-primary mb-3 delete" data-id="{{ lesson.pk }}" role="button">Delete</a>
+                                                        {% endif %}
+                                                    {% endif %}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                {% empty %} No Lessons
+                                {% endfor %}
                             </div>
                         </div>
                     </div>

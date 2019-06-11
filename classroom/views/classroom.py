@@ -20,7 +20,7 @@ class CourseDetailView(DetailView):
                 teacher = None
             elif self.request.user.is_teacher:
                 # if the logged in user is a teacher, check if he/she owns the displayed course
-                teacher = self.request.user.courses.get(id=self.kwargs['pk'])
+                teacher = self.request.user.courses.filter(id=self.kwargs['pk']).first()
                 student = None
 
         kwargs['enrolled'] = student
@@ -38,7 +38,7 @@ def about(request):
         elif request.user.is_student:
             return redirect('students:mycourses_list')
 
-    return render(request, 'classroom/about.html')
+    return render(request, 'classroom/about.html', {'title': 'About Us'})
 
 
 def home(request):

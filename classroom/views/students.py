@@ -12,7 +12,7 @@ from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.views.generic import CreateView, ListView, UpdateView
+from django.views.generic import ListView, UpdateView
 from ..decorators import student_required
 from ..forms import StudentInterestsForm, StudentSignUpForm, TakeQuizForm
 from ..models import Course, Quiz, Student, TakenCourse, TakenQuiz, User
@@ -63,7 +63,7 @@ class MyCoursesListView(ListView):
     def get_queryset(self):
         queryset = self.request.user.student.taken_courses \
             .select_related('course', 'course__subject') \
-            .order_by('course__title')\
+            .order_by('course__title') \
             .filter(status__in=['Enrolled', 'Pending'])
         return queryset
 
