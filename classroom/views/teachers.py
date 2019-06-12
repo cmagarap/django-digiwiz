@@ -150,7 +150,7 @@ class QuizResultsView(DetailView):
         return super().get_context_data(**kwargs)
 
     def get_queryset(self):
-        return self.request.user.quizzes.all()
+        return Quiz.objects.filter(course__in=Course.objects.filter(owner=self.request.user))
 
 
 class TeacherSignUpView(CreateView):

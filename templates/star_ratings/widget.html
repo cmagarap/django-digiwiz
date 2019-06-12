@@ -6,7 +6,7 @@
     {% endblock rating_average %}
 
     {% block rating_user %}
-        <div class="star-ratings-rating-user">{% trans 'You Rated: ' %} <span class='star-ratings-rating-value'>{% if user_rating %}<b>{{ user_rating.score }}</b>{% else %}{% trans 'Not rated' %}{% endif %}</span></div>
+        <div class="star-ratings-rating-user">{% trans 'You Rated: ' %} <span class='star-ratings-rating-value'>{% if user_rating %}<b>{{ user_rating.score }}</b>{% else %}{% trans 'None' %}{% endif %}</span></div>
     {% if not user.is_authenticated and not anonymous_ratings and not read_only %}
         <p>{% trans 'Please log in to rate.' %}</p>
     {% endif %}

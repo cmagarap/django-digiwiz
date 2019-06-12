@@ -2,28 +2,68 @@
 
 {% block content %}
     {% include 'classroom/students/_header.html' with active='taken' %}
-    <div class="card">
-        <table class="table mb-0">
-            <thead>
-            <tr>
-                <th>Quiz</th>
-                <th>Subject</th>
-                <th>Score</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for taken_quiz in taken_quizzes %}
-                <tr>
-                    <td>{{ taken_quiz.quiz.name }}</td>
-                    <td>{{ taken_quiz.quiz.subject.get_html_badge }}</td>
-                    <td>{{ taken_quiz.score }}</td>
-                </tr>
-            {% empty %}
-                <tr>
-                    <td class="bg-light text-center font-italic" colspan="3">You haven't completed any quiz yet.</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    </div>
+    <section id="courses-section" class="popular-courses-area bg-white s-pd2">
+        <div class="container">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+                        <p{% if forloop.last %} class="mb-0"{% endif %}>{{ message }}</p>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            <div class="row justify-content-md-center">
+                <div class="col-lg-8">
+                    <div class="section-heading-area text-center">
+                        <h2 class="section-heading text-capitalize">My Taken Quizzes</h2>
+                    </div><!--/.section-heading-area-->
+                </div><!--/.col-lg-8-->
+            </div><!--/.row-->
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-4">
+                            <strong>Quiz</strong>
+                        </div>
+                        <div class="col-3">
+                            <strong>Course</strong>
+                        </div>
+                        <div class="col-3">
+                            <strong>Lesson</strong>
+                        </div>
+                        <div class="col-2">
+                            <strong>Score</strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="list-group list-group-flush list-group-formset">
+                    {% for taken_quiz in taken_quizzes %}
+                        <div class="list-group-item">
+                            <div class="row">
+                                <div class="col-4">
+                                    {{ taken_quiz.quiz.title }}
+                                </div>
+                                <div class="col-3">
+                                    {{ taken_quiz.quiz.course.title }}
+                                </div>
+                                <div class="col-3">
+                                    {{ taken_quiz.quiz.lesson.title }}
+                                </div>
+                                <div class="col-2">
+                                    <strong>{{ taken_quiz.score }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="list-group-item text-center">
+                            <p class="text-muted font-italic mb-0">You haven't took any quizzes yet.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
 {% endblock %}
