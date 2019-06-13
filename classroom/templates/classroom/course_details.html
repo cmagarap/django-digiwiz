@@ -137,15 +137,14 @@
                                                     {% elif user.is_student %}
                                                         {% if enrolled and enrolled.status.upper == 'ENROLLED' %}
                                                             <a href="{% url 'course_details' course.pk %}lesson?page={{ forloop.counter }}" class="btn btn-primary mb-3" role="button">See Lesson</a>
-                                                            {% for quiz in quizzes %}
-                                                                {% if quiz.lesson.pk == lesson.pk %}
-                                                                    {% if quiz == quiz.pk %}
-                                                                        <p>You already took the quiz for this lesson.</p>
-                                                                    {% else %}
-                                                                        <a href="{% url 'students:take_quiz' course.pk  quiz.pk %}" class="btn btn-primary mb-3" role="button">Take Quiz</a>
-                                                                    {% endif %}
-                                                                {% endif %}
-                                                            {% endfor %}
+                                                            {% if lesson.quizzes.taken_quizzes.values.count > 0 %}
+                                                                <button class="btn" disabled>Quiz Already Taken</button>
+                                                                <br><a href="#">See Results</a>
+                                                            {% elif lesson.quizzes.taken_quizzes.values.count == 0 %}
+                                                                <a href="{% url 'students:take_quiz' lesson.course.pk  lesson.quizzes.pk %}" class="btn btn-primary mb-3" role="button">Take Quiz</a>
+                                                            {% elif not lesson.quizzes %}
+                                                                <i>There is no quiz for this lesson.</i>
+                                                            {% endif %}
                                                         {% else %}
                                                             <i>Enroll in this course to see more.</i>
                                                         {% endif %}

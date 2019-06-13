@@ -12,7 +12,7 @@ from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.views.generic import ListView, UpdateView
+from django.views.generic import ListView, DetailView, UpdateView
 from ..decorators import student_required
 from ..forms import StudentInterestsForm, StudentSignUpForm, TakeQuizForm
 from ..models import Course, Quiz, Student, TakenCourse, TakenQuiz, User
@@ -100,6 +100,19 @@ class StudentInterestsView(UpdateView):
     def form_valid(self, form):
         messages.success(self.request, 'Interests updated with success!')
         return super().form_valid(form)
+
+
+@method_decorator([login_required, student_required], name='dispatch')
+class TakenQuizDetailView(DetailView):
+    model = TakenQuiz
+    context_object_name = 'taken_quiz'
+    template_name = 'classroom/students/taken_quiz_result.html'
+
+    def get_context_data(self, **kwargs):
+        kwargs['taken_quiz'] = TakenQuiz.objects \
+                .select_related('quiz') \
+                .get(id=self.kwargs['pk'])
+        return super().get_context_data(**kwargs)
 
 
 @method_decorator([login_required, student_required], name='dispatch')

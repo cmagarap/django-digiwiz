@@ -34,8 +34,16 @@
                                     <h2>Lesson {{ lesson.number }}: {{ lesson.title }}</h2>
                                 </div>
                                 <div class="course-desc">
-                                    <p>{{ lesson.description }}</p>
+                                    <p>{{ lesson.content }}</p>
                                     <br>
+                                    {% if lesson.quizzes.taken_quizzes.values.count > 0 %}
+                                        <button class="btn" disabled>Quiz Already Taken</button>
+                                        <br><a href="#">See Results</a>
+                                    {% elif lesson.quizzes.taken_quizzes.values.count == 0 %}
+                                        <a href="{% url 'students:take_quiz' lesson.course.pk  lesson.quizzes.pk %}" class="btn btn-primary mb-3" role="button">Take Quiz</a>
+                                    {% elif not lesson.quizzes %}
+                                        <i>There is no quiz for this lesson.</i>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>

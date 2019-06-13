@@ -27,10 +27,11 @@ class CourseDetailView(DetailView):
         kwargs['enrolled'] = student
         kwargs['owns'] = teacher
         kwargs['title'] = Course.objects.get(id=self.kwargs['pk'])
-        kwargs['lessons'] = Lesson.objects.filter(course__id=self.kwargs['pk'])
-        kwargs['quizzes'] = Quiz.objects.filter(lesson__in=kwargs['lessons'])
-            # Quiz.objects.filter(taken_quizzes__isnull=False).values_list('title', 'lesson_id', 'taken_quizzes__status')
-            # TakenQuiz.objects.select_related('quiz')
+
+        kwargs['lessons'] = Lesson.objects.select_related('quizzes') \
+            .select_related('course') \
+            .filter(course__id=self.kwargs['pk']) \
+            .order_by('number')
 
         return super().get_context_data(**kwargs)
 
@@ -45,7 +46,8 @@ class LessonListView(ListView):
     paginate_by = 1
 
     def get_queryset(self, **kwargs):
-        return Lesson.objects.select_related('course') \
+        return Lesson.objects.select_related('quizzes') \
+            .select_related('course') \
             .filter(course__id=self.kwargs['pk']) \
             .order_by('number')
 
