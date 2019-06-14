@@ -28,6 +28,7 @@ urlpatterns = [
     path('activate-teacher/<str:uidb64>/<str:token>', teachers.activate, name='activate_teacher'),
     path('browse-courses/', students.BrowseCoursesView.as_view(), name='browse_courses'),
     path('course/details/<int:pk>/', classroom.CourseDetailView.as_view(), name='course_details'),
+    path('course/details/<int:pk>/lesson', classroom.LessonListView.as_view(), name='lesson_list'),
     path('django-admin/', admin.site.urls),
     path('login/', classroom.login_view, name='login'),
     path('logout/', classroom.logout_view, name='logout'),

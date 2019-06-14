@@ -1,8 +1,8 @@
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import redirect, render
-from django.views.generic import DetailView
+from django.views.generic import DetailView, ListView
 from ..forms import UserLoginForm
-from ..models import Course, Lesson
+from ..models import Course, Lesson, Quiz, TakenQuiz
 
 
 class CourseDetailView(DetailView):
@@ -18,17 +18,38 @@ class CourseDetailView(DetailView):
                 # if the logged in user is a student, check if he/she is enrolled in the displayed course
                 student = self.request.user.student.taken_courses.filter(course__id=self.kwargs['pk']).first()
                 teacher = None
+                # kwargs['taken_quizzes'] = TakenQuiz.objects.filter(student=self.request.user.student)
             elif self.request.user.is_teacher:
                 # if the logged in user is a teacher, check if he/she owns the displayed course
-                teacher = self.request.user.courses.get(id=self.kwargs['pk'])
+                teacher = self.request.user.courses.filter(id=self.kwargs['pk']).first()
                 student = None
 
         kwargs['enrolled'] = student
         kwargs['owns'] = teacher
         kwargs['title'] = Course.objects.get(id=self.kwargs['pk'])
-        kwargs['lessons'] = Lesson.objects.filter(course__id=self.kwargs['pk'])
+
+        kwargs['lessons'] = Lesson.objects.select_related('quizzes') \
+            .select_related('course') \
+            .filter(course__id=self.kwargs['pk']) \
+            .order_by('number')
 
         return super().get_context_data(**kwargs)
+
+
+class LessonListView(ListView):
+    model = Lesson
+    context_object_name = 'lessons'
+    extra_context = {
+        'title': 'Lessons',
+    }
+    template_name = 'classroom/lessons.html'
+    paginate_by = 1
+
+    def get_queryset(self, **kwargs):
+        return Lesson.objects.select_related('quizzes') \
+            .select_related('course') \
+            .filter(course__id=self.kwargs['pk']) \
+            .order_by('number')
 
 
 def about(request):
@@ -38,7 +59,7 @@ def about(request):
         elif request.user.is_student:
             return redirect('students:mycourses_list')
 
-    return render(request, 'classroom/about.html')
+    return render(request, 'classroom/about.html', {'title': 'About Us'})
 
 
 def home(request):

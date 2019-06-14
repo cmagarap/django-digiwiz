@@ -25,13 +25,19 @@
             <div class="card">
                 <div class="card-header">
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-4">
                             <strong>Title</strong>
                         </div>
                         <div class="col-2">
+                            <strong>Course</strong>
+                        </div>
+                        <div class="col-2">
+                            <strong>Lesson</strong>
+                        </div>
+                        <div class="col-1">
                             <strong>Questions</strong>
                         </div>
-                        <div class="col-lg-2">
+                        <div class="col-1">
                             <strong>Taken</strong>
                         </div>
                         <div class="col-2">
@@ -44,13 +50,19 @@
                     {% for quiz in quizzes %}
                         <div class="list-group-item">
                             <div class="row">
-                                <div class="col-6">
+                                <div class="col-4">
                                     <a href="">{{ quiz.title }}</a>
                                 </div>
                                 <div class="col-2">
-                                    {{ quiz.questions_count }}
+                                    <a href="">{{ quiz.course.title }}</a>
                                 </div>
                                 <div class="col-2">
+                                    <a href="">{{ quiz.lesson.title }}</a>
+                                </div>
+                                <div class="col-1">
+                                    {{ quiz.questions_count }}
+                                </div>
+                                <div class="col-1">
                                     <b>[taken]</b>
                                 </div>
                                 <div class="col-2">

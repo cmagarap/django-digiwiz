@@ -5,8 +5,7 @@
 {% block content %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'teachers:course_change_list' %}">My Courses</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'teachers:course_change' course.pk %}">{{ course.title }}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'teachers:lesson_list' %}">My Lessons</a></li>
             <li class="breadcrumb-item active" aria-current="page">Edit lesson</li>
         </ol>
     </nav>
