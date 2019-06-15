@@ -50,7 +50,7 @@ INSTALLED_APPS = [
 CKEDITOR_CONFIGS = {
     'default': {
         'toolbar': 'Custom',
-        'width': 725,
+        'width': 728,
         'toolbar_Custom': [
             ['Styles', 'Format', 'Bold', 'Italic', 'Underline', 'Strike', 'SpellChecker', 'Undo', 'Redo'],
             ['Link', 'Unlink', 'Anchor'],
