@@ -667,6 +667,7 @@ ul.dropdown-content > .dropdown-trigger:hover > ul.dropdown-content > li:hover >
 }
 .course-thumb-area > img {
     border-radius: 5px 5px 0px 0px;
+
 }
 .single-course-item .course-meta {
     position: absolute;
@@ -792,6 +793,7 @@ ul.dropdown-content > .dropdown-trigger:hover > ul.dropdown-content > li:hover >
 }
 .course-thumb > img {
   width: 100%;
+
 }
 .course-desc-img > img {
   float: left;
