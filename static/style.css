@@ -272,6 +272,10 @@ button:focus {
     background-color: #f78888;
     border-color: #f78888;
 }
+.btn-takequiz {
+    background-color: #5da2d5;
+    border-color: #5da2d5;
+}
 .btn:focus {
     box-shadow: 0 0 0 0rem rgba(0, 123, 255, 0.5);
 }
@@ -283,7 +287,14 @@ button:focus {
 .btn-primary:hover {
     background-color: transparent;
     color: #f78888;
+	 border-color: #f78888;
 }
+.btn-takequiz:hover {
+    background-color: transparent;
+    color: #5da2d5;
+	    border-color: #5da2d5;
+}
+
 
 
 /*=============================

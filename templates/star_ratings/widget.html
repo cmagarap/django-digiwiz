@@ -2,7 +2,14 @@
 {% load i18n %}
 {% block rating_detail %}
     {% block rating_average %}
-    <div class="star-ratings-rating-average">{% trans 'Average: ' %}<span class='star-ratings-rating-value'>{{ rating.average|floatformat:"-2" }}</span></div>
+        <div class="star-ratings-rating-average">{% trans 'Average: ' %}<span class='star-ratings-rating-value'><b>{{ rating.average|floatformat:"-2" }}</b></span></div>
     {% endblock rating_average %}
+
+    {% block rating_user %}
+        <div class="star-ratings-rating-user">{% trans 'You Rated: ' %} <span class='star-ratings-rating-value'>{% if user_rating %}<b>{{ user_rating.score }}</b>{% else %}{% trans 'None' %}{% endif %}</span></div>
+    {% if not user.is_authenticated and not anonymous_ratings and not read_only %}
+        <p>{% trans 'Please log in to rate.' %}</p>
+    {% endif %}
+    {% endblock rating_user %}
 
 {% endblock %}
