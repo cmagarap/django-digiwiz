@@ -34,7 +34,7 @@
                                     <h2>Lesson {{ lesson.number }}: {{ lesson.title }}</h2>
                                 </div>
                                 <div class="course-desc">
-                                    <p>{{ lesson.content }}</p>
+                                    <p>{{ lesson.content|safe}}</p>
                                     <br>
                                     {% if lesson.quizzes.taken_quizzes.values.count > 0 %}
                                         <button class="btn" disabled>Quiz Already Taken</button>

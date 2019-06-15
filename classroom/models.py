@@ -1,3 +1,4 @@
+from ckeditor_uploader.fields import RichTextUploadingField
 from django.contrib.auth.models import AbstractUser
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
@@ -54,7 +55,7 @@ class Lesson(models.Model):
     title = models.CharField(max_length=50)
     number = models.IntegerField()
     description = models.TextField()
-    content = models.TextField(default='')
+    content = RichTextUploadingField(blank=True, null=True)
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='lessons')
 
     def __str__(self):

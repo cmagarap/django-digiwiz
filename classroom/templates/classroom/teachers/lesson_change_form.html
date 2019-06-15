@@ -18,6 +18,7 @@
                         <h2 class="mb-3">Edit lesson</h2>
                         <form method="post" novalidate>
                             {% csrf_token %}
+                            {{ form.media }}
                             {{ form|crispy }}
                             {# The course field will be ignored in the backend since it is not included in LessonEditForm class #}
                             <label for="course" class="col-form-label  requiredField">

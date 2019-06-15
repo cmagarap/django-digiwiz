@@ -42,8 +42,24 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'classroom.apps.ClassroomConfig',
     'crispy_forms',
-    'star_ratings'
+    'star_ratings',
+    'ckeditor',
+    'ckeditor_uploader'
 ]
+
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'Custom',
+        'width': 725,
+        'toolbar_Custom': [
+            ['Styles', 'Format', 'Bold', 'Italic', 'Underline', 'Strike', 'SpellChecker', 'Undo', 'Redo'],
+            ['Link', 'Unlink', 'Anchor'],
+            ['Image', 'Flash', 'Table', 'HorizontalRule'],
+            ['TextColor', 'BGColor'],
+            ['Smiley', 'SpecialChar'], ['Source'],
+        ],
+    },
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -138,6 +154,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
+# STATIC_ROOT = 'static/'  # for production
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
@@ -158,3 +175,5 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 TEMPLATE_CONTEXT_PROCESSOR = 'django.core.context_processors.request'
 STAR_RATINGS_STAR_HEIGHT = 20
+
+CKEDITOR_UPLOAD_PATH = 'uploads/lessons/'

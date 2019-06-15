@@ -18,6 +18,7 @@
                         <h2 class="mb-3">Add a lesson</h2>
                         <form method="post" novalidate>
                             {% csrf_token %}
+                            {{ form.media }}
                             {{ form|crispy }}
                             <center>
                                 <button type="submit" class="btn btn-success">Save</button>

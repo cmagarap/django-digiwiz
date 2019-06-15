@@ -13,13 +13,15 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from ckeditor_uploader import views as uploader_views
 from classroom.views import classroom, students, teachers
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
+from django.contrib.staticfiles.urls import static, staticfiles_urlpatterns
 from django.urls import include, path
+from django.views.decorators.cache import never_cache
 from . import settings
-from django.contrib.staticfiles.urls import static
-from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+
 
 urlpatterns = [
     path('', include('classroom.urls')),
@@ -27,6 +29,9 @@ urlpatterns = [
     path('activate-student/<str:uidb64>/<str:token>', students.activate, name='activate_student'),
     path('activate-teacher/<str:uidb64>/<str:token>', teachers.activate, name='activate_teacher'),
     path('browse-courses/', students.BrowseCoursesView.as_view(), name='browse_courses'),
+    # path('ckeditor/', include('ckeditor_uploader.urls')),
+    path('ckeditor/upload/', uploader_views.upload, name='ckeditor_upload'),
+    path('ckeditor/browse/', never_cache(uploader_views.browse), name='ckeditor_browse'),
     path('course/details/<int:pk>/', classroom.CourseDetailView.as_view(), name='course_details'),
     path('course/details/<int:pk>/lesson', classroom.LessonListView.as_view(), name='lesson_list'),
     path('django-admin/', admin.site.urls),
