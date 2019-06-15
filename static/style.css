@@ -275,6 +275,7 @@ button:focus {
 .btn-takequiz {
     background-color: #5da2d5;
     border-color: #5da2d5;
+    color: #fff;
 }
 .btn:focus {
     box-shadow: 0 0 0 0rem rgba(0, 123, 255, 0.5);
@@ -2477,7 +2478,7 @@ ul.dropdown-content > .dropdown-trigger:hover > ul.dropdown-content > li:hover >
     height: 50px;
 }
 .login-form-area .form-control:focus {
-    border: 1px solid #000;
+    border: 1px solid #5da2d5;
 }
 .login-form-area a:hover {
     color: #5da2d5;
@@ -2505,7 +2506,7 @@ ul.dropdown-content > .dropdown-trigger:hover > ul.dropdown-content > li:hover >
     text-align: center;
 }
 .login-form-register-now a {
-    color: #f78888;
+    color: #5da2d5;
     font-weight: lighter;
     letter-spacing: 1px;
 }
