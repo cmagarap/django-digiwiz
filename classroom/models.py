@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.utils.html import escape, mark_safe
+from star_ratings.models import Rating
 
 
 class User(AbstractUser):
@@ -33,6 +35,7 @@ class Course(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='courses')
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='courses')
+    ratings = GenericRelation(Rating, related_query_name='courses')
 
     def __str__(self):
         return self.title

@@ -120,7 +120,13 @@
                                 <img src="{{ course.image.url }}" alt="" />
                             </div>
                             <div class="course-desc">
-                                {% ratings course %}<br><br>
+                                {% if not user.is_teacher %}
+                                    {% ratings course %}
+                                {% else %}
+                                    {{ course.ratings.get.average|floatformat:"-2" }}/5
+				                    ({{ course.ratings.get.count }} casted)
+                                {% endif %}
+                                <br><br>
                                 <p>{{ course.description }}</p>
                                 <br>
                                 {% for lesson in lessons %}

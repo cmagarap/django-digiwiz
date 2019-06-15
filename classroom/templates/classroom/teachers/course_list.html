@@ -46,13 +46,10 @@
                                 <p>{{ course.description }}</p>
                                 <small>{{ course.subject.get_html_badge }}</small>
                                 <div class="course-reviews">
-                                    <i class="fa fa-star" aria-hidden="true"></i>
-                                    <i class="fa fa-star" aria-hidden="true"></i>
-                                    <i class="fa fa-star" aria-hidden="true"></i>
-                                    <i class="fa fa-star" aria-hidden="true"></i>
-                                    <i class="fa fa-star-o" aria-hidden="true"></i>
-                                    <span class="total-reviews">(105 reviews)</span>
+                                    {{ course.ratings.get.average|floatformat:"-2" }}/5
+				                    ({{ course.ratings.get.count }} casted)
                                 </div><!--/.course-reviews-->
+
                                 <div class="trainer-profile clearfix">
                                     <img class="rounded-circle" src="images/author/author-1.jpg" alt="img">
                                     <div class="trainer-info">
