@@ -13,10 +13,11 @@ from django.utils.decorators import method_decorator
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.generic import ListView, DetailView, UpdateView
+from .raw_sql import get_taken_quiz
 from ..decorators import student_required
 from ..forms import (StudentInterestsForm, StudentProfileForm,
                      StudentSignUpForm, TakeQuizForm, UserUpdateForm)
-from ..models import Course, Quiz, Student, TakenCourse, TakenQuiz, User
+from ..models import Course, Quiz, Student, StudentAnswer, TakenCourse, TakenQuiz, User
 from ..tokens import account_activation_token
 
 
@@ -110,6 +111,8 @@ class TakenQuizDetailView(DetailView):
     template_name = 'classroom/students/taken_quiz_result.html'
 
     def get_context_data(self, **kwargs):
+        kwargs['student_answer'] = StudentAnswer.objects.raw(
+            get_taken_quiz(self.request.user.pk, self.kwargs['pk']))
         kwargs['taken_quiz'] = TakenQuiz.objects \
                 .select_related('quiz') \
                 .get(id=self.kwargs['pk'])
