@@ -1,4 +1,4 @@
-{% load static %}<!DOCTYPE html>
+{% load crispy_forms_tags %}{% load static %}<!DOCTYPE html>
 <html lang="en">
 
 <!-- Mirrored from bdevs.net/edulab/edulab/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 12 May 2019 04:43:35 GMT -->
@@ -67,13 +67,16 @@
                                     {% if user.is_authenticated %}
                                         {% if user.is_student %}
                                             {% if title != 'Browse Courses' %}
-                                                <li><form class="product-search-form" action="#" method="get" style=" position: absolute; left: -280px; top: 10px;"  >
+                                                <li>
+                                                    <form class="product-search-form" method="get" action="{% url 'browse_courses' %}" style="position: absolute; left: -280px; top: 10px;" novalidate>
                                                     <div class="form-group"style="width: 300px;  height: 50px; " >
-                                                        <input class="form-controllar" name="search" placeholder="Search here" type="text" style=" height: 50px;">
-                                                        <input type="image" src="{% static 'images/icon/search.png' %}" style="height:30px;width:30px; margin: 8px;
-                }" align = "right" alt="Submit">
+{#                                                        {{ form|crispy }}#}
+                                                        <input type="text" name="search" placeholder="Search course" class="textinput textInput form-controllar" required id="id_search" style="height: 50px;">
+{#                                                        <input class="form-controllar" name="search" placeholder="Search here" type="text" style=" height: 50px;">#}
+                                                        <input type="image" src="{% static 'images/icon/search.png' %}" style="height:30px; width:30px; margin: 8px;" align="right" alt="Search" title="Search">
                                                     </div>
-                                                </form></li>
+                                                </form>
+                                                </li>
                                             {% endif %}
                                             <li class="dropdown-trigger"><a href="#">{{ user.first_name }}</a>
                                                 <ul class="dropdown-content">
