@@ -187,20 +187,24 @@ def unenroll(request, pk):
 def profile(request):
     if request.method == 'POST':
         user_update_form = UserUpdateForm(request.POST, instance=request.user)
+        interests_form = StudentInterestsForm(request.POST, instance=request.user)
         profile_form = StudentProfileForm(request.POST, request.FILES, instance=request.user.student)
 
-        if user_update_form.is_valid() and profile_form.is_valid():
+        if user_update_form.is_valid() and interests_form.is_valid() and profile_form.is_valid():
             user_update_form.save()
+            interests_form.save()
             profile_form.save()
             messages.success(request, 'Your account has been updated!')
             return redirect('students:profile')
 
     else:
         user_update_form = UserUpdateForm(instance=request.user)
+        interests_form = StudentInterestsForm(instance=request.user)
         profile_form = StudentProfileForm(instance=request.user.student)
 
     context = {
         'u_form': user_update_form,
+        'i_form': interests_form,
         'p_form': profile_form,
         'title': 'My Profile'
     }
