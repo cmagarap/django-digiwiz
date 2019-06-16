@@ -81,40 +81,39 @@
                                 {% endfor %}
                             {% endif %}
                             <div class="course-title">
-							<div class="row">
-							<div class="col-sm-6">
-                                <h2>{{ course.title }}</h2>
-                                <span class="course-date">By: {{ course.owner.first_name }} {{ course.owner.last_name }}</span>
-                                <br>
-                                <small>{{ course.created_at|date:"F d, Y" }}</small>
-                                <br>
-                                <small>Subject: {{ course.subject.get_html_badge }}</small>
-								</div>
-								<div class="col-sm-6">
-                                {% if user.is_student %}
-                                    {% if enrolled %}
-                                        <div class="course-cat text-capitalize text-right">
-                                            {% if enrolled.status.upper == 'ENROLLED' %}
-                                                <button href="{% url 'students:unenroll' course.pk %}" class="button" type="button" data-hover="UNENROLL" data-active="I'M ACTIVE">
-                                                    <a href="{% url 'students:unenroll' course.pk %}"><span>{{ enrolled.status.upper }}</span></a>
-                                                </button>
-                                            {% elif enrolled.status.upper == 'PENDING' %}
-                                                <button href="{% url 'students:unenroll' course.pk %}" class="button" type="button" data-hover="CANCEL" data-active="I'M ACTIVE">
-                                                    <a href="{% url 'students:unenroll' course.pk %}"><span>{{ enrolled.status.upper }}</span></a>
-                                                </button>
+                                <div class="row">
+                                    <div class="col-sm-10">
+                                        <h2>{{ course.title }}</h2>
+                                        <span class="course-date">By: {{ course.owner.first_name }} {{ course.owner.last_name }}</span>
+                                        <br>
+                                        <small>{{ course.created_at|date:"F d, Y" }}</small>
+                                        <br>
+                                        <small>Subject: {{ course.subject.get_html_badge }}</small>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        {% if user.is_student %}
+                                            {% if enrolled %}
+                                                <div class="course-cat text-capitalize text-right">
+                                                    {% if enrolled.status.upper == 'ENROLLED' %}
+                                                        <button href="{% url 'students:unenroll' course.pk %}" class="button" type="button" data-hover="UNENROLL" data-active="I'M ACTIVE">
+                                                            <a href="{% url 'students:unenroll' course.pk %}"><span>{{ enrolled.status.upper }}</span></a>
+                                                        </button>
+                                                    {% elif enrolled.status.upper == 'PENDING' %}
+                                                        <button href="{% url 'students:unenroll' course.pk %}" class="button" type="button" data-hover="CANCEL" data-active="I'M ACTIVE">
+                                                            <a href="{% url 'students:unenroll' course.pk %}"><span>{{ enrolled.status.upper }}</span></a>
+                                                        </button>
+                                                    {% endif %}
+                                                </div>
+                                            {% else %}
+                                                <div class="course-cat text-capitalize text-right">
+                                                    <button href="{% url 'students:enroll' course.pk %}" class="button" type="button" data-hover="ENROLL">
+                                                        <a href="{% url 'students:enroll' course.pk %}"><span>ENROLL</span></a>
+                                                    </button>
+                                                </div>
                                             {% endif %}
-                                        </div>
-                                    {% else %}
-                                        <div class="course-cat text-capitalize text-right">
-                                            <button href="{% url 'students:enroll' course.pk %}" class="button" type="button" data-hover="ENROLL">
-                                                <a href="{% url 'students:enroll' course.pk %}"><span>ENROLL</span></a>
-                                            </button>
-                                        </div>
-                                    {% endif %}
-                                {% endif %}
-								</div>
-								
-							</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
                             </div>
                             <div class="course-thumb">
                                 <img src="{{ course.image.url }}" alt="" />
@@ -124,7 +123,7 @@
                                     {% ratings course %}
                                 {% else %}
                                     {{ course.ratings.get.average|floatformat:"-2" }}/5
-				                    ({{ course.ratings.get.count }} casted)
+                                    ({{ course.ratings.get.count }} casted)
                                 {% endif %}
                                 <br><br>
                                 <p>{{ course.description }}</p>
@@ -150,7 +149,7 @@
                                                         {% if enrolled and enrolled.status.upper == 'ENROLLED' %}
                                                             <a href="{% url 'course_details' course.pk %}lesson?page={{ forloop.counter }}" class="btn btn-primary mb-3" style=" border-color:#f78888;" role="button">See Lesson</a>
                                                             {% if lesson.quizzes.taken_quizzes.values.count > 0 %}
-                                                                 <a class="btn btn-primary mb-3 disabled" style="background-color: buttonface;border-color: buttonface; color: graytext;"role="button">Quiz Already Taken</a>
+                                                                <a class="btn btn-primary mb-3 disabled" style="background-color: buttonface;border-color: buttonface; color: graytext;"role="button">Quiz Already Taken</a>
                                                                 <br><a href="#">See Results</a>
                                                             {% elif lesson.quizzes.taken_quizzes.values.count == 0 %}
                                                                 <a href="{% url 'students:take_quiz' lesson.course.pk  lesson.quizzes.pk %}" class="btn btn-primary btn-takequiz mb-3"  role="button">Take Quiz</a>

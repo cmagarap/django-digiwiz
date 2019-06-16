@@ -112,6 +112,12 @@ class StudentInterestsForm(forms.ModelForm):
         }
 
 
+class StudentProfileForm(forms.ModelForm):
+    class Meta:
+        model = Student
+        fields = ['image']
+
+
 class StudentSignUpForm(UserCreationForm):
     email = forms.EmailField(max_length=50, label='Parent\'s Email')
     first_name = forms.CharField(max_length=80)

@@ -14,7 +14,8 @@ from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.generic import ListView, DetailView, UpdateView
 from ..decorators import student_required
-from ..forms import StudentInterestsForm, StudentSignUpForm, TakeQuizForm
+from ..forms import (StudentInterestsForm, StudentProfileForm,
+                     StudentSignUpForm, TakeQuizForm, UserUpdateForm)
 from ..models import Course, Quiz, Student, TakenCourse, TakenQuiz, User
 from ..tokens import account_activation_token
 
@@ -179,6 +180,32 @@ def unenroll(request, pk):
 
     messages.success(request, 'You have successfully unenrolled from this course.')
     return redirect('course_details', pk)
+
+
+@login_required
+@student_required
+def profile(request):
+    if request.method == 'POST':
+        user_update_form = UserUpdateForm(request.POST, instance=request.user)
+        profile_form = StudentProfileForm(request.POST, request.FILES, instance=request.user.student)
+
+        if user_update_form.is_valid() and profile_form.is_valid():
+            user_update_form.save()
+            profile_form.save()
+            messages.success(request, 'Your account has been updated!')
+            return redirect('students:profile')
+
+    else:
+        user_update_form = UserUpdateForm(instance=request.user)
+        profile_form = StudentProfileForm(instance=request.user.student)
+
+    context = {
+        'u_form': user_update_form,
+        'p_form': profile_form,
+        'title': 'My Profile'
+    }
+
+    return render(request, 'classroom/students/student_profile.html', context)
 
 
 def register(request):
