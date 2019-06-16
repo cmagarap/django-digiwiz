@@ -15,7 +15,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.generic import ListView, DetailView, UpdateView
 from .raw_sql import get_taken_quiz
 from ..decorators import student_required
-from ..forms import (StudentInterestsForm, StudentProfileForm,
+from ..forms import (SearchCourses, StudentInterestsForm, StudentProfileForm,
                      StudentSignUpForm, TakeQuizForm, UserUpdateForm)
 from ..models import Course, Quiz, Student, StudentAnswer, TakenCourse, TakenQuiz, User
 from ..tokens import account_activation_token
@@ -24,32 +24,35 @@ from ..tokens import account_activation_token
 User = get_user_model()
 
 
-class BrowseCoursesView(ListView):
-    model = Course
-    ordering = ('title', )
-    context_object_name = 'courses'
-    extra_context = {
-        'title': 'Browse Courses'
-    }
-    template_name = 'classroom/students/courses_list.html'
-
-    # Get only the courses that the student is NOT enrolled
-    def get_queryset(self):
-        queryset = Course.objects.all() \
-            .annotate(taken_count=Count('taken_courses',
-                                        filter=Q(taken_courses__status__iexact='enrolled'),
-                                        distinct=True))
-
-        if self.request.user.is_authenticated:
-            if self.request.user.is_student:
-                student = self.request.user.student
-                taken_courses = student.courses.values_list('pk', flat=True)
-                queryset = Course.objects.exclude(pk__in=taken_courses) \
-                    .annotate(taken_count=Count('taken_courses',
-                                                filter=Q(taken_courses__status__iexact='enrolled'),
-                                                distinct=True))
-
-        return queryset
+# class BrowseCoursesView(ListView):
+#     model = Course
+#     ordering = ('title', )
+#     form = SearchCourses
+#     context_object_name = 'courses'
+#     extra_context = {
+#         'title': 'Browse Courses',
+#         'form': form
+#     }
+#
+#     template_name = 'classroom/students/courses_list.html'
+#
+#     # Get only the courses that the student is NOT enrolled
+#     def get_queryset(self):
+#         queryset = Course.objects.all() \
+#             .annotate(taken_count=Count('taken_courses',
+#                                         filter=Q(taken_courses__status__iexact='enrolled'),
+#                                         distinct=True))
+#
+#         if self.request.user.is_authenticated:
+#             if self.request.user.is_student:
+#                 student = self.request.user.student
+#                 taken_courses = student.courses.values_list('pk', flat=True)
+#                 queryset = Course.objects.exclude(pk__in=taken_courses) \
+#                     .annotate(taken_count=Count('taken_courses',
+#                                                 filter=Q(taken_courses__status__iexact='enrolled'),
+#                                                 distinct=True))
+#
+#         return queryset
 
 
 @method_decorator([login_required, student_required], name='dispatch')

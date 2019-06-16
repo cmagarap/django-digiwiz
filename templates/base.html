@@ -66,13 +66,15 @@
                                 <ul id="nav">
                                     {% if user.is_authenticated %}
                                         {% if user.is_student %}
-                                            <li><form class="product-search-form" action="#" method="get" style=" position: absolute; left: -280px; top: 10px;"  >
-                                                <div class="form-group"style="width: 300px;  height: 50px; " >
-                                                    <input class="form-controllar" name="search" placeholder="Search here" type="text" style=" height: 50px;">
-                                                    <input type="image" src="{% static 'images/icon/search.png' %}" style="height:30px;width:30px; margin: 8px;
-            }" align = "right" alt="Submit">
-                                                </div>
-                                            </form></li>
+                                            {% if title != 'Browse Courses' %}
+                                                <li><form class="product-search-form" action="#" method="get" style=" position: absolute; left: -280px; top: 10px;"  >
+                                                    <div class="form-group"style="width: 300px;  height: 50px; " >
+                                                        <input class="form-controllar" name="search" placeholder="Search here" type="text" style=" height: 50px;">
+                                                        <input type="image" src="{% static 'images/icon/search.png' %}" style="height:30px;width:30px; margin: 8px;
+                }" align = "right" alt="Submit">
+                                                    </div>
+                                                </form></li>
+                                            {% endif %}
                                             <li class="dropdown-trigger"><a href="#">{{ user.first_name }}</a>
                                                 <ul class="dropdown-content">
                                                     <li><a href="{% url 'students:profile' %}">My Profile</a></li>

@@ -28,8 +28,7 @@ urlpatterns = [
     path('about-us/', classroom.about, name='about_us'),
     path('activate-student/<str:uidb64>/<str:token>', students.activate, name='activate_student'),
     path('activate-teacher/<str:uidb64>/<str:token>', teachers.activate, name='activate_teacher'),
-    path('browse-courses/', students.BrowseCoursesView.as_view(), name='browse_courses'),
-    # path('ckeditor/', include('ckeditor_uploader.urls')),
+    path('browse-courses/', classroom.browse_courses, name='browse_courses'),
     path('ckeditor/upload/', uploader_views.upload, name='ckeditor_upload'),
     path('ckeditor/browse/', never_cache(uploader_views.browse), name='ckeditor_browse'),
     path('course/details/<int:pk>/', classroom.CourseDetailView.as_view(), name='course_details'),
@@ -52,8 +51,7 @@ urlpatterns = [
     path('ratings/', include('star_ratings.urls', namespace='ratings')),
     path('register/', classroom.register_page, name='register'),
     path('register/student/', students.register, name='student_register'),
-    path('register/teacher/', teachers.register, name='teacher_register'),
-
+    path('register/teacher/', teachers.register, name='teacher_register')
 ]
 
 urlpatterns += staticfiles_urlpatterns()

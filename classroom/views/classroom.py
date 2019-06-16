@@ -1,7 +1,8 @@
 from django.contrib.auth import authenticate, login, logout
+from django.db.models import Count, Q
 from django.shortcuts import redirect, render
 from django.views.generic import DetailView, ListView
-from ..forms import UserLoginForm
+from ..forms import SearchCourses, UserLoginForm
 from ..models import Course, Lesson, Quiz, TakenQuiz
 
 
@@ -103,3 +104,38 @@ def register_page(request):
     if request.user.is_authenticated:
         return redirect('home')
     return render(request, 'authentication/register.html', {'title': 'Register'})
+
+
+def browse_courses(request):
+    query = None
+    courses = Course.objects.all() \
+        .annotate(taken_count=Count('taken_courses',
+                                    filter=Q(taken_courses__status__iexact='enrolled'),
+                                    distinct=True)) \
+        .order_by('title')
+
+    if request.user.is_authenticated:
+        if request.user.is_student:
+            student = request.user.student
+            taken_courses = student.courses.values_list('pk', flat=True)
+            courses = Course.objects.exclude(pk__in=taken_courses) \
+                .annotate(taken_count=Count('taken_courses',
+                                            filter=Q(taken_courses__status__iexact='enrolled'),
+                                            distinct=True)) \
+                .order_by('title')
+
+    if 'search' in request.GET:
+        form = SearchCourses(request.GET)
+        if form.is_valid():
+            query = form.cleaned_data.get('search')
+            courses = Course.objects.filter(Q(title__icontains=query) | Q(description__icontains=query))
+    else:
+        form = SearchCourses()
+
+    context = {
+        'title': 'Browse Courses',
+        'form': form,
+        'courses': courses,
+        'search_str': query
+    }
+    return render(request, 'classroom/students/courses_list.html', context)
