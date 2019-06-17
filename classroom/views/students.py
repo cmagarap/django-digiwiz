@@ -13,41 +13,46 @@ from django.utils.decorators import method_decorator
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.generic import ListView, DetailView, UpdateView
+from .raw_sql import get_taken_quiz
 from ..decorators import student_required
-from ..forms import StudentInterestsForm, StudentSignUpForm, TakeQuizForm
-from ..models import Course, Quiz, Student, TakenCourse, TakenQuiz, User
+from ..forms import (SearchCourses, StudentInterestsForm, StudentProfileForm,
+                     StudentSignUpForm, TakeQuizForm, UserUpdateForm)
+from ..models import Course, Quiz, Student, StudentAnswer, TakenCourse, TakenQuiz, User
 from ..tokens import account_activation_token
 
 
 User = get_user_model()
 
 
-class BrowseCoursesView(ListView):
-    model = Course
-    ordering = ('title', )
-    context_object_name = 'courses'
-    extra_context = {
-        'title': 'Browse Courses'
-    }
-    template_name = 'classroom/students/courses_list.html'
-
-    # Get only the courses that the student is NOT enrolled
-    def get_queryset(self):
-        queryset = Course.objects.all() \
-            .annotate(taken_count=Count('taken_courses',
-                                        filter=Q(taken_courses__status__iexact='enrolled'),
-                                        distinct=True))
-
-        if self.request.user.is_authenticated:
-            if self.request.user.is_student:
-                student = self.request.user.student
-                taken_courses = student.courses.values_list('pk', flat=True)
-                queryset = Course.objects.exclude(pk__in=taken_courses) \
-                    .annotate(taken_count=Count('taken_courses',
-                                                filter=Q(taken_courses__status__iexact='enrolled'),
-                                                distinct=True))
-
-        return queryset
+# class BrowseCoursesView(ListView):
+#     model = Course
+#     ordering = ('title', )
+#     form = SearchCourses
+#     context_object_name = 'courses'
+#     extra_context = {
+#         'title': 'Browse Courses',
+#         'form': form
+#     }
+#
+#     template_name = 'classroom/students/courses_list.html'
+#
+#     # Get only the courses that the student is NOT enrolled
+#     def get_queryset(self):
+#         queryset = Course.objects.all() \
+#             .annotate(taken_count=Count('taken_courses',
+#                                         filter=Q(taken_courses__status__iexact='enrolled'),
+#                                         distinct=True))
+#
+#         if self.request.user.is_authenticated:
+#             if self.request.user.is_student:
+#                 student = self.request.user.student
+#                 taken_courses = student.courses.values_list('pk', flat=True)
+#                 queryset = Course.objects.exclude(pk__in=taken_courses) \
+#                     .annotate(taken_count=Count('taken_courses',
+#                                                 filter=Q(taken_courses__status__iexact='enrolled'),
+#                                                 distinct=True))
+#
+#         return queryset
 
 
 @method_decorator([login_required, student_required], name='dispatch')
@@ -56,7 +61,7 @@ class MyCoursesListView(ListView):
     ordering = ('title', )
     context_object_name = 'taken_courses'
     extra_context = {
-        'title': 'My Courses'
+        'title': 'My Courses',
     }
     template_name = 'classroom/students/mycourses_list.html'
 
@@ -109,6 +114,8 @@ class TakenQuizDetailView(DetailView):
     template_name = 'classroom/students/taken_quiz_result.html'
 
     def get_context_data(self, **kwargs):
+        kwargs['student_answer'] = StudentAnswer.objects.raw(
+            get_taken_quiz(self.request.user.pk, self.kwargs['pk']))
         kwargs['taken_quiz'] = TakenQuiz.objects \
                 .select_related('quiz') \
                 .get(id=self.kwargs['pk'])
@@ -179,6 +186,36 @@ def unenroll(request, pk):
 
     messages.success(request, 'You have successfully unenrolled from this course.')
     return redirect('course_details', pk)
+
+
+@login_required
+@student_required
+def profile(request):
+    if request.method == 'POST':
+        user_update_form = UserUpdateForm(request.POST, instance=request.user)
+        interests_form = StudentInterestsForm(request.POST, instance=request.user)
+        profile_form = StudentProfileForm(request.POST, request.FILES, instance=request.user.student)
+
+        if user_update_form.is_valid() and interests_form.is_valid() and profile_form.is_valid():
+            user_update_form.save()
+            interests_form.save()
+            profile_form.save()
+            messages.success(request, 'Your account has been updated!')
+            return redirect('students:profile')
+
+    else:
+        user_update_form = UserUpdateForm(instance=request.user)
+        interests_form = StudentInterestsForm(instance=request.user)
+        profile_form = StudentProfileForm(instance=request.user.student)
+
+    context = {
+        'u_form': user_update_form,
+        'i_form': interests_form,
+        'p_form': profile_form,
+        'title': 'My Profile'
+    }
+
+    return render(request, 'classroom/students/student_profile.html', context)
 
 
 def register(request):

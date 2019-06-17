@@ -103,6 +103,14 @@ class QuestionForm(forms.ModelForm):
         fields = ('text', )
 
 
+class SearchCourses(forms.ModelForm):
+    search = forms.CharField(label='', widget=forms.TextInput(attrs={'placeholder': 'Enter your keywords here...'}))
+
+    class Meta:
+        model = Course
+        fields = ('search', )
+
+
 class StudentInterestsForm(forms.ModelForm):
     class Meta:
         model = Student
@@ -110,6 +118,12 @@ class StudentInterestsForm(forms.ModelForm):
         widgets = {
             'interests': forms.CheckboxSelectMultiple
         }
+
+
+class StudentProfileForm(forms.ModelForm):
+    class Meta:
+        model = Student
+        fields = ['image']
 
 
 class StudentSignUpForm(UserCreationForm):
