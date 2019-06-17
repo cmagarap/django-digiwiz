@@ -7,12 +7,12 @@
     <div class="row">
         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
             <div class="page-header">
-                <h2 class="pageheader-title">Course Requests</h2>
+                <h2 class="pageheader-title">List of Teachers</h2>
                 <div class="page-breadcrumb">
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a href="#" class="breadcrumb-link">Admin</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Course Requests</li>
+                            <li class="breadcrumb-item active" aria-current="page">Teachers</li>
                         </ol>
                     </nav>
                 </div>
@@ -32,42 +32,38 @@
             </div>
         {% endfor %}
     {% endif %}
+
     <div class="row">
         <!-- ============================================================== -->
         <!-- basic table  -->
         <!-- ============================================================== -->
         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
             <div class="card">
-                <h5 class="card-header">Course Table</h5>
+                <h5 class="card-header">User Table</h5>
                 <div class="card-body">
-                    {% if courses %}
+                    {% if teachers %}
                         <div class="table-responsive">
                             <table class="table table-striped table-bordered first">
                                 <thead>
                                 <tr>
-                                    <th>Course Title</th>
-                                    <th>Course Code</th>
-                                    <th>Owner</th>
-                                    <th>Date Created</th>
-                                    <th>Date Updated</th>
+                                    <th>Username</th>
+                                    <th>Last Name</th>
+                                    <th>First Name</th>
+                                    <th>Email</th>
+                                    <th>Date Added</th>
                                     <th>Action</th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {% for course in courses %}
+                                {% for teacher in teachers %}
                                     <tr>
+                                        <td><b>{{ teacher.username }}</b></td>
+                                        <td>{{ teacher.last_name }}</td>
+                                        <td>{{ teacher.first_name }}</td>
+                                        <td>{{ teacher.email }}</td>
+                                        <td>{{ teacher.date_joined|date:"F d, Y g:i A" }}</td>
                                         <td>
-                                            <a href="{% url 'course_details' course.pk %}">
-                                                <b><u>{{ course.title }}</u></b>
-                                            </a>
-                                        </td>
-                                        <td>{{ course.code }}</td>
-                                        <td>{{ course.owner.first_name }} {{ course.owner.last_name }}</td>
-                                        <td>{{ course.created_at|date:"F d, Y g:i A" }}</td>
-                                        <td>{{ course.updated_at|date:"F d, Y g:i A" }}</td>
-                                        <td>
-                                            <a href="{% url 'staff:accept_course' course.pk %}" class="btn btn-rounded btn-success">Approve</a>
-                                            <a href="{% url 'staff:reject_course' course.pk %}" class="btn btn-rounded btn-danger">Reject</a>
+                                            <a href="#" class="btn btn-rounded btn-danger delete" title="Delete" data-id="{{ teacher.pk }}"><i class="fas fa-trash-alt"></i></a>
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -76,11 +72,30 @@
                         </div>
                     {% else %}
                         <center>
-                            <i>There are no course requests right now.</i>
+                            <i>There are no admin records found in the database.</i>
                         </center>
                     {% endif %}
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        $(".delete").click(function () {
+            var url = "{% url 'staff:teacher_list'  %}";
+            var id = $(this).data('id');
+            swal({
+                title: "Are you sure you want to delete this teacher account?",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            })
+                .then((willDelete) => {
+                    if (willDelete) {
+                        {# This will follow the url pattern of 'staff:teacher_deactivate' #}
+                        window.location = url + id + "/delete/";
+                    }
+                });
+        });
+    </script>
 {% endblock %}
