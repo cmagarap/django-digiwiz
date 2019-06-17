@@ -32,7 +32,7 @@ urlpatterns = [
     path('ckeditor/upload/', uploader_views.upload, name='ckeditor_upload'),
     path('ckeditor/browse/', never_cache(uploader_views.browse), name='ckeditor_browse'),
     path('course/details/<int:pk>/', classroom.CourseDetailView.as_view(), name='course_details'),
-    path('course/details/<int:pk>/lesson', classroom.LessonListView.as_view(), name='lesson_list'),
+    path('course/details/<int:pk>/lesson', students.LessonListView.as_view(), name='lesson_list'),
     path('django-admin/', admin.site.urls),
     path('login/', classroom.login_view, name='login'),
     path('logout/', classroom.logout_view, name='logout'),

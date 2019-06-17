@@ -37,22 +37,6 @@ class CourseDetailView(DetailView):
         return super().get_context_data(**kwargs)
 
 
-class LessonListView(ListView):
-    model = Lesson
-    context_object_name = 'lessons'
-    extra_context = {
-        'title': 'Lessons',
-    }
-    template_name = 'classroom/lessons.html'
-    paginate_by = 1
-
-    def get_queryset(self, **kwargs):
-        return Lesson.objects.select_related('quizzes') \
-            .select_related('course') \
-            .filter(course__id=self.kwargs['pk']) \
-            .order_by('number')
-
-
 def about(request):
     if request.user.is_authenticated:
         if request.user.is_teacher:
