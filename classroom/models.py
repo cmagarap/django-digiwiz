@@ -1,19 +1,15 @@
+from ckeditor_uploader.fields import RichTextUploadingField
 from django.contrib.auth.models import AbstractUser
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.utils.html import escape, mark_safe
+from star_ratings.models import Rating
 
 
 class User(AbstractUser):
     email = models.EmailField(unique=True)
     is_student = models.BooleanField(default=False)
     is_teacher = models.BooleanField(default=False)
-
-    def save(self, *args, **kwargs):
-        for field_name in ['last_name', 'first_name']:
-            val = getattr(self, field_name, False)
-            if val:
-                setattr(self, field_name, val.title())
-        super(User, self).save(*args, **kwargs)
 
 
 class Subject(models.Model):
@@ -29,13 +25,6 @@ class Subject(models.Model):
         html = f'<span class="badge badge-primary" style="background-color: {color}">{name}</span>'
         return mark_safe(html)
 
-    def save(self, *args, **kwargs):
-        for field_name in ['name']:  # also capitalize course code
-            val = getattr(self, field_name, False)
-            if val:
-                setattr(self, field_name, val.title())
-        super(Subject, self).save(*args, **kwargs)
-
 
 class Course(models.Model):
     title = models.CharField(max_length=255)
@@ -46,16 +35,19 @@ class Course(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='courses')
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='courses')  # NOT SURE with the on_delete
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='courses')
+    ratings = GenericRelation(Rating, related_query_name='courses')
 
     def __str__(self):
         return self.title
 
     def save(self, *args, **kwargs):
-        for field_name in ['title']:  # also capitalize course code
-            val = getattr(self, field_name, False)
-            if val:
-                setattr(self, field_name, val.title())
+        # Set every first letter to capital:
+        setattr(self, 'title', getattr(self, 'title', False).title())
+        # Set the first letter to capital:
+        setattr(self, 'description', getattr(self, 'description', False).capitalize())
+        # Set the course code to ALL CAPS
+        setattr(self, 'code', getattr(self, 'code', False).upper())
         super(Course, self).save(*args, **kwargs)
 
 
@@ -63,20 +55,32 @@ class Lesson(models.Model):
     title = models.CharField(max_length=50)
     number = models.IntegerField()
     description = models.TextField()
-    content = models.TextField(default='')
+    content = RichTextUploadingField(blank=True, null=True)
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='lessons')
 
     def __str__(self):
         return self.title
 
+    def save(self, *args, **kwargs):
+        for field_name in ['description', 'content']:
+            val = getattr(self, field_name, False)
+            if val:
+                setattr(self, field_name, val.capitalize())
+
+        super(Lesson, self).save(*args, **kwargs)
+
 
 class Quiz(models.Model):
     title = models.CharField(max_length=255)
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='quizzes')
-    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='quizzes')
+    lesson = models.OneToOneField(Lesson, on_delete=models.CASCADE, related_name='quizzes')
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        setattr(self, 'title', getattr(self, 'title', False).title())
+        super(Quiz, self).save(*args, **kwargs)
 
 
 class Question(models.Model):
@@ -85,6 +89,10 @@ class Question(models.Model):
 
     def __str__(self):
         return self.text
+
+    def save(self, *args, **kwargs):
+        setattr(self, 'text', getattr(self, 'text', False).capitalize())
+        super(Question, self).save(*args, **kwargs)
 
 
 class Answer(models.Model):
@@ -108,6 +116,7 @@ class Student(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     image = models.ImageField(default='profile_pics/default-user.png', upload_to='profile_pics')
     courses = models.ManyToManyField(Course, through='TakenCourse')
+    quizzes = models.ManyToManyField(Quiz, through='TakenQuiz')
     interests = models.ManyToManyField(Subject, related_name='interested_students')
 
     def get_unanswered_questions(self, quiz):
@@ -136,6 +145,10 @@ class TakenQuiz(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='taken_quizzes')
     score = models.FloatField()
     date = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=12, default='Incomplete')
+
+    def __str__(self):
+        return f'{self.student.user.username}: {self.quiz.title}'
 
 
 class StudentAnswer(models.Model):
