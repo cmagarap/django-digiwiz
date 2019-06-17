@@ -1,0 +1,15 @@
+
+{{ taken_quiz.quiz.title }}<br>
+
+{{ taken_quiz.date }}<br>
+{{ taken_quiz.score }}/100<br>
+
+<hr>
+
+{% for answer in student_answer %}
+    {{ answer.answer.question.text }}<br>
+    {{ answer.answer.text }}<br>
+    {{ answer.answer.is_correct }}<br>
+    <hr>
+{% endfor %}
+

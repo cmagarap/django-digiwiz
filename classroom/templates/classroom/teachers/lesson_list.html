@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <section id="courses-section" class="popular-courses-area bg-white s-pd2">
+        <div class="container">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-info alert-dismissible fade show" role="alert">
+                        <p{% if forloop.last %} class="mb-0"{% endif %}>{{ message }}</p>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            <div class="row justify-content-md-center">
+                <div class="col-lg-8">
+                    <div class="section-heading-area text-center">
+                        <h2 class="section-heading text-capitalize">My Lessons</h2>
+                        <a href="{% url 'teachers:lesson_add' %}" class="btn btn-primary mb-3" role="button">Add a Lesson</a>
+                    </div><!--/.section-heading-area-->
+                </div><!--/.col-lg-8-->
+            </div><!--/.row-->
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-6">
+                            <strong>Title</strong>
+                        </div>
+                        <div class="col-2">
+                            <strong>Lesson No.</strong>
+                        </div>
+                        <div class="col-2">
+                            <strong>Course</strong>
+                        </div>
+                        <div class="col-2">
+                            <strong>Action</strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="list-group list-group-flush list-group-formset">
+                    {% for lesson in lessons %}
+                        <div class="list-group-item">
+                            <div class="row">
+                                <div class="col-6">
+                                    {{ lesson.title }}
+                                </div>
+                                <div class="col-2">
+                                    {{ lesson.number }}
+                                </div>
+                                <div class="col-2">
+                                    {{ lesson.course.title }}
+                                </div>
+                                <div class="col-2">
+                                    <a href="{% url 'teachers:lesson_edit' lesson.course_id lesson.pk %}" class="btn btn-rounded btn-info">Edit</a>
+                                    <a href="#" class="btn btn-rounded btn-danger delete" data-id="{{ lesson.pk }}">Delete</a>
+                                </div>
+
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="list-group-item text-center">
+                            <p class="text-muted font-italic mb-0">You haven't created any lessons yet. Go ahead and <a href="">add the first lesson</a>.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        $(".delete").click(function () {
+            var url = "{% url 'teachers:lesson_list'  %}";
+            var id = $(this).data('id');
+            swal({
+                title: "Are you sure you want to delete this lesson?",
+                text: "Once you delete this, you will never recover it.",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            })
+            .then((willDelete) => {
+                if (willDelete) {
+                    {# This will follow the url pattern of 'teachers:delete_lesson_from_list' #}
+                    window.location = url + id + "/delete/";
+                }
+            });
+        });
+    </script>
+{% endblock %}

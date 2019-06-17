@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load ratings %}
+{% load static %}
+{% block content %}
+    <!--=======Page Heading
+    ==================================-->
+    <section class="page-heading-section page-heading-one before-bg bg-image" style="background-image: url({% static 'images/header/p-header3.jpg' %});">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 col-sm-12">
+                    <div class="page-heading">
+                        <h2 class="page-name text-capitalize">Find your courses</h2>
+                        <a href="{% url 'home' %}" class="btn btn-default btn-primary">back to home</a>
+                    </div><!--/.page-heading-->
+                </div><!--/.col-md-12-->
+            </div><!--/.row-->
+        </div><!--/.container-->
+    </section><!--/.page-heading-area-->
+
+    <div class="courses-page page-wrapper">
+        <!--=======Courses Search Area
+        ==================================-->
+        <div class="courses-search-area">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <form class="search-course" method="GET">
+                            <div class="row">
+                                <div class="col-lg-9 col-md-6">
+                                    <div class="form-group">
+{#                                        {% csrf_token %}#}
+                                        {{ form|crispy }}
+                                    </div>
+                                </div><!--/.col-lg-3-->
+                                <div class="col-lg-3 col-md-6">
+                                    <div class="form-group">
+                                        <button type="submit" class="btn btn-default btn-primary">SEARCH YOUR COURSES</button>
+                                    </div>
+                                </div><!--/.col-lg-3-->
+                            </div><!--/.row-->
+                        </form><!--/.search-course-->
+                    </div><!--/.col-lg-12-->
+                </div><!--/.row-->
+            </div><!--/.container-->
+        </div><!--/.courses-search-area-->
+
+        <!--=======Courses Page Content
+        ==================================-->
+        <div class="courses-page-content">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-3 col-md-12">
+                        <div class="courses-sidebar">
+                            <aside class="widget widget-courses-category">
+                                <h2>Categories</h2>
+                                <ul class="list-unstyled">
+                                    <li><a href="#">Design course</a></li>
+                                    <li><a href="#">Languages</a></li>
+                                    <li><a href="#">Food Learnind</a></li>
+                                    <li><a href="#">Driving School</a></li>
+                                </ul>
+                            </aside><!--/.widget-courses-category-->
+                            <aside class="widget widget-courses-level">
+                                <h2>Age level</h2>
+                                <ul class="list-unstyled">
+                                    <li><a href="#">Post-Secondary</a></li>
+                                    <li><a href="#">Beginner</a></li>
+                                    <li><a href="#">Expert</a></li>
+                                    <li><a href="#">Intermediate</a></li>
+                                </ul>
+                            </aside><!--/.widget-courses-level-->
+                            <aside class="widget widget-courses-location">
+                                <h2>durations</h2>
+                                <ul class="list-unstyled">
+                                    <li><a href="#">1 days - 7 days</a></li>
+                                    <li><a href="#">8 days - 14 days</a></li>
+                                    <li><a href="#">15 days - 21 days</a></li>
+                                    <li><a href="#">3 months</a></li>
+                                </ul>
+                            </aside><!--/.widget-courses-location-->
+                            <aside class="widget widget-courses-location">
+                                <h2>location</h2>
+                                <ul class="list-unstyled">
+                                    <li><a href="#">Your city</a></li>
+                                    <li><a href="#">San Francisco</a></li>
+                                    <li><a href="#">Ho Chi Minh City</a></li>
+                                    <li><a href="#">Hong Kong</a></li>
+                                </ul>
+                            </aside><!--/.widget-courses-location-->
+                        </div><!--/.courses-sidebar-->
+                    </div><!--/.col-lg-3-->
+
+                    <div class="col-lg-9">
+                    {% if search_str is not None %}
+                        <center>
+                            <i>Showing search results for "{{ search_str }}"</i>.
+                            <u><a href="{% url 'browse_courses' %}">Show all courses</a></u>
+                        </center>
+                    {% endif %}<br>
+                        <div class="courses-page-content">
+                            <div class="courses-content">
+                                <div class="row">
+                                    {% for course in courses %}
+                                        <div class="col-lg-6 col-md-6 col-sm-12">
+                                            <!--Single Course Item Start-->
+                                            <div class="single-course-item border-radius">
+                                                <div class="course-thumb-area">
+
+                                                    <div style="width: 397px; height: 200px; overflow: hidden">
+                                                        <img class="img-fluid"  src="{{ course.image.url }}" alt="img">
+                                                    </div>
+                                                    <div class="course-meta">
+                                                        <a href="#"><i class="fa fa-heart-o"></i></a>
+                                                        <a href="#"><i class="fa fa-share-alt"></i></a>
+                                                    </div>
+                                                    <span class="course-duration"><b>{{ course.taken_count }}</b>
+                                                        {% if couse.taken_count > 1 %}
+                                                            students
+                                                        {% else %}
+                                                            student
+                                                        {% endif %}
+                                                        enrolled</span>
+                                                </div><!--/.course-thumb-area-->
+                                                <div class="course-content">
+                                                    <h2><a href="{% url 'course_details' course.pk %}">{{ course.title }}</a></h2>
+                                                    <p>{{ course.description }}</p>
+                                                    <small>{{ course.subject.get_html_badge }}</small>
+                                                    <div class="course-reviews">
+                                                        {% ratings course %}
+                                                    </div><!--/.course-reviews-->
+                                                    <div class="trainer-profile clearfix">
+                                                        <img class="rounded-circle" src="images/author/author-1.jpg" alt="img">
+                                                        <div class="trainer-info">
+                                                            <h3>{{ course.owner.first_name }} {{ course.owner.last_name }}</h3>
+                                                            <p>{{ course.created_at|date:"F d, Y" }}</p>
+                                                        </div>
+                                                        <div class="course-cat text-capitalize text-right">
+                                                            {# if user is not enrolled in the course #}
+                                                            <a href="{% url 'students:enroll' course.pk %}">Enroll</a>
+                                                        </div>
+                                                    </div><!--/.trainer-profile-->
+                                                </div><!--/.course-content-->
+                                            </div><!--/.single-course-item-end-->
+
+                                        </div><!--/.col-lg-4-->
+                                    {% empty %}
+                                        no courses
+                                    {% endfor %}
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <nav class="courses-navigation default-pager text-center">
+                                            <a href="#" rel="prev">
+                                                <i class="fa fa-angle-left"></i>
+                                            </a>
+                                            <a href="#" rel="prev">
+                                                <i class="fa fa-angle-right"></i>
+                                            </a>
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div><!--/.row-->
+            </div><!--/.container-->
+        </div><!--/.courses-page-content-->
+    </div><!--/.courses-page-->
+{% endblock %}
