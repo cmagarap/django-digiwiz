@@ -62,7 +62,6 @@ class MyCoursesListView(ListView):
     context_object_name = 'taken_courses'
     extra_context = {
         'title': 'My Courses',
-        'form': SearchCourses
     }
     template_name = 'classroom/students/mycourses_list.html'
 
