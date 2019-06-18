@@ -47,7 +47,7 @@
                     <tbody>
                     {% for taken_quiz in taken_quizzes %}
                         <tr>
-                            <td>{{ taken_quiz.student.user.username }}</td>
+                            <td><a href="{% url 'teachers:quiz_result_detail' taken_quiz.quiz.pk taken_quiz.student.pk taken_quiz.pk %}">{{ taken_quiz.student.user.username }}</a></td>
                             <td>{{ taken_quiz.date|naturaltime }}</td>
                             <td>{{ taken_quiz.score }}</td>
                         </tr>

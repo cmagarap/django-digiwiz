@@ -70,6 +70,8 @@ urlpatterns = [
         path('quiz/<int:quiz_pk>/delete/', teachers.delete_quiz_from_list,
              name='delete_quiz_from_list'),
         path('quiz/<int:quiz_pk>/delete/', teachers.delete_quiz, name='quiz_delete'),
-        path('quiz/<int:pk>/results/', teachers.QuizResultsView.as_view(), name='quiz_results')
+        path('quiz/<int:pk>/results/', teachers.QuizResultsView.as_view(), name='quiz_results'),
+        path('quiz/<int:quiz_pk>/results/<int:student_pk>/taken/<int:taken_pk>',
+             teachers.QuizResultDetailView.as_view(), name='quiz_result_detail')
     ], 'classroom'), namespace='teachers')),
 ]

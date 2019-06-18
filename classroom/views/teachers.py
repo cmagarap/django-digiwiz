@@ -8,17 +8,19 @@ from django.db.models import Avg, Count, Q
 from django.forms import inlineformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.generic import (CreateView, DetailView, ListView,
                                   UpdateView)
+from .raw_sql import get_taken_quiz
 from ..decorators import teacher_required
 from ..forms import (BaseAnswerInlineFormSet, CourseAddForm, LessonAddForm, LessonEditForm,
                      QuizAddForm, QuizEditForm, QuestionForm, TeacherProfileForm,
                      TeacherSignUpForm, UserUpdateForm)
-from ..models import Answer, Course, Lesson, Question, Quiz, TakenCourse, User
+from ..models import (Answer, Course, Lesson, Question, Quiz,
+                      StudentAnswer, TakenCourse, TakenQuiz, User)
 from ..tokens import account_activation_token
 
 
@@ -127,6 +129,24 @@ class QuizListView(ListView):
             .annotate(questions_count=Count('questions', distinct=True)) \
             .order_by('title')
         return queryset
+
+
+@method_decorator([login_required, teacher_required], name='dispatch')
+class QuizResultDetailView(DetailView):
+    model = TakenQuiz
+    context_object_name = 'taken_quiz'
+    extra_context = {
+        'title': 'Quiz Result'
+    }
+    template_name = 'classroom/students/taken_quiz_result.html'
+
+    def get_context_data(self, **kwargs):
+        kwargs['student_answer'] = StudentAnswer.objects.raw(
+            get_taken_quiz(self.kwargs.get('student_pk'), self.kwargs.get('taken_pk')))
+        kwargs['taken_quiz'] = TakenQuiz.objects \
+            .select_related('quiz') \
+            .get(id=self.kwargs.get('taken_pk'))
+        return super().get_context_data(**kwargs)
 
 
 @method_decorator([login_required, teacher_required], name='dispatch')
