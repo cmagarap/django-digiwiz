@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load thumbnail %}
 {% block content %}
     <section id="courses-section" class="popular-courses-area bg-white s-pd2">
         <div class="container">
@@ -49,11 +49,13 @@
                                 <small>{{ course.subject.get_html_badge }}</small>
                                 <div class="course-reviews">
                                     {{ course.ratings.get.average|floatformat:"-2" }}/5
-				                    ({{ course.ratings.get.count }} casted)
+                                    ({{ course.ratings.get.count }} casted)
                                 </div><!--/.course-reviews-->
 
                                 <div class="trainer-profile clearfix">
-                                    <img class="rounded-circle" src="images/author/author-1.jpg" alt="img">
+                                    {% thumbnail course.owner.teacher.image "100x100" crop="center" as im %}
+                                        <img class="rounded-circle" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="course-owner">
+                                    {% endthumbnail %}
                                     <div class="trainer-info">
                                         <h3>{{ course.status.upper }}</h3>
                                         <p>{{ course.created_at|date:"F d, Y" }}</p>

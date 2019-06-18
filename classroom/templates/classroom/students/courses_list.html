@@ -2,6 +2,7 @@
 {% load crispy_forms_tags %}
 {% load ratings %}
 {% load static %}
+{% load thumbnail %}
 {% block content %}
     <!--=======Page Heading
     ==================================-->
@@ -29,7 +30,7 @@
                             <div class="row">
                                 <div class="col-lg-9 col-md-6">
                                     <div class="form-group">
-{#                                        {% csrf_token %}#}
+                                        {#                                        {% csrf_token %}#}
                                         {{ form|crispy }}
                                     </div>
                                 </div><!--/.col-lg-3-->
@@ -92,12 +93,12 @@
                     </div><!--/.col-lg-3-->
 
                     <div class="col-lg-9">
-                    {% if search_str is not None %}
-                        <center>
-                            <i>Showing search results for "{{ search_str }}"</i>.
-                            <u><a href="{% url 'browse_courses' %}">Show all courses</a></u>
-                        </center>
-                    {% endif %}<br>
+                        {% if search_str is not None %}
+                            <center>
+                                <i>Showing search results for "{{ search_str }}"</i>.
+                                <u><a href="{% url 'browse_courses' %}">Show all courses</a></u>
+                            </center>
+                        {% endif %}<br>
                         <div class="courses-page-content">
                             <div class="courses-content">
                                 <div class="row">
@@ -130,7 +131,9 @@
                                                         {% ratings course %}
                                                     </div><!--/.course-reviews-->
                                                     <div class="trainer-profile clearfix">
-                                                        <img class="rounded-circle" src="images/author/author-1.jpg" alt="img">
+                                                        {% thumbnail course.owner.teacher.image "100x100" crop="center" as im %}
+                                                            <img class="rounded-circle" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="course-owner">
+                                                        {% endthumbnail %}
                                                         <div class="trainer-info">
                                                             <h3>{{ course.owner.first_name }} {{ course.owner.last_name }}</h3>
                                                             <p>{{ course.created_at|date:"F d, Y" }}</p>

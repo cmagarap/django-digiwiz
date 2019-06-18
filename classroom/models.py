@@ -3,7 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.utils.html import escape, mark_safe
-from PIL import Image
+from sorl.thumbnail import ImageField
 from star_ratings.models import Rating
 
 
@@ -107,7 +107,7 @@ class Answer(models.Model):
 
 class Teacher(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    image = models.ImageField(default='profile_pics/default-user.png', upload_to='profile_pics')
+    image = ImageField(default='profile_pics/default-user.png', upload_to='profile_pics')
 
     def __str__(self):
         return f'{self.user.username} - teacher'

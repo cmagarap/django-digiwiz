@@ -41,10 +41,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'classroom.apps.ClassroomConfig',
-    'crispy_forms',
-    'star_ratings',
     'ckeditor',
-    'ckeditor_uploader'
+    'ckeditor_uploader',
+    'crispy_forms',
+    'sorl.thumbnail',
+    'star_ratings'
 ]
 
 CKEDITOR_CONFIGS = {
