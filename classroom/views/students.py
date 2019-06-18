@@ -98,6 +98,9 @@ class StudentInterestsView(UpdateView):
 class TakenQuizDetailView(DetailView):
     model = TakenQuiz
     context_object_name = 'taken_quiz'
+    extra_context = {
+        'title': 'Quiz Result'
+    }
     template_name = 'classroom/students/taken_quiz_result.html'
 
     def get_context_data(self, **kwargs):
@@ -226,14 +229,21 @@ def register(request):
 
                 to_email = form.cleaned_data.get('email')
                 email = EmailMessage(mail_subject, message, to=[to_email])
-                # insert try clause:
-                email.send()
-                context = {
-                    'title': 'Account Activation',
-                    'result': 'One more step remaining...',
-                    'message': 'Please confirm your email address to complete the registration.',
-                    'alert': 'info'
-                }
+                try:
+                    email.send()
+                    context = {
+                        'title': 'Account Activation',
+                        'result': 'One more step remaining...',
+                        'message': 'Please confirm your email address to complete the registration.',
+                        'alert': 'info'
+                    }
+                except Exception:
+                    context = {
+                        'title': 'Account Activation',
+                        'result': 'Warning!',
+                        'message': 'We\'re sorry, an error has occurred during activation. Please try again.',
+                        'alert': 'danger'
+                    }
 
                 return render(request, 'authentication/activation.html', context)
         else:

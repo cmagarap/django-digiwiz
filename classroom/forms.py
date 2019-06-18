@@ -41,7 +41,7 @@ class BaseAnswerInlineFormSet(forms.BaseInlineFormSet):
 
 class CourseAddForm(forms.ModelForm):
     title = forms.CharField(max_length=255)
-    code = forms.CharField(max_length=20)
+    code = forms.CharField(max_length=20, label='Course Code')
     description = forms.Textarea()
     image = forms.ImageField()
 
@@ -58,7 +58,7 @@ class CourseAddForm(forms.ModelForm):
 
 class LessonAddForm(forms.ModelForm):
     title = forms.CharField(max_length=50)
-    number = forms.IntegerField()
+    number = forms.IntegerField(label='Lesson No.')
     description = forms.Textarea()
     content = forms.Textarea()
 
@@ -71,6 +71,7 @@ class LessonAddForm(forms.ModelForm):
         # Gets only the courses that the logged in teacher owns and order it by title
         self.fields['course'].queryset = self.fields['course'].queryset \
             .filter(owner=current_user.id) \
+            .exclude(status__iexact='deleted') \
             .order_by('title')
 
 

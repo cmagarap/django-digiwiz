@@ -1,15 +1,39 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <div class="login-page page-wrapper s-pd100">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 col-md-6 col-sm-8">
+                    <div class="login-form-area">
+                        <h2 class="mb-3">My Quiz Result</h2>
+                        <p>Grade: {{ taken_quiz.score }}/100
+                            <br>
+                        Took on: {{ taken_quiz.date|date:"F d, Y g:i A" }}</p>
+                        <hr>
+                        <form novalidate>
+                            {% csrf_token %}
+                            {% for answer in student_answer %}
+                                <label for="course" class="col-form-label  requiredField">{{ forloop.counter }}. {{ answer.answer.question.text }}</label>
+                                {% if answer.answer.is_correct %}
+                                    <input class="textinput textInput form-control" style="border-color: limegreen" type="text" value="{{ answer.answer.text }}" readonly>
+                                    <small style="color: green">Correct Answer</small>
+                                    <hr>
+                                {% else %}
+                                    <input class="textinput textInput form-control" style="border-color: red" type="text" value="{{ answer.answer.text }}" readonly>
+                                    <small style="color: red">Wrong Answer</small>
+                                    <hr>
+                                {% endif %}
+                            {% endfor %}
 
-{{ taken_quiz.quiz.title }}<br>
-
-{{ taken_quiz.date }}<br>
-{{ taken_quiz.score }}/100<br>
-
-<hr>
-
-{% for answer in student_answer %}
-    {{ answer.answer.question.text }}<br>
-    {{ answer.answer.text }}<br>
-    {{ answer.answer.is_correct }}<br>
-    <hr>
-{% endfor %}
+                            <center>
+                                <a href="{% url 'students:taken_quiz_list' %}" class="btn btn-danger" role="button">Go Back</a>
+                            </center>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
 

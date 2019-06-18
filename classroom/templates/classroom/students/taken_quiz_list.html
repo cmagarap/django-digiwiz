@@ -46,7 +46,7 @@
                                     <a href="{% url 'students:taken_quiz_detail' taken_quiz.pk %}">{{ taken_quiz.quiz.title }}</a>
                                 </div>
                                 <div class="col-3">
-                                    {{ taken_quiz.quiz.course.title }}
+                                    <a href="{% url 'course_details' taken_quiz.quiz.course.pk %}">{{ taken_quiz.quiz.course.title }}</a>
                                 </div>
                                 <div class="col-3">
                                     {{ taken_quiz.quiz.lesson.title }}

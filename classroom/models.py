@@ -12,6 +12,14 @@ class User(AbstractUser):
     is_student = models.BooleanField(default=False)
     is_teacher = models.BooleanField(default=False)
 
+    def save(self, *args, **kwargs):
+        for field_name in ['first_name', 'last_name']:
+            val = getattr(self, field_name, False)
+            if val:
+                setattr(self, field_name, val.title())
+
+        super(User, self).save(*args, **kwargs)
+
 
 class Subject(models.Model):
     name = models.CharField(max_length=30)
@@ -56,7 +64,7 @@ class Lesson(models.Model):
     title = models.CharField(max_length=50)
     number = models.IntegerField()
     description = models.TextField()
-    content = RichTextUploadingField(blank=True, null=True)
+    content = RichTextUploadingField()
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='lessons')
 
     def __str__(self):
