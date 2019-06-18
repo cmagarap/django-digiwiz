@@ -5,6 +5,24 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.db import transaction
 from django.forms.utils import ValidationError
+from django.forms.widgets import TextInput
+
+
+class AdminAddForm(UserCreationForm):
+    email = forms.EmailField()
+    last_name = forms.CharField()
+    first_name = forms.CharField()
+
+    class Meta(UserCreationForm.Meta):
+        model = User
+        fields = ('username', 'email', 'last_name', 'first_name')
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.is_staff = True
+        if commit:
+            user.save()
+        return user
 
 
 class BaseAnswerInlineFormSet(forms.BaseInlineFormSet):
@@ -60,10 +78,11 @@ class LessonEditForm(forms.ModelForm):
     title = forms.CharField(max_length=50)
     number = forms.IntegerField()
     description = forms.Textarea()
+    content = forms.Textarea()
 
     class Meta:
         model = Lesson
-        fields = ('title', 'number', 'description')
+        fields = ('title', 'number', 'description', 'content')
 
 
 class QuizAddForm(forms.ModelForm):
@@ -102,6 +121,23 @@ class QuestionForm(forms.ModelForm):
         fields = ('text', )
 
 
+class SearchCourses(forms.ModelForm):
+    search = forms.CharField(label='', widget=forms.TextInput(attrs={'placeholder': 'Enter your keywords here...'}))
+
+    class Meta:
+        model = Course
+        fields = ('search', )
+
+
+class SubjectUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Subject
+        fields = ('name', 'color')
+        widgets = {
+            'color': TextInput(attrs={'type': 'color'}),
+        }
+
+
 class StudentInterestsForm(forms.ModelForm):
     class Meta:
         model = Student
@@ -109,6 +145,12 @@ class StudentInterestsForm(forms.ModelForm):
         widgets = {
             'interests': forms.CheckboxSelectMultiple
         }
+
+
+class StudentProfileForm(forms.ModelForm):
+    class Meta:
+        model = Student
+        fields = ['image']
 
 
 class StudentSignUpForm(UserCreationForm):

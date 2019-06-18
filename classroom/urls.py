@@ -7,18 +7,33 @@ urlpatterns = [
 
     path('staff/', include(([
         path('', staff.dashboard, name='dashboard'),
+        path('admin-accounts/', staff.AdminListView.as_view(), name='admin_list'),
+        path('admin-accounts/add/', staff.AdminCreateView.as_view(), name='admin_add'),
+        path('admin-accounts/<int:pk>/delete/', staff.deactivate_admin, name='admin_deactivate'),
         path('course-requests/', staff.CourseRequestsView.as_view(), name='course_requests'),
-        path('course-requests/accept-course/<int:course_pk>/', staff.accept_course, name='accept_course'),
-        path('course-requests/reject-course/<int:course_pk>/', staff.reject_course, name='reject_course')
+        path('course-requests/accept/<int:course_pk>/', staff.accept_course, name='accept_course'),
+        path('course-requests/reject/<int:course_pk>/', staff.reject_course, name='reject_course'),
+        path('courses/', staff.CourseListView.as_view(), name='course_list'),
+        path('courses/<int:course_pk>/delete/', staff.delete_course, name='course_delete'),
+        path('students/', staff.StudentListView.as_view(), name='student_list'),
+        path('students/<int:pk>/delete/', staff.deactivate_student, name='teacher_deactivate'),
+        path('subjects/', staff.SubjectListView.as_view(), name='subject_list'),
+        path('subjects/add/', staff.SubjectCreateView.as_view(), name='subject_add'),
+        path('subjects/<int:pk>/', staff.SubjectUpdateView.as_view(), name='subject_change'),
+        path('subjects/<int:pk>/delete/', staff.delete_subject, name='subject_delete'),
+        path('teachers/', staff.TeacherListView.as_view(), name='teacher_list'),
+        path('teachers/<int:pk>/delete/', staff.deactivate_teacher, name='teacher_deactivate'),
     ], 'classroom'), namespace='staff')),
 
     path('student/', include(([
         path('', students.MyCoursesListView.as_view(), name='mycourses_list'),
-        path('interests/', students.StudentInterestsView.as_view(), name='student_interests'),
-        path('taken/', students.TakenQuizListView.as_view(), name='taken_quiz_list'),
-        path('quiz/<int:pk>/', students.take_quiz, name='take_quiz'),
+        path('course/<int:course_pk>/quiz/<int:quiz_pk>/', students.take_quiz, name='take_quiz'),
         path('enroll/<int:pk>/', students.enroll, name='enroll'),
-        path('unenroll/<int:pk>/', students.unenroll, name='unenroll')
+        path('interests/', students.StudentInterestsView.as_view(), name='student_interests'),
+        path('profile/', students.profile, name='profile'),
+        path('taken/', students.TakenQuizListView.as_view(), name='taken_quiz_list'),
+        path('taken/<int:pk>/', students.TakenQuizDetailView.as_view(), name='taken_quiz_detail'),
+        path('unenroll/<int:pk>/', students.unenroll, name='unenroll'),
     ], 'classroom'), namespace='students')),
 
     path('teacher/', include(([

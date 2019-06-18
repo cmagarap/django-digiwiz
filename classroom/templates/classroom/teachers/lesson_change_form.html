@@ -3,22 +3,21 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'teachers:course_change_list' %}">My Courses</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'teachers:course_change' course.pk %}">{{ course.title }}</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Edit lesson</li>
-        </ol>
-    </nav>
-
     <div class="login-page page-wrapper s-pd100">
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-lg-8 col-md-6 col-sm-8">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'teachers:lesson_list' %}">My Lessons</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Edit lesson</li>
+                        </ol>
+                    </nav><br>
                     <div class="login-form-area">
                         <h2 class="mb-3">Edit lesson</h2>
                         <form method="post" novalidate>
                             {% csrf_token %}
+                            {{ form.media }}
                             {{ form|crispy }}
                             {# The course field will be ignored in the backend since it is not included in LessonEditForm class #}
                             <label for="course" class="col-form-label  requiredField">

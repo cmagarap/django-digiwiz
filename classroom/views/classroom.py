@@ -1,8 +1,9 @@
 from django.contrib.auth import authenticate, login, logout
+from django.db.models import Count, Q
 from django.shortcuts import redirect, render
-from django.views.generic import DetailView
-from ..forms import UserLoginForm
-from ..models import Course, Lesson
+from django.views.generic import DetailView, ListView
+from ..forms import SearchCourses, UserLoginForm
+from ..models import Course, Lesson, Quiz, TakenQuiz
 
 
 class CourseDetailView(DetailView):
@@ -18,15 +19,20 @@ class CourseDetailView(DetailView):
                 # if the logged in user is a student, check if he/she is enrolled in the displayed course
                 student = self.request.user.student.taken_courses.filter(course__id=self.kwargs['pk']).first()
                 teacher = None
+                # kwargs['taken_quizzes'] = TakenQuiz.objects.filter(student=self.request.user.student)
             elif self.request.user.is_teacher:
                 # if the logged in user is a teacher, check if he/she owns the displayed course
-                teacher = self.request.user.courses.get(id=self.kwargs['pk'])
+                teacher = self.request.user.courses.filter(id=self.kwargs['pk']).first()
                 student = None
 
         kwargs['enrolled'] = student
         kwargs['owns'] = teacher
         kwargs['title'] = Course.objects.get(id=self.kwargs['pk'])
-        kwargs['lessons'] = Lesson.objects.filter(course__id=self.kwargs['pk'])
+
+        kwargs['lessons'] = Lesson.objects.select_related('quizzes') \
+            .select_related('course') \
+            .filter(course__id=self.kwargs['pk']) \
+            .order_by('number')
 
         return super().get_context_data(**kwargs)
 
@@ -34,11 +40,11 @@ class CourseDetailView(DetailView):
 def about(request):
     if request.user.is_authenticated:
         if request.user.is_teacher:
-            return redirect('teachers:quiz_change_list')
+            return redirect('teachers:course_change_list')
         elif request.user.is_student:
-            return redirect('students:quiz_list')
+            return redirect('students:mycourses_list')
 
-    return render(request, 'classroom/about.html')
+    return render(request, 'classroom/about.html', {'title': 'About Us'})
 
 
 def home(request):
@@ -82,3 +88,41 @@ def register_page(request):
     if request.user.is_authenticated:
         return redirect('home')
     return render(request, 'authentication/register.html', {'title': 'Register'})
+
+
+def browse_courses(request):
+    query = None
+    courses = Course.objects.filter(status__iexact='approved') \
+        .annotate(taken_count=Count('taken_courses',
+                                    filter=Q(taken_courses__status__iexact='enrolled'),
+                                    distinct=True)) \
+        .order_by('title')
+
+    if request.user.is_authenticated:
+        if request.user.is_student:
+            student = request.user.student
+            taken_courses = student.courses.values_list('pk', flat=True)
+            courses = Course.objects.filter(status__iexact='approved') \
+                .exclude(pk__in=taken_courses) \
+                .annotate(taken_count=Count('taken_courses',
+                                            filter=Q(taken_courses__status__iexact='enrolled'),
+                                            distinct=True)) \
+                .order_by('title')
+
+    if 'search' in request.GET:
+        form = SearchCourses(request.GET)
+        if form.is_valid():
+            query = form.cleaned_data.get('search')
+            courses = Course.objects.filter(Q(title__icontains=query) |
+                                            Q(description__icontains=query)) \
+                .filter(status__iexact='approved')
+    else:
+        form = SearchCourses()
+
+    context = {
+        'title': 'Browse Courses',
+        'form': form,
+        'courses': courses,
+        'search_str': query
+    }
+    return render(request, 'classroom/students/courses_list.html', context)

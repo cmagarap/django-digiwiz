@@ -41,9 +41,29 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'classroom.apps.ClassroomConfig',
+    'ckeditor',
+    'ckeditor_uploader',
     'crispy_forms',
-    # 'sweetify'
+    'sorl.thumbnail',
+    'star_ratings'
 ]
+
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'Custom',
+        'width': 728,
+        'toolbar_Custom': [
+            ['Font', 'FontSize', 'TextColor', 'BGColor'],
+            ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript'],
+            ['Undo', 'Redo', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
+            ['RemoveFormat', 'Smiley', 'SpecialChar'],
+            ['Link', 'Unlink', 'Image', 'Table', 'HorizontalRule', 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', 'Blockquote',
+            'BidiLtr', 'BidiRtl'],
+            ['Styles', 'Format'],
+            ['Source']
+        ],
+    },
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -138,6 +158,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
+# STATIC_ROOT = 'static/'  # for production
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
@@ -156,4 +177,7 @@ EMAIL_PORT = 587
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# SWEETIFY_SWEETALERT_LIBRARY = 'sweetalert2'
+TEMPLATE_CONTEXT_PROCESSOR = 'django.core.context_processors.request'
+STAR_RATINGS_STAR_HEIGHT = 20
+
+CKEDITOR_UPLOAD_PATH = 'uploads/lessons/'

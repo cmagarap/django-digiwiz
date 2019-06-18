@@ -1,5 +1,8 @@
 {% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load ratings %}
 {% load static %}
+{% load thumbnail %}
 {% block content %}
     <!--=======Page Heading
     ==================================-->
@@ -23,35 +26,12 @@
             <div class="container">
                 <div class="row">
                     <div class="col-lg-12">
-                        <form class="search-course" method="get">
+                        <form class="search-course" method="GET">
                             <div class="row">
-                                <div class="col-lg-3 col-md-6">
+                                <div class="col-lg-9 col-md-6">
                                     <div class="form-group">
-                                        <input type="text" class="form-control" id="name" placeholder="Enter Your Keywords">
-                                    </div>
-                                </div><!--/.col-lg-3-->
-                                <div class="col-lg-3 col-md-6">
-                                    <div class="form-group form-select">
-                                        <select class="form-control" name="category">
-                                            <option value="" disabled="" selected="">Choose Category</option>
-                                            <option value="business">Business </option>
-                                            <option value="design">Design </option>
-                                            <option value="film">Film </option>
-                                            <option value="music"> Music</option>
-                                            <option value="photography"> Photography</option>
-                                            <option value="writing"> Writing</option>
-                                        </select>
-                                    </div>
-                                </div><!--/.col-lg-3-->
-                                <div class="col-lg-3 col-md-6">
-                                    <div class="form-group form-select">
-                                        <select class="form-control" name="price">
-                                            <option value="" disabled="" selected="">Select Price Type</option>
-                                            <option value="open">Open </option>
-                                            <option value="closed">closed </option>
-                                            <option value="free"> free</option>
-                                            <option value="baynow"> bay now</option>
-                                        </select>
+                                        {#                                        {% csrf_token %}#}
+                                        {{ form|crispy }}
                                     </div>
                                 </div><!--/.col-lg-3-->
                                 <div class="col-lg-3 col-md-6">
@@ -113,6 +93,12 @@
                     </div><!--/.col-lg-3-->
 
                     <div class="col-lg-9">
+                        {% if search_str is not None %}
+                            <center>
+                                <i>Showing search results for "{{ search_str }}"</i>.
+                                <u><a href="{% url 'browse_courses' %}">Show all courses</a></u>
+                            </center>
+                        {% endif %}<br>
                         <div class="courses-page-content">
                             <div class="courses-content">
                                 <div class="row">
@@ -121,7 +107,10 @@
                                             <!--Single Course Item Start-->
                                             <div class="single-course-item border-radius">
                                                 <div class="course-thumb-area">
-                                                    <img class="img-fluid" src="{{ course.image.url }}" alt="img">
+
+                                                    <div style="width: 397px; height: 200px; overflow: hidden">
+                                                        <img class="img-fluid"  src="{{ course.image.url }}" alt="img">
+                                                    </div>
                                                     <div class="course-meta">
                                                         <a href="#"><i class="fa fa-heart-o"></i></a>
                                                         <a href="#"><i class="fa fa-share-alt"></i></a>
@@ -136,25 +125,18 @@
                                                 </div><!--/.course-thumb-area-->
                                                 <div class="course-content">
                                                     <h2><a href="{% url 'course_details' course.pk %}">{{ course.title }}</a></h2>
-                                                    <p>{{ course.description }}</p>
                                                     <small>{{ course.subject.get_html_badge }}</small>
+                                                    <p style="white-space: nowrap; width: 350px; overflow: hidden; text-overflow: ellipsis">{{ course.description }}</p>
                                                     <div class="course-reviews">
-                                                        <i class="fa fa-star" aria-hidden="true"></i>
-                                                        <i class="fa fa-star" aria-hidden="true"></i>
-                                                        <i class="fa fa-star" aria-hidden="true"></i>
-                                                        <i class="fa fa-star" aria-hidden="true"></i>
-                                                        <i class="fa fa-star-o" aria-hidden="true"></i>
-                                                        <span class="total-reviews">(105 reviews)</span>
+                                                        {% ratings course %}
                                                     </div><!--/.course-reviews-->
                                                     <div class="trainer-profile clearfix">
-                                                        <img class="rounded-circle" src="images/author/author-1.jpg" alt="img">
+                                                        {% thumbnail course.owner.teacher.image "100x100" crop="center" as im %}
+                                                            <img class="rounded-circle" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="course-owner">
+                                                        {% endthumbnail %}
                                                         <div class="trainer-info">
                                                             <h3>{{ course.owner.first_name }} {{ course.owner.last_name }}</h3>
                                                             <p>{{ course.created_at|date:"F d, Y" }}</p>
-                                                        </div>
-                                                        <div class="course-cat text-capitalize text-right">
-                                                            {# if user is not enrolled in the course #}
-                                                            <a href="{% url 'students:enroll' course.pk %}">Enroll</a>
                                                         </div>
                                                     </div><!--/.trainer-profile-->
                                                 </div><!--/.course-content-->
@@ -162,7 +144,7 @@
 
                                         </div><!--/.col-lg-4-->
                                     {% empty %}
-                                        no courses
+                                        <center><p>There are no courses to be shown.</p></center>
                                     {% endfor %}
                                 </div>
                                 <div class="row">

@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
-
+{% load thumbnail %}
 {% block content %}
     <section id="courses-section" class="popular-courses-area bg-white s-pd2">
         <div class="container">
             {% if messages %}
                 {% for message in messages %}
-                    <div class="alert alert-info alert-dismissible fade show" role="alert">
+                    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
                         <p{% if forloop.last %} class="mb-0"{% endif %}>{{ message }}</p>
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
@@ -28,7 +28,9 @@
                         <!--Single Course Item Start-->
                         <div class="single-course-item border-radius">
                             <div class="course-thumb-area">
-                                <img class="img-fluid" src="{{ course.image.url }}" alt="img">
+                                <div style="width: 350px; height: 200px; overflow: hidden">
+                                    <img class="img-fluid"  src="{{ course.image.url }}" alt="img">
+                                </div>
                                 <div class="course-meta">
                                     <a href="#"><i class="fa fa-heart-o"></i></a>
                                     <a href="#"><i class="fa fa-share-alt"></i></a>
@@ -43,18 +45,17 @@
                             </div><!--/.course-thumb-area-->
                             <div class="course-content">
                                 <h2><a href="{% url 'course_details' course.pk %}">{{ course.title }}</a></h2>
-                                <p>{{ course.description }}</p>
+                                <p style="white-space: nowrap; width: 300px; overflow: hidden; text-overflow: ellipsis">{{ course.description }}</p>
                                 <small>{{ course.subject.get_html_badge }}</small>
                                 <div class="course-reviews">
-                                    <i class="fa fa-star" aria-hidden="true"></i>
-                                    <i class="fa fa-star" aria-hidden="true"></i>
-                                    <i class="fa fa-star" aria-hidden="true"></i>
-                                    <i class="fa fa-star" aria-hidden="true"></i>
-                                    <i class="fa fa-star-o" aria-hidden="true"></i>
-                                    <span class="total-reviews">(105 reviews)</span>
+                                    {{ course.ratings.get.average|floatformat:"-2" }}/5
+                                    ({{ course.ratings.get.count }} casted)
                                 </div><!--/.course-reviews-->
+
                                 <div class="trainer-profile clearfix">
-                                    <img class="rounded-circle" src="images/author/author-1.jpg" alt="img">
+                                    {% thumbnail course.owner.teacher.image "100x100" crop="center" as im %}
+                                        <img class="rounded-circle" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="course-owner">
+                                    {% endthumbnail %}
                                     <div class="trainer-info">
                                         <h3>{{ course.status.upper }}</h3>
                                         <p>{{ course.created_at|date:"F d, Y" }}</p>

@@ -150,7 +150,7 @@ class QuizResultsView(DetailView):
         return super().get_context_data(**kwargs)
 
     def get_queryset(self):
-        return self.request.user.quizzes.all()
+        return Quiz.objects.filter(course__in=Course.objects.filter(owner=self.request.user))
 
 
 class TeacherSignUpView(CreateView):
@@ -171,7 +171,7 @@ class TeacherSignUpView(CreateView):
 @login_required
 @teacher_required
 def accept_enrollment(request, taken_course_pk):
-    TakenCourse.objects.filter(id=taken_course_pk).update(status='Enrolled')
+    TakenCourse.objects.filter(id=taken_course_pk).update(status='enrolled')
 
     messages.success(request, 'The student has been successfully enrolled.')
     return redirect('teachers:enrollment_requests_list')
@@ -267,7 +267,7 @@ def add_quiz(request):
 @login_required
 @teacher_required
 def delete_course(request, pk):
-    request.user.courses.filter(id=pk).update(status='Deleted')
+    request.user.courses.filter(id=pk).update(status='deleted')
     messages.success(request, 'The course has been successfully deleted.')
     return redirect('teachers:course_change_list')
 

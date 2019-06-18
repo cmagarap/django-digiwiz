@@ -1,5 +1,4 @@
-{% load static %}<!DOCTYPE html>
-<!DOCTYPE html>
+{% load crispy_forms_tags %}{% load static %}<!DOCTYPE html>
 <html lang="en">
 
 <!-- Mirrored from bdevs.net/edulab/edulab/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 12 May 2019 04:43:35 GMT -->
@@ -37,6 +36,7 @@
 
     <!--====== Custom CSS for themes =======-->
     <link href="{% static 'style.css' %}" rel="stylesheet">
+    <link href="{% static 'btn.css' %}" rel="stylesheet">
 
     <!--[if lt IE 8]>
         <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
@@ -44,6 +44,8 @@
     <script src="{% static 'js/vendor/modernizr-2.8.3.min.js' %}"></script>
     <script src="{% static 'js/jquery-3.4.1.js' %}" type="text/javascript"></script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <link rel="stylesheet" href="{% static 'star-ratings/css/star-ratings.css' %}">
+    <script type="text/javascript" src="{% static 'star-ratings/js/dist/star-ratings.min.js' %}"></script>
 </head>
 <body>
     <!--====Header Area
@@ -55,7 +57,7 @@
                     <div class="col-lg-12">
                         <div class="logo-menu-wrap hidden-xs hidden-sm">
                             <div class="logo">
-                                <a href="index.html">
+                                <a href="{% url 'home' %}">
                                     <img src="{% static 'images/digiwiz.png' %}" alt="logo" height="50">
                                 </a>
                             </div><!--/.logo-->
@@ -64,39 +66,48 @@
                                 <ul id="nav">
                                     {% if user.is_authenticated %}
                                         {% if user.is_student %}
-                                        <li><form class="product-search-form" action="#" method="get"   >
-                                <div class="form-group"style="width: 300px"  >
-                                    <input class="form-controllar" name="search" placeholder="Search here" type="text" >
-                                    <button class="btn btn-default btn-primary" type="submit">search</button>
-                                 </div>
-                            </form></li>
+                                            {% if title != 'Browse Courses' %}
+                                                <li>
+                                                    <form class="product-search-form" method="get" action="{% url 'browse_courses' %}" style="position: absolute; left: -280px; top: 10px;" novalidate>
+                                                    <div class="form-group"style="width: 300px;  height: 50px; " >
+                                                        <input type="text" name="search" placeholder="Search course" class="textinput textInput form-controllar" required id="id_search" style="height: 50px; width: 230px">
+                                                        <input type="image" src="{% static 'images/icon/search.png' %}" style="height:30px; width:30px; margin: 8px;" align="right" alt="Search" title="Search">
+                                                    </div>
+                                                </form>
+                                                </li>
+                                            {% endif %}
                                             <li class="dropdown-trigger"><a href="#">{{ user.first_name }}</a>
-                                            <ul class="dropdown-content">
-                                            <li ><a href="{% url 'browse_courses' %}">Search Courses</a></li>
-                                            <li><a href="{% url 'students:mycourses_list' %}">My Courses</a></li>
-                                            </ul></li>
-                                           
+                                                <ul class="dropdown-content">
+                                                    <li><a href="{% url 'students:profile' %}">My Profile</a></li>
+                                                    <li><a href="{% url 'students:mycourses_list' %}">My Courses</a></li>
+                                                    <li><a href="{% url 'students:taken_quiz_list' %}">My Quizzes</a></li>
+                                                    <li ><a href="{% url 'browse_courses' %}">Browse Courses</a></li>
+
+                                                </ul></li>
+
                                         {% elif user.is_teacher %}
                                             <li class="login"><a href="{% url 'teachers:profile' %}">{{ user.first_name }}</a></li>
+                                            <li class="login"><a href="{% url 'teachers:enrollment_requests_list' %}">Enrollment Requests</a></li>
                                             <li class="login"><a href="{% url 'teachers:course_change_list' %}">My Courses</a></li>
                                             <li class="login"><a href="{% url 'teachers:lesson_list' %}">My Lessons</a></li>
                                             <li class="login"><a href="{% url 'teachers:quiz_list' %}">My Quizzes</a></li>
+
                                         {% endif %}
                                         <li class="login"><a href="{% url 'logout' %}">Logout</a></li>
-                                </ul>
-                            </nav>
-                                    {% else %}
-                                        <li class="login"><a href="{% url 'home' %}">Home</a></li>
-                                        <li class="login"><a href="{% url 'browse_courses' %}">Courses</a></li>
-                                         <li class="login"><a href="{% url 'about_us' %}">About Us</a></li>
-                                        <li class="login"><a href="{% url 'register' %}">Register</a></li>
-                                        <li class="login"><a href="{% url 'login' %}">Login</a></li>
+                                        </ul>
+                                    </nav>
 
-                                </ul>
-                            </nav><!--/.menu-->
-                            <div class="register-contact-nav pull-right">
-                                <a class="register-contact-nav login btn btn-default" href="contact.html">contact</a>
-                            </div><!--/.register-contact-nav-->
+                                    {% else %}
+                                                <li class="login"><a href="{% url 'home' %}">Home</a></li>
+                                                <li class="login"><a href="{% url 'browse_courses' %}">Courses</a></li>
+                                                <li class="login"><a href="{% url 'about_us' %}">About Us</a></li>
+                                                <li class="login"><a href="{% url 'register' %}">Register</a></li>
+                                                <li class="login"><a href="{% url 'login' %}">Login</a></li>
+                                            </ul>
+                                        </nav><!--/.menu-->
+                                        <div class="register-contact-nav pull-right">
+                                            <a class="register-contact-nav login btn btn-default" href="contact.html">contact</a>
+                                        </div><!--/.register-contact-nav-->
                                     {% endif %}
                         </div><!--/.logo-menu-wrap-->
                     </div><!--/.col-lg-12-->

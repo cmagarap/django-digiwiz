@@ -5,49 +5,41 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
 from django.db import transaction
-from django.db.models import Count, Q
+from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.views.generic import CreateView, ListView, UpdateView
+from django.views.generic import ListView, DetailView, UpdateView
+from .raw_sql import get_taken_quiz
 from ..decorators import student_required
-from ..forms import StudentInterestsForm, StudentSignUpForm, TakeQuizForm
-from ..models import Course, Quiz, Student, TakenCourse, TakenQuiz, User
+from ..forms import (StudentInterestsForm, StudentProfileForm,
+                     StudentSignUpForm, TakeQuizForm, UserUpdateForm)
+from ..models import (Course, Lesson, Quiz, Student, StudentAnswer,
+                      TakenCourse, TakenQuiz, User)
 from ..tokens import account_activation_token
 
 
 User = get_user_model()
 
 
-class BrowseCoursesView(ListView):
-    model = Course
-    ordering = ('title', )
-    context_object_name = 'courses'
+@method_decorator([login_required, student_required], name='dispatch')
+class LessonListView(ListView):
+    model = Lesson
+    context_object_name = 'lessons'
     extra_context = {
-        'title': 'Browse Courses'
+        'title': 'Lessons',
     }
-    template_name = 'classroom/students/courses_list.html'
+    template_name = 'classroom/students/lessons.html'
+    paginate_by = 1
 
-    # Get only the courses that the student is NOT enrolled
-    def get_queryset(self):
-        queryset = Course.objects.all() \
-            .annotate(taken_count=Count('taken_courses',
-                                        filter=Q(taken_courses__status__iexact='enrolled'),
-                                        distinct=True))
-
-        if self.request.user.is_authenticated:
-            if self.request.user.is_student:
-                student = self.request.user.student
-                taken_courses = student.courses.values_list('pk', flat=True)
-                queryset = Course.objects.exclude(pk__in=taken_courses) \
-                    .annotate(taken_count=Count('taken_courses',
-                                                filter=Q(taken_courses__status__iexact='enrolled'),
-                                                distinct=True))
-
-        return queryset
+    def get_queryset(self, **kwargs):
+        return Lesson.objects.select_related('quizzes') \
+            .select_related('course') \
+            .filter(course__id=self.kwargs['pk']) \
+            .order_by('number')
 
 
 @method_decorator([login_required, student_required], name='dispatch')
@@ -56,15 +48,16 @@ class MyCoursesListView(ListView):
     ordering = ('title', )
     context_object_name = 'taken_courses'
     extra_context = {
-        'title': 'My Courses'
+        'title': 'My Courses',
     }
     template_name = 'classroom/students/mycourses_list.html'
 
     def get_queryset(self):
         queryset = self.request.user.student.taken_courses \
             .select_related('course', 'course__subject') \
-            .order_by('course__title')\
-            .filter(status__in=['Enrolled', 'Pending'])
+            .filter(status__in=['enrolled', 'pending']) \
+            .order_by('course__title')
+
         return queryset
 
 
@@ -91,26 +84,44 @@ class StudentInterestsView(UpdateView):
     model = Student
     form_class = StudentInterestsForm
     template_name = 'classroom/students/interests_form.html'
-    success_url = reverse_lazy('students:quiz_list')
+    success_url = reverse_lazy('students:mycourses_list')
 
     def get_object(self):
         return self.request.user.student
 
     def form_valid(self, form):
-        messages.success(self.request, 'Interests updated with success!')
+        messages.success(self.request, 'Your interests are successfully updated!')
         return super().form_valid(form)
+
+
+@method_decorator([login_required, student_required], name='dispatch')
+class TakenQuizDetailView(DetailView):
+    model = TakenQuiz
+    context_object_name = 'taken_quiz'
+    template_name = 'classroom/students/taken_quiz_result.html'
+
+    def get_context_data(self, **kwargs):
+        kwargs['student_answer'] = StudentAnswer.objects.raw(
+            get_taken_quiz(self.request.user.pk, self.kwargs['pk']))
+        kwargs['taken_quiz'] = TakenQuiz.objects \
+            .select_related('quiz') \
+            .get(id=self.kwargs['pk'])
+        return super().get_context_data(**kwargs)
 
 
 @method_decorator([login_required, student_required], name='dispatch')
 class TakenQuizListView(ListView):
     model = TakenQuiz
     context_object_name = 'taken_quizzes'
+    extra_context = {
+        'title': 'My Taken Quizzes'
+    }
     template_name = 'classroom/students/taken_quiz_list.html'
 
     def get_queryset(self):
         queryset = self.request.user.student.taken_quizzes \
-            .select_related('quiz', 'quiz__subject') \
-            .order_by('quiz__name')
+            .select_related('quiz') \
+            .order_by('quiz__title')
         return queryset
 
 
@@ -164,6 +175,32 @@ def unenroll(request, pk):
     return redirect('course_details', pk)
 
 
+@login_required
+@student_required
+def profile(request):
+    if request.method == 'POST':
+        user_update_form = UserUpdateForm(request.POST, instance=request.user)
+        profile_form = StudentProfileForm(request.POST, request.FILES, instance=request.user.student)
+
+        if user_update_form.is_valid() and profile_form.is_valid():
+            user_update_form.save()
+            profile_form.save()
+            messages.success(request, 'Your account has been updated!')
+            return redirect('students:profile')
+
+    else:
+        user_update_form = UserUpdateForm(instance=request.user)
+        profile_form = StudentProfileForm(instance=request.user.student)
+
+    context = {
+        'u_form': user_update_form,
+        'p_form': profile_form,
+        'title': 'My Profile'
+    }
+
+    return render(request, 'classroom/students/student_profile.html', context)
+
+
 def register(request):
     if request.user.is_authenticated:
         return redirect('home')
@@ -212,14 +249,19 @@ def register(request):
 
 @login_required
 @student_required
-def take_quiz(request, pk):
-    quiz = get_object_or_404(Quiz, pk=pk)
+def take_quiz(request, course_pk, quiz_pk):
+    quiz = get_object_or_404(Quiz, pk=quiz_pk)
     student = request.user.student
 
-    if student.quizzes.filter(pk=pk).exists():
-        return render(request, 'students/taken_quiz.html')
+    if student.quizzes.filter(pk=quiz_pk).exists():
+        messages.error(request, 'You already took that quiz!')
+        return redirect('course_details', course_pk)
 
     total_questions = quiz.questions.count()
+    if total_questions == 0:
+        messages.error(request, 'We\'re sorry, there are currently no questions available for that quiz.')
+        return redirect('course_details', course_pk)
+
     unanswered_questions = student.get_unanswered_questions(quiz)
     total_unanswered_questions = unanswered_questions.count()
     progress = 100 - round(((total_unanswered_questions - 1) / total_questions) * 100)
@@ -233,16 +275,20 @@ def take_quiz(request, pk):
                 student_answer.student = student
                 student_answer.save()
                 if student.get_unanswered_questions(quiz).exists():
-                    return redirect('students:take_quiz', pk)
+                    return redirect('students:take_quiz', course_pk, quiz_pk)
                 else:
-                    correct_answers = student.quiz_answers.filter(answer__question__quiz=quiz, answer__is_correct=True).count()
+                    correct_answers = student.quiz_answers.filter(answer__question__quiz=quiz,
+                                                                  answer__is_correct=True).count()
                     score = round((correct_answers / total_questions) * 100.0, 2)
-                    TakenQuiz.objects.create(student=student, quiz=quiz, score=score)
+                    TakenQuiz.objects.create(student=student, quiz=quiz,
+                                             score=score, status='Finished')
                     if score < 50.0:
-                        messages.warning(request, 'Better luck next time! Your score for the quiz %s was %s.' % (quiz.name, score))
+                        messages.warning(request, f'Better luck next time! Your score for the '
+                                                  f'quiz { quiz.title } was { score }.')
                     else:
-                        messages.success(request, 'Congratulations! You completed the quiz %s with success! You scored %s points.' % (quiz.name, score))
-                    return redirect('students:quiz_list')
+                        messages.success(request, f'Congratulations! You completed the '
+                                                  f'quiz { quiz.title } with success! You scored { score } points.')
+                    return redirect('course_details', course_pk)
     else:
         form = TakeQuizForm(question=question)
 
