@@ -3,13 +3,6 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'teachers:quiz_list' %}">My Quizzes</a></li>
-            <li class="breadcrumb-item active" aria-current="page">{{ quiz.title }}</li>
-        </ol>
-    </nav>
-
     <div class="login-page page-wrapper s-pd100">
         <div class="container">
             {% if messages %}
@@ -24,6 +17,12 @@
             {% endif %}
             <div class="row justify-content-center">
                 <div class="col-lg-10 col-md-6 col-sm-8">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'teachers:quiz_list' %}">My Quizzes</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">{{ quiz.title }}</li>
+                        </ol>
+                    </nav><br>
                     <div class="login-form-area">
                         <h2 class="mb-3">{{ quiz.title }}</h2>
                         <a href="{% url 'teachers:quiz_results' quiz.pk %}" class="btn btn-primary float-right">View results</a>

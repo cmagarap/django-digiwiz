@@ -1,4 +1,4 @@
-django==2.2.1
+django==2.2.2
 django-ckeditor==5.7.1
 django-crispy-forms==1.7.2
 django-star-ratings==0.7.0

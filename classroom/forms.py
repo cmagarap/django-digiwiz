@@ -5,6 +5,24 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.db import transaction
 from django.forms.utils import ValidationError
+from django.forms.widgets import TextInput
+
+
+class AdminAddForm(UserCreationForm):
+    email = forms.EmailField()
+    last_name = forms.CharField()
+    first_name = forms.CharField()
+
+    class Meta(UserCreationForm.Meta):
+        model = User
+        fields = ('username', 'email', 'last_name', 'first_name')
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.is_staff = True
+        if commit:
+            user.save()
+        return user
 
 
 class BaseAnswerInlineFormSet(forms.BaseInlineFormSet):
@@ -109,6 +127,15 @@ class SearchCourses(forms.ModelForm):
     class Meta:
         model = Course
         fields = ('search', )
+
+
+class SubjectUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Subject
+        fields = ('name', 'color')
+        widgets = {
+            'color': TextInput(attrs={'type': 'color'}),
+        }
 
 
 class StudentInterestsForm(forms.ModelForm):
