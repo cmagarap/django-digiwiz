@@ -34,8 +34,8 @@
                         </div><!--/.course-thumb-area-->
                         <div class="course-content">
                             <h2><a href="{% url 'course_details' taken_course.course.pk %}">{{ taken_course.course.title }}</a></h2>
-                            <p>{{ taken_course.course.description }}</p>
                             <small>{{ taken_course.course.subject.get_html_badge }}</small>
+                            <p style="white-space: nowrap; width: 300px; overflow: hidden; text-overflow: ellipsis">{{ taken_course.course.description }}</p>
                             <div class="course-reviews">
                                 {% ratings taken_course.course %}
                             </div><!--/.course-reviews-->
@@ -47,7 +47,7 @@
                                     <p>{{ taken_course.course.created_at|date:"F d, Y" }}</p>
                                 </div>
                                 <div class="course-cat text-capitalize text-right">
-                                    <a href="{# url 'teachers:course_change' course.pk #}">{{ taken_course.status }}</a>
+                                    <a href="#">{{ taken_course.status }}</a>
                                 </div>
                             </div><!--/.trainer-profile-->
                         </div><!--/.course-content-->

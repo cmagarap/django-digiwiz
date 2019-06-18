@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.utils.html import escape, mark_safe
+from PIL import Image
 from star_ratings.models import Rating
 
 
@@ -31,7 +32,7 @@ class Course(models.Model):
     code = models.CharField(max_length=20)
     description = models.TextField()
     image = models.ImageField(upload_to='courses')
-    status = models.CharField(max_length=10, default='Pending')
+    status = models.CharField(max_length=10, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='courses')
@@ -133,7 +134,7 @@ class Student(models.Model):
 class TakenCourse(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='taken_courses')
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='taken_courses')
-    status = models.CharField(max_length=12, default='Pending')
+    status = models.CharField(max_length=12, default='pending')
     date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -145,7 +146,7 @@ class TakenQuiz(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='taken_quizzes')
     score = models.FloatField()
     date = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=12, default='Incomplete')
+    status = models.CharField(max_length=12, default='incomplete')
 
     def __str__(self):
         return f'{self.student.user.username}: {self.quiz.title}'

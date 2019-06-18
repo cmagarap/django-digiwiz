@@ -124,8 +124,8 @@
                                                 </div><!--/.course-thumb-area-->
                                                 <div class="course-content">
                                                     <h2><a href="{% url 'course_details' course.pk %}">{{ course.title }}</a></h2>
-                                                    <p>{{ course.description }}</p>
                                                     <small>{{ course.subject.get_html_badge }}</small>
+                                                    <p style="white-space: nowrap; width: 350px; overflow: hidden; text-overflow: ellipsis">{{ course.description }}</p>
                                                     <div class="course-reviews">
                                                         {% ratings course %}
                                                     </div><!--/.course-reviews-->
@@ -135,17 +135,13 @@
                                                             <h3>{{ course.owner.first_name }} {{ course.owner.last_name }}</h3>
                                                             <p>{{ course.created_at|date:"F d, Y" }}</p>
                                                         </div>
-                                                        <div class="course-cat text-capitalize text-right">
-                                                            {# if user is not enrolled in the course #}
-                                                            <a href="{% url 'students:enroll' course.pk %}">Enroll</a>
-                                                        </div>
                                                     </div><!--/.trainer-profile-->
                                                 </div><!--/.course-content-->
                                             </div><!--/.single-course-item-end-->
 
                                         </div><!--/.col-lg-4-->
                                     {% empty %}
-                                        no courses
+                                        <center><p>There are no courses to be shown.</p></center>
                                     {% endfor %}
                                 </div>
                                 <div class="row">

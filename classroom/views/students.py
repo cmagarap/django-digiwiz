@@ -55,7 +55,7 @@ class MyCoursesListView(ListView):
     def get_queryset(self):
         queryset = self.request.user.student.taken_courses \
             .select_related('course', 'course__subject') \
-            .filter(status__in=['Enrolled', 'Pending']) \
+            .filter(status__in=['enrolled', 'pending']) \
             .order_by('course__title')
 
         return queryset
