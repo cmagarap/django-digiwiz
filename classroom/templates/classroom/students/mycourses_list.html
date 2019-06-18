@@ -2,19 +2,27 @@
 {% load ratings %}
 {% load thumbnail %}
 {% block content %}
-    {# include 'classroom/students/_header.html' with active='new' #}
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-info">{{ message }}</div>
-        {% endfor %}
-    {% endif %}
-
     <section id="courses-section" class="popular-courses-area bg-white s-pd2">
         <div class="container">
+            {% if messages %}
+                {% for message in messages %}
+                    <br>
+                    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+                        <p{% if forloop.last %} class="mb-0"{% endif %}>{{ message }}</p>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
             <div class="row justify-content-md-center">
                 <div class="col-lg-8">
                     <div class="section-heading-area text-center">
                         <h2 class="section-heading text-capitalize">My Courses</h2>
+                        <p class="text-muted">
+                            Subjects:{% for subject in user.student.interests.all %} {{ subject.get_html_badge }}{% endfor %}
+                            <a href="{% url 'students:student_interests' %}"><small>(update interests)</small></a>
+                        </p>
                     </div><!--/.section-heading-area-->
                 </div><!--/.col-lg-8-->
             </div><!--/.row-->

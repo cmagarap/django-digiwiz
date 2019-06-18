@@ -115,7 +115,7 @@ class Teacher(models.Model):
 
 class Student(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    image = models.ImageField(default='profile_pics/default-user.png', upload_to='profile_pics')
+    image = ImageField(default='profile_pics/default-user.png', upload_to='profile_pics')
     courses = models.ManyToManyField(Course, through='TakenCourse')
     quizzes = models.ManyToManyField(Quiz, through='TakenQuiz')
     interests = models.ManyToManyField(Subject, related_name='interested_students')

@@ -84,13 +84,13 @@ class StudentInterestsView(UpdateView):
     model = Student
     form_class = StudentInterestsForm
     template_name = 'classroom/students/interests_form.html'
-    success_url = reverse_lazy('students:quiz_list')
+    success_url = reverse_lazy('students:mycourses_list')
 
     def get_object(self):
         return self.request.user.student
 
     def form_valid(self, form):
-        messages.success(self.request, 'Interests updated with success!')
+        messages.success(self.request, 'Your interests are successfully updated!')
         return super().form_valid(form)
 
 
@@ -104,8 +104,8 @@ class TakenQuizDetailView(DetailView):
         kwargs['student_answer'] = StudentAnswer.objects.raw(
             get_taken_quiz(self.request.user.pk, self.kwargs['pk']))
         kwargs['taken_quiz'] = TakenQuiz.objects \
-                .select_related('quiz') \
-                .get(id=self.kwargs['pk'])
+            .select_related('quiz') \
+            .get(id=self.kwargs['pk'])
         return super().get_context_data(**kwargs)
 
 
@@ -180,24 +180,20 @@ def unenroll(request, pk):
 def profile(request):
     if request.method == 'POST':
         user_update_form = UserUpdateForm(request.POST, instance=request.user)
-        interests_form = StudentInterestsForm(request.POST, instance=request.user)
         profile_form = StudentProfileForm(request.POST, request.FILES, instance=request.user.student)
 
-        if user_update_form.is_valid() and interests_form.is_valid() and profile_form.is_valid():
+        if user_update_form.is_valid() and profile_form.is_valid():
             user_update_form.save()
-            interests_form.save()
             profile_form.save()
             messages.success(request, 'Your account has been updated!')
             return redirect('students:profile')
 
     else:
         user_update_form = UserUpdateForm(instance=request.user)
-        interests_form = StudentInterestsForm(instance=request.user)
         profile_form = StudentProfileForm(instance=request.user.student)
 
     context = {
         'u_form': user_update_form,
-        'i_form': interests_form,
         'p_form': profile_form,
         'title': 'My Profile'
     }
