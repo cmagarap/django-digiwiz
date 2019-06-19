@@ -7,13 +7,13 @@
     <div class="row">
         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
             <div class="page-header">
-                <h2 class="pageheader-title">Edit Subject</h2>
+                <h2 class="pageheader-title">Add New Admin</h2>
                 <div class="page-breadcrumb">
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="#" class="breadcrumb-link">Admin</a></li>
-                            <li class="breadcrumb-item"><a href="{% url 'staff:subject_list' %}" class="breadcrumb-link">Subjects</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Add Subject</li>
+                            <li class="breadcrumb-item"><a href="{% url 'staff:dashboard' %}" class="breadcrumb-link">Admin</a></li>
+                            <li class="breadcrumb-item"><a href="{% url 'staff:admin_list' %}" class="breadcrumb-link">Admin Accounts</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Add Admin</li>
                         </ol>
                     </nav>
                 </div>
@@ -33,6 +33,7 @@
             </div>
         {% endfor %}
     {% endif %}
+    <div class="container">
     <div class="row">
         <!-- ============================================================== -->
         <!-- basic table  -->
@@ -51,5 +52,6 @@
                 </div>
             </div>
         </div>
+    </div>
     </div>
 {% endblock %}

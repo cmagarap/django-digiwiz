@@ -1,11 +1,11 @@
 from django.contrib import messages
-from django.contrib.auth import login, get_user_model
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model, login
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.contrib.auth.views import PasswordChangeView
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
 from django.db import transaction
-from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
@@ -23,6 +23,16 @@ from ..tokens import account_activation_token
 
 
 User = get_user_model()
+
+
+@method_decorator([login_required, student_required], name='dispatch')
+class ChangePassword(PasswordChangeView):
+    success_url = reverse_lazy('students:profile')
+    template_name = 'classroom/change_password.html'
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Your successfully changed your password!')
+        return super().form_valid(form)
 
 
 @method_decorator([login_required, student_required], name='dispatch')
@@ -183,7 +193,7 @@ def profile(request):
         'title': 'My Profile'
     }
 
-    return render(request, 'classroom/students/student_profile.html', context)
+    return render(request, 'classroom/profile.html', context)
 
 
 def register(request):
@@ -284,9 +294,11 @@ def take_quiz(request, course_pk, quiz_pk):
     else:
         form = TakeQuizForm(question=question)
 
-    return render(request, 'classroom/students/take_quiz_form.html', {
+    context = {
         'quiz': quiz,
         'question': question,
         'form': form,
         'progress': progress
-    })
+    }
+
+    return render(request, 'classroom/students/take_quiz_form.html', context)

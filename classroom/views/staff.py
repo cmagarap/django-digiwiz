@@ -1,11 +1,12 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import PasswordChangeView
 from django.shortcuts import redirect, render
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, ListView, UpdateView
 from ..decorators import staff_required, superuser_required
-from ..forms import AdminAddForm, SubjectUpdateForm
+from ..forms import AdminAddForm, SubjectUpdateForm, UserUpdateForm
 from ..models import Course, Subject, User
 
 
@@ -41,6 +42,16 @@ class AdminListView(ListView):
         return User.objects.filter(is_staff=True, is_active=True) \
             .exclude(is_superuser=True) \
             .order_by('username')
+
+
+@method_decorator([login_required, staff_required], name='dispatch')
+class ChangePassword(PasswordChangeView):
+    success_url = reverse_lazy('staff:account')
+    template_name = 'classroom/staff/change_password.html'
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Your successfully changed your password!')
+        return super().form_valid(form)
 
 
 @method_decorator([login_required, staff_required], name='dispatch')
@@ -167,6 +178,28 @@ def accept_course(request, course_pk):
 
     messages.success(request, 'The course has been successfully approved.')
     return redirect('staff:course_requests')
+
+
+@login_required
+@staff_required
+def account(request):
+    if request.method == 'POST':
+        user_update_form = UserUpdateForm(request.POST, instance=request.user)
+
+        if user_update_form.is_valid():
+            user_update_form.save()
+            messages.success(request, 'Your account has been updated!')
+            return redirect('staff:account')
+
+    else:
+        user_update_form = UserUpdateForm(instance=request.user)
+
+    context = {
+        'u_form': user_update_form,
+        'title': 'My Profile'
+    }
+
+    return render(request, 'classroom/staff/account.html', context)
 
 
 @login_required

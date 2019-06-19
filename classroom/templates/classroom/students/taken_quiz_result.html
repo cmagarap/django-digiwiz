@@ -12,7 +12,7 @@
                             <h2 class="mb-3">Quiz Result</h2>
                             <p>Student: <b><u>{{ student_name.first_name }} {{ student_name.last_name }}</u></b></p>
                         {% endif %}
-                        <p>Grade: {{ taken_quiz.score }}/100
+                        <p>Grade: <b>{{ taken_quiz.score|floatformat:'-2' }}</b>/100
                             <br>
                         Took on: {{ taken_quiz.date|date:"F d, Y g:i A" }}</p>
                         <hr>

@@ -1,5 +1,4 @@
 from django.urls import include, path
-
 from .views import classroom, staff, students, teachers
 
 urlpatterns = [
@@ -7,6 +6,8 @@ urlpatterns = [
 
     path('staff/', include(([
         path('', staff.dashboard, name='dashboard'),
+        path('account/', staff.account, name='account'),
+        path('account/change-password/', staff.ChangePassword.as_view(), name='change_password'),
         path('admin-accounts/', staff.AdminListView.as_view(), name='admin_list'),
         path('admin-accounts/add/', staff.AdminCreateView.as_view(), name='admin_add'),
         path('admin-accounts/<int:pk>/delete/', staff.deactivate_admin, name='admin_deactivate'),
@@ -27,6 +28,7 @@ urlpatterns = [
 
     path('student/', include(([
         path('', students.MyCoursesListView.as_view(), name='mycourses_list'),
+        path('change-password/', students.ChangePassword.as_view(), name='change_password'),
         path('course/<int:course_pk>/quiz/<int:quiz_pk>/', students.take_quiz, name='take_quiz'),
         path('enroll/<int:pk>/', students.enroll, name='enroll'),
         path('interests/', students.StudentInterestsView.as_view(), name='student_interests'),
@@ -39,6 +41,7 @@ urlpatterns = [
     path('teacher/', include(([
         path('', teachers.CourseListView.as_view(), name='course_change_list'),
         path('ajax/load-lessons/', teachers.load_lessons, name='ajax_load_lessons'),
+        path('change-password/', teachers.ChangePassword.as_view(), name='change_password'),
         path('course/add/', teachers.CourseCreateView.as_view(), name='course_add'),
         path('course/<int:pk>/', teachers.CourseUpdateView.as_view(), name='course_change'),
         path('course/<int:pk>/delete/', teachers.delete_course,name='course_delete'),

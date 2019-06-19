@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import PasswordChangeView
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
 from django.db import transaction
@@ -8,7 +9,7 @@ from django.db.models import Avg, Count, Q
 from django.forms import inlineformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -22,6 +23,16 @@ from ..forms import (BaseAnswerInlineFormSet, CourseAddForm, LessonAddForm, Less
 from ..models import (Answer, Course, Lesson, Question, Quiz,
                       StudentAnswer, TakenCourse, TakenQuiz, User)
 from ..tokens import account_activation_token
+
+
+@method_decorator([login_required, teacher_required], name='dispatch')
+class ChangePassword(PasswordChangeView):
+    success_url = reverse_lazy('teachers:profile')
+    template_name = 'classroom/change_password.html'
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Your successfully changed your password!')
+        return super().form_valid(form)
 
 
 @method_decorator([login_required, teacher_required], name='dispatch')
@@ -447,7 +458,7 @@ def profile(request):
         'title': 'My Profile'
     }
 
-    return render(request, 'classroom/teachers/teacher_profile.html', context)
+    return render(request, 'classroom/profile.html', context)
 
 
 @login_required

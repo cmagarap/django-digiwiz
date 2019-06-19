@@ -53,7 +53,7 @@
                                 {% endthumbnail %}
                             </td>
                             <td>{{ taken_quiz.date|naturaltime }}</td>
-                            <td>{{ taken_quiz.score }}</td>
+                            <td><b>{{ taken_quiz.score|floatformat:'-2' }}</b>/100</td>
                         </tr>
                     {% endfor %}
                     </tbody>

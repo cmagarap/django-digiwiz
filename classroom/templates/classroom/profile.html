@@ -17,14 +17,23 @@
             <div class="col-lg-4">
                 <div class="login-page page-wrapper s-pd100">
                     <div class="container">
-                        <div class="content-section"  >
+                        <div class="content-section">
                             <div class="media-body" align="middle">
-                                <img style=" border-radius: 50%; width:350px; height:350px"  src="{{ user.teacher.image.url }}">
-
+                                {% if user.is_teacher %}
+                                    <img style="border-radius: 50%; width:350px; height:350px"  src="{{ user.teacher.image.url }}">
+                                {% elif user.is_student %}
+                                    <img style="border-radius: 50%; width:350px; height:350px"  src="{{ user.student.image.url }}">
+                                {% endif %}
                             </div>
+                            <br>
                             <div class="media-body" align="middle">
                                 <h2 class="account-heading">{{ user.username }}</h2>
                                 <p class="text-secondary">{{ user.email }}</p>
+                                {% if user.is_teacher %}
+                                    <a href="{% url 'teachers:change_password' %}" class="btn btn-danger" role="button">Change my password</a>
+                                {% elif user.is_student %}
+                                    <a href="{% url 'students:change_password' %}" class="btn btn-danger" role="button">Change my password</a>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
