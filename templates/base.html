@@ -107,7 +107,7 @@
                                             </ul>
                                         </nav><!--/.menu-->
                                         <div class="register-contact-nav pull-right">
-                                            <a class="register-contact-nav login btn btn-default" href="contact.html">contact</a>
+                                            <a class="register-contact-nav login btn btn-default" href="{% url 'contact_us' %}">contact</a>
                                         </div><!--/.register-contact-nav-->
                                     {% endif %}
                         </div><!--/.logo-menu-wrap-->
@@ -129,6 +129,8 @@
 
     <!-- Start footer area -->
     <footer id="footer" class="site-footer">
+        {% block join_us %}
+        {% endblock %}
         <!-- Start footer widgets area -->
         <div class="footer-widgets-area">
             <div class="container">

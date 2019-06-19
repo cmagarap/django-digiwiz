@@ -3,7 +3,8 @@ from django.db.models import Count, Q
 from django.shortcuts import redirect, render
 from django.views.generic import DetailView, ListView
 from ..forms import SearchCourses, UserLoginForm
-from ..models import Course, Lesson, Quiz, TakenQuiz
+from ..models import (Course, Lesson, Quiz, Student,
+                      Teacher, TakenQuiz)
 
 
 class CourseDetailView(DetailView):
@@ -44,7 +45,26 @@ def about(request):
         elif request.user.is_student:
             return redirect('students:mycourses_list')
 
-    return render(request, 'classroom/about.html', {'title': 'About Us'})
+    context = {
+        'title': 'About Us',
+        'courses': Course.objects.filter(status__iexact='approved').count(),
+        'students': Student.objects.all().count(),
+        'teachers': Teacher.objects.all().count(),
+        'quizzes': Quiz.objects.all().count()
+    }
+
+    return render(request, 'classroom/about.html', context)
+
+
+def contact_us(request):
+    if request.user.is_authenticated:
+        if request.user.is_teacher:
+            return redirect('teachers:course_change_list')
+        elif request.user.is_student:
+            return redirect('students:mycourses_list')
+        elif request.user.is_staff:
+            return redirect('staff:dashboard')
+    return render(request, 'classroom/contact.html', {'title': 'Contact Us'})
 
 
 def home(request):

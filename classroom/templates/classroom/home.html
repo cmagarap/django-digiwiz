@@ -11,11 +11,11 @@
                         <div class="tb-cell">
                             <h1>Strengthen your foundation</h1>
                             <p>Learn the basics now! Start by searching a topic.</p>
-                            <form class="product-search-form" action="#" method="get">
+                            <form class="product-search-form" action="{% url 'browse_courses' %}" method="get">
                                 <div class="form-group">
                                     <input class="form-controllar" name="search" placeholder="Search here" type="text">
                                     <button class="btn btn-default btn-primary" type="submit">search</button>
-                                 </div>
+                                </div>
                             </form><!--/.product-search-form-->
                         </div><!--/.tb-cell-->
                     </div><!--/.welcome-text-->
@@ -27,70 +27,69 @@
     <!--====Services Section
     ====================================-->
     <section id="services-section" class="services-section-area s-pd1">
-		<div class="container">
-			<div class="row justify-content-md-center">
-				<div class="col-lg-8">
-				    <div class="section-heading-area text-center">
-					    <h2 class="section-heading text-capitalize">This is what we offer you</h2>
+        <div class="container">
+            <div class="row justify-content-md-center">
+                <div class="col-lg-8">
+                    <div class="section-heading-area text-center">
+                        <h2 class="section-heading text-capitalize">This is what we offer you</h2>
                         <p>DigiWiz offers basic education intended for the young</p>
-				    </div><!--/.section-heading-area-->
-				</div><!--/.col-lg-8-->
-			</div><!--/.row-->
-			<div class="row">
-				<div class="col-lg-4 col-md-4">
-					<div class="single-service text-center">
+                    </div><!--/.section-heading-area-->
+                </div><!--/.col-lg-8-->
+            </div><!--/.row-->
+            <div class="row">
+                <div class="col-lg-4 col-md-4">
+                    <div class="single-service text-center">
                         <div class="icon">
-				            <img src="{% static 'images/icon/s-icon4.png' %}" alt="icon">
-				        </div>
-						<h3>Free for all</h3>
-						<p>Anyone can access DigiWiz for free. </p>
-					</div><!--/.single-service-->
-				</div><!--/.col-lg-4-->
-				<div class="col-lg-4 col-md-4">
-					<div class="single-service text-center">
+                            <img src="{% static 'images/icon/s-icon4.png' %}" alt="icon">
+                        </div>
+                        <h3>Free for all</h3>
+                        <p>Anyone can access DigiWiz for free. </p>
+                    </div><!--/.single-service-->
+                </div><!--/.col-lg-4-->
+                <div class="col-lg-4 col-md-4">
+                    <div class="single-service text-center">
                         <div class="icon">
-				            <img src="{% static 'images/icon/s-icon2.png' %}" alt="icon">
-				        </div><!--/.row-->
-						<h3>Learn Anywhere, Anytime</h3>
-						<p>Access DigiWiz anywhere and anytime.</p>
-					</div><!--/.single-service-->
-				</div><!--/.col-lg-4-->
-				<div class="col-lg-4 col-md-4">
-					<div class="single-service text-center">
+                            <img src="{% static 'images/icon/s-icon2.png' %}" alt="icon">
+                        </div><!--/.row-->
+                        <h3>Learn Anywhere, Anytime</h3>
+                        <p>Access DigiWiz anywhere and anytime.</p>
+                    </div><!--/.single-service-->
+                </div><!--/.col-lg-4-->
+                <div class="col-lg-4 col-md-4">
+                    <div class="single-service text-center">
                         <div class="icon">
-				            <img src="{% static 'images/icon/s-icon3.png' %}" alt="icon">
-				        </div><!--/.row-->
-						<h3>Unlimited Access</h3>
-						<p>A lot of courses, quizzes, or activities to choose from. </p>
-					</div><!--/.single-service-->
-				</div><!--/.col-lg-4-->
-			</div><!--/.row-->
-		</div><!--/.container-->
-	</section><!--/#services-section-->
+                            <img src="{% static 'images/icon/s-icon3.png' %}" alt="icon">
+                        </div><!--/.row-->
+                        <h3>Unlimited Access</h3>
+                        <p>A lot of courses, quizzes, or activities to choose from. </p>
+                    </div><!--/.single-service-->
+                </div><!--/.col-lg-4-->
+            </div><!--/.row-->
+        </div><!--/.container-->
+    </section><!--/#services-section-->
 
     <!--====Courses Section
     ====================================-->
     <section id="courses-section" class="popular-courses-area bg-gray s-pd2">
-		<div class="container">
-		    <div class="row justify-content-md-center">
-				<div class="col-lg-8">
-				    <div class="section-heading-area text-center">
-					    <h2 class="section-heading text-capitalize">Popular Courses</h2>
-				    </div><!--/.section-heading-area-->
-				</div><!--/.col-lg-8-->
-			</div><!--/.row-->
-			<div class="row">
-                <div class="col-lg-12">
-					<ul class="list-unstyled popular-filter-nav text-center">
-						<li><a class="filter" href="#" data-filter="*">All</a></li>
-						<li><a class="filter" href="#" data-filter=".design">Design</a></li>
-						<li><a href="#" class="filter" data-filter=".development">Development</a></li>
-						<li><a href="#" class="filter" data-filter=".business">Business</a></li>
-						<li><a href="#" class="filter" data-filter=".photography">Photography</a></li>
-					</ul><!--/.popular-filter-nav-->
-				</div><!--/.col-lg-12-->
+        <div class="container">
+            <div class="row justify-content-md-center">
+                <div class="col-lg-8">
+                    <div class="section-heading-area text-center">
+                        <h2 class="section-heading text-capitalize">Popular Courses</h2>
+                    </div><!--/.section-heading-area-->
+                </div><!--/.col-lg-8-->
             </div><!--/.row-->
-			<div class="row courses-item-content">
+            <div class="row">
+                <div class="col-lg-12">
+                    <ul class="list-unstyled popular-filter-nav text-center">
+                        <li><a class="filter" href="#" data-filter="*">All</a></li>
+                        <li><a class="filter" href="#" data-filter=".english">English</a></li>
+                        <li><a href="#" class="filter" data-filter=".math">Mathematics</a></li>
+                        <li><a href="#" class="filter" data-filter=".science">Science</a></li>
+                    </ul><!--/.popular-filter-nav-->
+                </div><!--/.col-lg-12-->
+            </div><!--/.row-->
+            <div class="row courses-item-content">
                 <div class="col-lg-4 col-sm-6 design photography">
                     <!--Single Course Item Start-->
                     <div class="single-course-item border-radius">
@@ -147,7 +146,7 @@
                                 <i class="fa fa-star-o" aria-hidden="true"></i>
                                 <span class="total-reviews">(105 reviews)</span>
                             </div><!--/.course-reviews-->
-                             <div class="trainer-profile clearfix">
+                            <div class="trainer-profile clearfix">
                                 <img class="rounded-circle" src="images/author/author-1.jpg" alt="img">
                                 <div class="trainer-info">
                                     <h3>Kelium Smith</h3>
@@ -180,7 +179,7 @@
                                 <i class="fa fa-star-o" aria-hidden="true"></i>
                                 <span class="total-reviews">(105 reviews)</span>
                             </div><!--/.course-reviews-->
-                             <div class="trainer-profile clearfix">
+                            <div class="trainer-profile clearfix">
                                 <img class="rounded-circle" src="images/author/author-1.jpg" alt="img">
                                 <div class="trainer-info">
                                     <h3>Kelium Smith</h3>
@@ -291,15 +290,14 @@
                         </div><!--/.course-content-->
                     </div><!--/.single-course-item-end-->
                 </div><!--/.col-lg-4-->
-  			</div><!--/.row-->
-  			<div class="row">
-  			    <div class="col-lg-12">
+            </div><!--/.row-->
+            <div class="row">
+                <div class="col-lg-12">
                     <div class="group-btn text-center">
-                        <a href="#" class="btn btn-default btn-primary">Start Your Free Trail</a>
-                        <a href="#" class="btn btn-default">Explore More Courses</a>
+                        <a href="{% url 'browse_courses' %}" class="btn btn-default">Explore More Courses</a>
                     </div><!--/.form-group-btn-->
                 </div><!--/.col-lg-12-->
-  			</div><!--/.row-->
-		</div><!--/.container-->
-	</section><!--/#courses-section-->
+            </div><!--/.row-->
+        </div><!--/.container-->
+    </section><!--/#courses-section-->
 {% endblock %}

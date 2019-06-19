@@ -20,9 +20,9 @@
                         <div class="content-section">
                             <div class="media-body" align="middle">
                                 {% if user.is_teacher %}
-                                    <img style="border-radius: 50%; width:350px; height:350px"  src="{{ user.teacher.image.url }}">
+                                    <img style="border-radius: 50%; width: 350px; height: 350px;"  src="{{ user.teacher.image.url }}" alt="{{ user.username }}">
                                 {% elif user.is_student %}
-                                    <img style="border-radius: 50%; width:350px; height:350px"  src="{{ user.student.image.url }}">
+                                    <img style="border-radius: 50%; width: 350px; height: 350px;"  src="{{ user.student.image.url }}" alt="{{ user.username }}">
                                 {% endif %}
                             </div>
                             <br>
@@ -45,7 +45,7 @@
                         <div class="row justify-content-center">
                             <div class="col-lg-10">
                                 <div class="login-form-area">
-                                    <form method="POST" enctype="multipart/form-data">
+                                    <form method="POST" enctype="multipart/form-data" novalidate>
                                         {% csrf_token %}
                                         <fieldset class="form-group">
                                             <legend class="border-bottom mb-4">Profile Info</legend>
