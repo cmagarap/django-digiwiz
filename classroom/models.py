@@ -163,3 +163,13 @@ class TakenQuiz(models.Model):
 class StudentAnswer(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='quiz_answers')
     answer = models.ForeignKey(Answer, on_delete=models.CASCADE, related_name='+')
+
+
+class File(models.Model):
+    file = models.FileField(upload_to='class_resources/')
+    created_at = models.DateTimeField(auto_now_add=True)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='files')
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='files')
+
+    def __str__(self):
+        return f'{self.file}'

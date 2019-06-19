@@ -1,4 +1,4 @@
-from classroom.models import (Answer, Course, Lesson, Question, Quiz, Student,
+from classroom.models import (Answer, Course, File, Lesson, Question, Quiz, Student,
                               StudentAnswer, Subject, Teacher, User)
 from django import forms
 from django.contrib.auth import authenticate
@@ -54,6 +54,22 @@ class CourseAddForm(forms.ModelForm):
         # Gets all the subjects and order it by name
         self.fields['subject'].queryset = self.fields['subject'].queryset \
             .all().order_by('name')
+
+
+class FileAddForm(forms.ModelForm):
+    file = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}))
+
+    class Meta:
+        model = File
+        fields = ('file', 'course')
+
+    def __init__(self, current_user, *args, **kwargs):
+        super(FileAddForm, self).__init__(*args, **kwargs)
+        # Gets all the courses and order it by name
+        self.fields['course'].queryset = self.fields['course'].queryset \
+            .filter(owner=current_user) \
+            .exclude(status__iexact='deleted') \
+            .order_by('title')
 
 
 class LessonAddForm(forms.ModelForm):

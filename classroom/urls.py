@@ -63,6 +63,7 @@ urlpatterns = [
              name='enrollment_accept'),
         path('enrollment-requests/reject/<int:taken_course_pk>', teachers.reject_enrollment,
              name='enrollment_reject'),
+        path('file/add/', teachers.add_file, name='file_add'),
         path('lesson/', teachers.LessonListView.as_view(), name='lesson_list'),
         path('lesson/add/', teachers.add_lesson, name='lesson_add'),
         path('lesson/<int:lesson_pk>/delete/', teachers.delete_lesson_from_list,

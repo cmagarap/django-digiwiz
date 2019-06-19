@@ -18,6 +18,7 @@
                     <div class="section-heading-area text-center">
                         <h2 class="section-heading text-capitalize">My Courses</h2>
                         <a href="{% url 'teachers:course_add' %}" class="btn btn-primary mb-3" role="button">Add a Course</a>
+                        <a href="{% url 'teachers:file_add' %}" class="btn btn-primary mb-3" role="button">Add a File</a>
                     </div><!--/.section-heading-area-->
                 </div><!--/.col-lg-8-->
             </div><!--/.row-->
@@ -30,10 +31,6 @@
                             <div class="course-thumb-area">
                                 <div style="width: 350px; height: 200px; overflow: hidden">
                                     <img class="img-fluid"  src="{{ course.image.url }}" alt="img">
-                                </div>
-                                <div class="course-meta">
-                                    <a href="#"><i class="fa fa-heart-o"></i></a>
-                                    <a href="#"><i class="fa fa-share-alt"></i></a>
                                 </div>
                                 <span class="course-duration"><b>{{ course.taken_count }}</b>
                                     {% if course.taken_count > 1 %}

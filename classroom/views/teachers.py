@@ -17,9 +17,9 @@ from django.views.generic import (CreateView, DetailView, ListView,
                                   UpdateView)
 from .raw_sql import get_taken_quiz
 from ..decorators import teacher_required
-from ..forms import (BaseAnswerInlineFormSet, CourseAddForm, LessonAddForm, LessonEditForm,
-                     QuizAddForm, QuizEditForm, QuestionForm, TeacherProfileForm,
-                     TeacherSignUpForm, UserUpdateForm)
+from ..forms import (BaseAnswerInlineFormSet, CourseAddForm, FileAddForm,
+                     LessonAddForm, LessonEditForm, QuizAddForm, QuizEditForm,
+                     QuestionForm, TeacherProfileForm, TeacherSignUpForm, UserUpdateForm)
 from ..models import (Answer, Course, Lesson, Question, Quiz,
                       StudentAnswer, TakenCourse, TakenQuiz, User)
 from ..tokens import account_activation_token
@@ -48,7 +48,7 @@ class CourseCreateView(CreateView):
         course = form.save(commit=False)
         course.owner = self.request.user
         course.save()
-        messages.success(self.request, 'The course was created with success!')
+        messages.success(self.request, 'The course was successfully created!')
         return redirect('teachers:course_change_list')
 
 
@@ -215,6 +215,28 @@ def activate(request, uidb64, token):
             'alert': 'danger'
         }
     return render(request, 'authentication/activation.html', context)
+
+
+@login_required
+@teacher_required
+def add_file(request):
+    if request.method == 'POST':
+        form = FileAddForm(request.user, data=request.POST, files=request.FILES)
+        if form.is_valid():
+            file = form.save(commit=False)
+            file.owner = request.user
+            file.save()
+
+            messages.success(request, 'The file was successfully uploaded.')
+            return redirect('teachers:course_change_list')
+    else:
+        form = FileAddForm(current_user=request.user)
+
+    context = {
+        'form': form,
+        'title': 'Add a File'
+    }
+    return render(request, 'classroom/teachers/file_add_form.html', context)
 
 
 @login_required
