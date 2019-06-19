@@ -93,8 +93,10 @@ class QuizAddForm(forms.ModelForm):
 
     def __init__(self, current_user, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Gets only the courses that the logged in teacher owns:
-        self.fields['course'].queryset = self.fields['course'].queryset.filter(owner=current_user.id)
+        # Gets only the courses that the logged in teacher owns and exclude the deleted:
+        self.fields['course'].queryset = self.fields['course'] \
+            .queryset.filter(owner=current_user.id) \
+            .exclude(status__iexact='deleted')
         # The lesson field is dependent on course field
         self.fields['lesson'].queryset = Lesson.objects.none()
 

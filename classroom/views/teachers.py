@@ -51,8 +51,8 @@ class CourseListView(ListView):
     template_name = 'classroom/teachers/course_list.html'
 
     def get_context_data(self, **kwargs):
-        # Get only the courses that the logged in teacher owns
-        # count the enrolled students, and order by title
+        """Get only the courses that the logged in teacher owns,
+        count the enrolled students, and order by title"""
         kwargs['courses'] = self.request.user.courses \
             .exclude(status__iexact='deleted') \
             .annotate(taken_count=Count('taken_courses',
@@ -120,39 +120,22 @@ class QuizListView(ListView):
     template_name = 'classroom/teachers/quiz_list.html'
 
     def get_queryset(self):
-        # queryset = self.request.user.quizzes \
-        #     .select_related('subject') \
-        #     .annotate(questions_count=Count('questions', distinct=True)) \
-        #     .annotate(taken_count=Count('taken_quizzes', distinct=True))
-
+        """Gets the quizzes that the logged in teacher owns.
+        Counts the questions and the number of students who took the quiz."""
         queryset = Quiz.objects.filter(course__owner=self.request.user) \
             .annotate(questions_count=Count('questions', distinct=True)) \
+            .annotate(taken_count=Count('taken_quizzes', distinct=True)) \
             .order_by('title')
         return queryset
-
-
-@method_decorator([login_required, teacher_required], name='dispatch')
-class QuizResultDetailView(DetailView):
-    model = TakenQuiz
-    context_object_name = 'taken_quiz'
-    extra_context = {
-        'title': 'Quiz Result'
-    }
-    template_name = 'classroom/students/taken_quiz_result.html'
-
-    def get_context_data(self, **kwargs):
-        kwargs['student_answer'] = StudentAnswer.objects.raw(
-            get_taken_quiz(self.kwargs.get('student_pk'), self.kwargs.get('taken_pk')))
-        kwargs['taken_quiz'] = TakenQuiz.objects \
-            .select_related('quiz') \
-            .get(id=self.kwargs.get('taken_pk'))
-        return super().get_context_data(**kwargs)
 
 
 @method_decorator([login_required, teacher_required], name='dispatch')
 class QuizResultsView(DetailView):
     model = Quiz
     context_object_name = 'quiz'
+    extra_context = {
+        'title': 'Quiz Results'
+    }
     template_name = 'classroom/teachers/quiz_results.html'
 
     def get_context_data(self, **kwargs):
@@ -390,18 +373,20 @@ def edit_question(request, course_pk, quiz_pk, question_pk):
             with transaction.atomic():
                 form.save()
                 formset.save()
-            messages.success(request, 'Question and answers saved with success!')
+            messages.success(request, 'Question and answers are successfully saved!')
             return redirect('teachers:quiz_edit', course.pk, quiz.pk)
     else:
         form = QuestionForm(instance=question)
         formset = AnswerFormSet(instance=question)
 
-    return render(request, 'classroom/teachers/question_change_form.html', {
+    context = {
         'quiz': quiz,
         'question': question,
         'form': form,
         'formset': formset
-    })
+    }
+
+    return render(request, 'classroom/teachers/question_change_form.html', context)
 
 
 @login_required
@@ -463,6 +448,26 @@ def profile(request):
     }
 
     return render(request, 'classroom/teachers/teacher_profile.html', context)
+
+
+@login_required
+@teacher_required
+def quiz_result_detail(request, quiz_pk, student_pk, taken_pk):
+    student_answer = StudentAnswer.objects.raw(
+            get_taken_quiz(student_pk, taken_pk))
+    taken_quiz = TakenQuiz.objects \
+        .select_related('quiz') \
+        .get(id=taken_pk)
+    student_name = User.objects.get(pk=student_pk)
+
+    context = {
+        'title': 'Quiz Result',
+        'student_answer': student_answer,
+        'taken_quiz': taken_quiz,
+        'student_name': student_name
+    }
+
+    return render(request, 'classroom/students/taken_quiz_result.html', context)
 
 
 def register(request):
