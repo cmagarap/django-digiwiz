@@ -1,11 +1,11 @@
 from django.contrib import messages
-from django.contrib.auth import login, get_user_model
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model, login
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.contrib.auth.views import PasswordChangeView
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
 from django.db import transaction
-from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
@@ -23,6 +23,16 @@ from ..tokens import account_activation_token
 
 
 User = get_user_model()
+
+
+@method_decorator([login_required, student_required], name='dispatch')
+class ChangePassword(PasswordChangeView):
+    success_url = reverse_lazy('students:profile')
+    template_name = 'classroom/change_password.html'
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Your successfully changed your password!')
+        return super().form_valid(form)
 
 
 @method_decorator([login_required, student_required], name='dispatch')
@@ -62,24 +72,6 @@ class MyCoursesListView(ListView):
 
 
 @method_decorator([login_required, student_required], name='dispatch')
-class QuizListView(ListView):
-    model = Quiz
-    ordering = ('name', )
-    context_object_name = 'quizzes'
-    template_name = 'classroom/students/quiz_list.html'
-
-    def get_queryset(self):
-        student = self.request.user.student
-        student_interests = student.interests.values_list('pk', flat=True)
-        taken_quizzes = student.quizzes.values_list('pk', flat=True)
-        queryset = Quiz.objects.filter(subject__in=student_interests) \
-            .exclude(pk__in=taken_quizzes) \
-            .annotate(questions_count=Count('questions')) \
-            .filter(questions_count__gt=0)
-        return queryset
-
-
-@method_decorator([login_required, student_required], name='dispatch')
 class StudentInterestsView(UpdateView):
     model = Student
     form_class = StudentInterestsForm
@@ -98,6 +90,9 @@ class StudentInterestsView(UpdateView):
 class TakenQuizDetailView(DetailView):
     model = TakenQuiz
     context_object_name = 'taken_quiz'
+    extra_context = {
+        'title': 'Quiz Result'
+    }
     template_name = 'classroom/students/taken_quiz_result.html'
 
     def get_context_data(self, **kwargs):
@@ -198,7 +193,7 @@ def profile(request):
         'title': 'My Profile'
     }
 
-    return render(request, 'classroom/students/student_profile.html', context)
+    return render(request, 'classroom/profile.html', context)
 
 
 def register(request):
@@ -226,14 +221,21 @@ def register(request):
 
                 to_email = form.cleaned_data.get('email')
                 email = EmailMessage(mail_subject, message, to=[to_email])
-                # insert try clause:
-                email.send()
-                context = {
-                    'title': 'Account Activation',
-                    'result': 'One more step remaining...',
-                    'message': 'Please confirm your email address to complete the registration.',
-                    'alert': 'info'
-                }
+                try:
+                    email.send()
+                    context = {
+                        'title': 'Account Activation',
+                        'result': 'One more step remaining...',
+                        'message': 'Please confirm your email address to complete the registration.',
+                        'alert': 'info'
+                    }
+                except Exception:
+                    context = {
+                        'title': 'Account Activation',
+                        'result': 'Warning!',
+                        'message': 'We\'re sorry, an error has occurred during activation. Please try again.',
+                        'alert': 'danger'
+                    }
 
                 return render(request, 'authentication/activation.html', context)
         else:
@@ -292,9 +294,11 @@ def take_quiz(request, course_pk, quiz_pk):
     else:
         form = TakeQuizForm(question=question)
 
-    return render(request, 'classroom/students/take_quiz_form.html', {
+    context = {
         'quiz': quiz,
         'question': question,
         'form': form,
         'progress': progress
-    })
+    }
+
+    return render(request, 'classroom/students/take_quiz_form.html', context)

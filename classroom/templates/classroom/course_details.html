@@ -141,8 +141,8 @@
                                                     <p>{{ lesson.description }}</p><br>
                                                     {% if user.is_teacher %}
                                                         {% if owns != None %}
-                                                            <a href="{% url 'teachers:lesson_edit' course.pk lesson.pk %}" class="btn btn-primary mb-3" role="button">Edit</a>
-                                                            <a href="#" class="btn btn-primary btn-takequiz mb-3 delete" data-id="{{ lesson.pk }}" role="button">Delete</a>
+                                                            <a href="{% url 'teachers:lesson_edit' course.pk lesson.pk %}" class="btn btn-primary btn-takequiz mb-3" role="button">Edit</a>
+                                                            <a href="#" class="btn btn-primary mb-3 delete" data-id="{{ lesson.pk }}" role="button">Delete</a>
                                                         {% endif %}
 
                                                     {% elif user.is_student %}

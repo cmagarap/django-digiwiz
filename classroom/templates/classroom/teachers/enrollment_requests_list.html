@@ -1,38 +1,73 @@
 {% extends 'base.html' %}
-
+{% load thumbnail %}
 {% block content %}
-    <h2 class="section-heading text-capitalize">Enrollment Requests</h2>
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-info alert-dismissible fade show" role="alert">
-                <p{% if forloop.last %} class="mb-0"{% endif %}>{{ message }}</p>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-        {% endfor %}
-    {% endif %}
+    <section id="courses-section" class="popular-courses-area bg-white s-pd2">
+        <div class="container">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+                        <p{% if forloop.last %} class="mb-0"{% endif %}>{{ message }}</p>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            <div class="row justify-content-md-center">
+                <div class="col-lg-8">
+                    <div class="section-heading-area text-center">
+                        <h2 class="section-heading text-capitalize">Student Enrollment Requests</h2>
+                    </div><!--/.section-heading-area-->
+                </div><!--/.col-lg-8-->
+            </div><!--/.row-->
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-3">
+                            <strong>Student</strong>
+                        </div>
+                        <div class="col-4">
+                            <strong>Course</strong>
+                        </div>
+                        <div class="col-2">
+                            <strong>Course Code</strong>
+                        </div>
+                        <div class="col-3">
+                            <strong>Action</strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="list-group list-group-flush list-group-formset">
+                    {% for taken_course in taken_courses %}
+                        <div class="list-group-item">
+                            <div class="row">
+                                <div class="col-3">
+                                    {% thumbnail taken_course.student.image "40x40" crop="center" as im %}
+                                        <img class="rounded-circle" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="course-owner">&nbsp;&nbsp;
+                                    {% endthumbnail %}
+                                    {{ taken_course.student.user.first_name }} {{ taken_course.student.user.last_name }}
+                                </div>
+                                <div class="col-4">
+                                    {{ taken_course.course.title }}
+                                </div>
+                                <div class="col-2">
+                                    {{ taken_course.course.code }}
+                                </div>
+                                <div class="col-3">
+                                    <a href="{% url 'teachers:enrollment_accept' taken_course.pk %}" role="button" class="btn btn-primary">Accept Request</a>
+                                    <a href="{% url 'teachers:enrollment_reject' taken_course.pk %}" role="button" class="btn btn-primary">Reject</a>
+                                </div>
 
-    {% if taken_courses %}
-        <table class="table mb-0">
-            <thead>
-            <tr>
-                <th>Course Title</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for taken_course in taken_courses %}
-                <tr>
-                    <td>{{ taken_course.student.user.first_name }} {{ taken_course.student.user.last_name }}</td>
-                    <td>{{ taken_course.course.title }}</td>
-                    <td>{{ taken_course.course.code }}</td>
-                    <td><a href="{% url 'teachers:enrollment_accept' taken_course.pk %}">Accept Request</a></td>
-                    <td><a href="{% url 'teachers:enrollment_reject' taken_course.pk %}">Reject</a></td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        There are no requests
-    {% endif %}
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="list-group-item text-center">
+                            <p class="text-muted font-italic mb-0">There are no enrollment requests right now.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+
 {% endblock %}

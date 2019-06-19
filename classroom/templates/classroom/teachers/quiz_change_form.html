@@ -16,7 +16,7 @@
                 {% endfor %}
             {% endif %}
             <div class="row justify-content-center">
-                <div class="col-lg-10 col-md-6 col-sm-8">
+                <div class="col-lg-8 col-md-6 col-sm-8">
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a href="{% url 'teachers:quiz_list' %}">My Quizzes</a></li>
@@ -40,7 +40,7 @@
                             <input type="text" class="textinput textInput form-control" value="{{ quiz.lesson.title }}" id="lesson" disabled>
                             <br>
                             <button type="submit" class="btn btn-success">Save changes</button>
-                            <a href="javascript:history.back();" class="btn btn-outline-secondary" role="button">Cancel</a>
+                            <a href="{% url 'teachers:quiz_list' %}" class="btn btn-outline-secondary" role="button">Cancel</a>
                             <a href="#" class="btn btn-danger float-right delete">Delete</a>
                         </form>
                     </div>

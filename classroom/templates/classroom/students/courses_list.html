@@ -30,10 +30,9 @@
                             <div class="row">
                                 <div class="col-lg-9 col-md-6">
                                     <div class="form-group">
-                                        {#                                        {% csrf_token %}#}
                                         {{ form|crispy }}
                                     </div>
-                                </div><!--/.col-lg-3-->
+                                </div>
                                 <div class="col-lg-3 col-md-6">
                                     <div class="form-group">
                                         <button type="submit" class="btn btn-default btn-primary">SEARCH YOUR COURSES</button>
@@ -128,7 +127,12 @@
                                                     <small>{{ course.subject.get_html_badge }}</small>
                                                     <p style="white-space: nowrap; width: 350px; overflow: hidden; text-overflow: ellipsis">{{ course.description }}</p>
                                                     <div class="course-reviews">
-                                                        {% ratings course %}
+                                                        {% if user.is_teacher %}
+                                                            {{ course.ratings.get.average|floatformat:"-2" }}/5
+                                                            ({{ course.ratings.get.count }} casted)
+                                                        {% else %}
+                                                            {% ratings course %}
+                                                        {% endif %}
                                                     </div><!--/.course-reviews-->
                                                     <div class="trainer-profile clearfix">
                                                         {% thumbnail course.owner.teacher.image "100x100" crop="center" as im %}

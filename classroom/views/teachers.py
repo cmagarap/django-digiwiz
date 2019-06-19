@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import PasswordChangeView
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
 from django.db import transaction
@@ -14,19 +15,30 @@ from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.generic import (CreateView, DetailView, ListView,
                                   UpdateView)
+from .raw_sql import get_taken_quiz
 from ..decorators import teacher_required
 from ..forms import (BaseAnswerInlineFormSet, CourseAddForm, LessonAddForm, LessonEditForm,
                      QuizAddForm, QuizEditForm, QuestionForm, TeacherProfileForm,
                      TeacherSignUpForm, UserUpdateForm)
-from ..models import Answer, Course, Lesson, Question, Quiz, TakenCourse, User
+from ..models import (Answer, Course, Lesson, Question, Quiz,
+                      StudentAnswer, TakenCourse, TakenQuiz, User)
 from ..tokens import account_activation_token
+
+
+@method_decorator([login_required, teacher_required], name='dispatch')
+class ChangePassword(PasswordChangeView):
+    success_url = reverse_lazy('teachers:profile')
+    template_name = 'classroom/change_password.html'
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Your successfully changed your password!')
+        return super().form_valid(form)
 
 
 @method_decorator([login_required, teacher_required], name='dispatch')
 class CourseCreateView(CreateView):
     model = Course
     form_class = CourseAddForm
-    # fields = ('title', 'code', 'subject', 'description', 'image')
     template_name = 'classroom/teachers/course_add_form.html'
     extra_context = {
         'title': 'New Course'
@@ -50,8 +62,8 @@ class CourseListView(ListView):
     template_name = 'classroom/teachers/course_list.html'
 
     def get_context_data(self, **kwargs):
-        # Get only the courses that the logged in teacher owns
-        # count the enrolled students, and order by title
+        """Get only the courses that the logged in teacher owns,
+        count the enrolled students, and order by title"""
         kwargs['courses'] = self.request.user.courses \
             .exclude(status__iexact='deleted') \
             .annotate(taken_count=Count('taken_courses',
@@ -119,13 +131,11 @@ class QuizListView(ListView):
     template_name = 'classroom/teachers/quiz_list.html'
 
     def get_queryset(self):
-        # queryset = self.request.user.quizzes \
-        #     .select_related('subject') \
-        #     .annotate(questions_count=Count('questions', distinct=True)) \
-        #     .annotate(taken_count=Count('taken_quizzes', distinct=True))
-
+        """Gets the quizzes that the logged in teacher owns.
+        Counts the questions and the number of students who took the quiz."""
         queryset = Quiz.objects.filter(course__owner=self.request.user) \
             .annotate(questions_count=Count('questions', distinct=True)) \
+            .annotate(taken_count=Count('taken_quizzes', distinct=True)) \
             .order_by('title')
         return queryset
 
@@ -134,6 +144,9 @@ class QuizListView(ListView):
 class QuizResultsView(DetailView):
     model = Quiz
     context_object_name = 'quiz'
+    extra_context = {
+        'title': 'Quiz Results'
+    }
     template_name = 'classroom/teachers/quiz_results.html'
 
     def get_context_data(self, **kwargs):
@@ -371,18 +384,20 @@ def edit_question(request, course_pk, quiz_pk, question_pk):
             with transaction.atomic():
                 form.save()
                 formset.save()
-            messages.success(request, 'Question and answers saved with success!')
+            messages.success(request, 'Question and answers are successfully saved!')
             return redirect('teachers:quiz_edit', course.pk, quiz.pk)
     else:
         form = QuestionForm(instance=question)
         formset = AnswerFormSet(instance=question)
 
-    return render(request, 'classroom/teachers/question_change_form.html', {
+    context = {
         'quiz': quiz,
         'question': question,
         'form': form,
         'formset': formset
-    })
+    }
+
+    return render(request, 'classroom/teachers/question_change_form.html', context)
 
 
 @login_required
@@ -443,7 +458,27 @@ def profile(request):
         'title': 'My Profile'
     }
 
-    return render(request, 'classroom/teachers/teacher_profile.html', context)
+    return render(request, 'classroom/profile.html', context)
+
+
+@login_required
+@teacher_required
+def quiz_result_detail(request, quiz_pk, student_pk, taken_pk):
+    student_answer = StudentAnswer.objects.raw(
+            get_taken_quiz(student_pk, taken_pk))
+    taken_quiz = TakenQuiz.objects \
+        .select_related('quiz') \
+        .get(id=taken_pk)
+    student_name = User.objects.get(pk=student_pk)
+
+    context = {
+        'title': 'Quiz Result',
+        'student_answer': student_answer,
+        'taken_quiz': taken_quiz,
+        'student_name': student_name
+    }
+
+    return render(request, 'classroom/students/taken_quiz_result.html', context)
 
 
 def register(request):
@@ -470,14 +505,21 @@ def register(request):
 
                 to_email = form.cleaned_data.get('email')
                 email = EmailMessage(mail_subject, message, to=[to_email])
-                # insert try clause:
-                email.send()
-                context = {
-                    'title': 'Account Activation',
-                    'result': 'One more step remaining...',
-                    'message': 'Please confirm your email address to complete the registration.',
-                    'alert': 'info'
-                }
+                try:
+                    email.send()
+                    context = {
+                        'title': 'Account Activation',
+                        'result': 'One more step remaining...',
+                        'message': 'Please confirm your email address to complete the registration.',
+                        'alert': 'info'
+                    }
+                except Exception:
+                    context = {
+                        'title': 'Account Activation',
+                        'result': 'Warning',
+                        'message': 'We\'re sorry, an error has occurred during activation. Please try again.',
+                        'alert': 'warning'
+                    }
 
                 return render(request, 'authentication/activation.html', context)
         else:

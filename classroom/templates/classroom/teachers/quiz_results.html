@@ -1,18 +1,16 @@
 {% extends 'base.html' %}
-
 {% load crispy_forms_tags humanize %}
-
+{% load thumbnail %}
 {% block content %}
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{# url 'teachers:quiz_change_list' #}">My Quizzes</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'teachers:quiz_edit' quiz.course.pk quiz.pk %}">{{ quiz.title }}</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Results</li>
-        </ol>
-    </nav>
-
     <section id="courses-section" class="popular-courses-area bg-white s-pd2">
         <div class="container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'teachers:quiz_list' %}">My Quizzes</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'teachers:quiz_edit' quiz.course.pk quiz.pk %}">{{ quiz.title }}</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Results</li>
+                </ol>
+            </nav>
             {% if messages %}
                 {% for message in messages %}
                     <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
@@ -34,22 +32,28 @@
             <div class="card">
                 <div class="card-header">
                     <strong>Taken Quizzes</strong>
-                    <span class="badge badge-pill badge-primary float-right">Average Score: {{ quiz_score.average_score|default_if_none:0.0 }}</span>
+                    <span class="badge badge-pill badge-primary float-right">Average Grade: {{ quiz_score.average_score|default_if_none:0.0 }}</span>
                 </div>
                 <table class="table mb-0">
                     <thead>
                     <tr>
                         <th>Student</th>
                         <th>Date</th>
-                        <th>Score</th>
+                        <th>Grade</th>
                     </tr>
                     </thead>
                     <tbody>
                     {% for taken_quiz in taken_quizzes %}
                         <tr>
-                            <td>{{ taken_quiz.student.user.username }}</td>
+                            <td>
+                                {% thumbnail taken_quiz.student.image "40x40" crop="center" as im %}
+                                    <a href="{% url 'teachers:quiz_result_detail' taken_quiz.quiz.pk taken_quiz.student.pk taken_quiz.pk %}">
+                                        <img class="rounded-circle" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="course-owner">&nbsp;&nbsp;{{ taken_quiz.student.user.username }}
+                                    </a>
+                                {% endthumbnail %}
+                            </td>
                             <td>{{ taken_quiz.date|naturaltime }}</td>
-                            <td>{{ taken_quiz.score }}</td>
+                            <td><b>{{ taken_quiz.score|floatformat:'-2' }}</b>/100</td>
                         </tr>
                     {% endfor %}
                     </tbody>
