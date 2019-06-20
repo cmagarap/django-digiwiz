@@ -1502,6 +1502,7 @@ Top Header
 
 .nav-user-dropdown .dropdown-item:hover {
     background-color: #f7f7fb;
+    color: #f78888;
 }
 
 
@@ -1805,44 +1806,45 @@ Leftsidebar - dark
 ------------------------- */
 
 .sidebar-dark {
-    background-color: #0e0c28;
-    -webkit-box-shadow: 0px 0px 28px 0px rgba(82, 63, 105, 0.13);
-    box-shadow: 0px 0px 28px 0px rgba(82, 63, 105, 0.13);
+    background-color: #5da2d5;
+    -webkit-box-shadow: 0px 0px 28px 0px rgba(104, 204, 244, 0.13);
+    box-shadow: 0px 0px 28px 0px rgba(104, 204, 244,  0.13);
     -webkit-transition: all 0.3s ease;
 }
 
 .sidebar-dark .nav-divider {
-    color: #a4aadb;
+    color: #ffffff;
     font-size: 12px;
     letter-spacing: 1px;
 }
 
 .sidebar-dark.nav-left-sidebar .nav-link i {
-    color: #7a80b4;
+    color: #f3d250;
 }
+
 
 .sidebar-dark.nav-left-sidebar .navbar-nav .nav-item {}
 
 .sidebar-dark.nav-left-sidebar .navbar-nav .nav-link {
-    color: #7a80b4;
+    color: #ececec;
 }
 
 .sidebar-dark.nav-left-sidebar .navbar-nav .nav-link:focus,
 .sidebar-dark.nav-left-sidebar .navbar-nav .nav-link:hover {
-    color: #fff;
-    background-color: #242849;
+    color: #f3d250;
+    background-color: #f78888;
     border-radius: 2px;
 }
 
 .sidebar-dark.nav-left-sidebar .navbar-nav .nav-link:focus,
 .sidebar-dark.nav-left-sidebar .navbar-nav .nav-link.active {
-    background-color: #242849;
-    color: #fff;
+    background-color: #ececec;
+    color: #f78888;
     border-radius: 2px;
 }
 
 .sidebar-dark.nav-left-sidebar .submenu .nav .nav-item .nav-link:hover {
-    color: #fff;
+    color: #f3d250;
     border-radius: 2px;
     background-color: #242849;
 }
