@@ -1,0 +1,103 @@
+{% extends 'staff_base.html' %}
+
+{% block content %}
+    <!-- ============================================================== -->
+    <!-- pageheader -->
+    <!-- ============================================================== -->
+    <div class="row">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+            <div class="page-header">
+                <h2 class="pageheader-title">List of Subjects</h2>
+                <div class="page-breadcrumb">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'staff:dashboard' %}" class="breadcrumb-link">Admin</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Subjects</li>
+                        </ol>
+                    </nav>
+                </div>
+                <br>
+                <a href="{% url 'staff:subject_add' %}" class="btn btn-primary" role="button">Add a Subject</a>
+            </div>
+        </div>
+    </div>
+    <!-- ============================================================== -->
+    <!-- end pageheader -->
+    <!-- ============================================================== -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                <p{% if forloop.last %} class="mb-0"{% endif %}>{{ message }}</p>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    <div class="row">
+        <!-- ============================================================== -->
+        <!-- basic table  -->
+        <!-- ============================================================== -->
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+            <div class="card">
+                <h5 class="card-header">Subject Table</h5>
+                <div class="col-4">
+
+                </div>
+                <div class="card-body">
+                    {% if subjects %}
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered first">
+                                <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Color</th>
+                                    <th>Action</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for subject in subjects %}
+                                    <tr>
+                                        <td>{{ subject.name }}</td>
+                                        <td>
+                                            <span class="badge badge-primary" style="background-color: {{ subject.color }}">{{ subject.color }}</span>
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'staff:subject_change' subject.pk %}" class="btn btn-rounded btn-info" title="Edit"><i class="fas fa-pencil-alt"></i></a>
+                                            <a href="#" class="btn btn-rounded btn-danger delete" title="Delete" data-id="{{ subject.pk }}"><i class="fas fa-trash-alt"></i></a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <center>
+                            <i>There are no course records found in the database.</i>
+                        </center>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(".delete").click(function () {
+            var url = "{% url 'staff:subject_list'  %}";
+            var id = $(this).data('id');
+            swal({
+                title: "Are you sure you want to delete this subject?",
+                text: "Once you delete this, you will never recover it.",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            })
+                .then((willDelete) => {
+                    if (willDelete) {
+                        {# This will follow the url pattern of 'staff:subject_delete' #}
+                        window.location = url + id + "/delete/";
+                    }
+                });
+        });
+    </script>
+{% endblock %}

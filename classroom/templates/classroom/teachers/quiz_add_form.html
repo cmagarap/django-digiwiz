@@ -3,17 +3,16 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'teachers:course_change_list' %}">My Courses</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Add a new quiz</li>
-        </ol>
-    </nav>
-
     <div class="login-page page-wrapper s-pd100">
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-lg-8 col-md-6 col-sm-8">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'teachers:quiz_list' %}">My Quizzes</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Add a New Quiz</li>
+                        </ol>
+                    </nav><br>
                     <div class="login-form-area">
                         <h2 class="mb-3">Add a quiz</h2>
                         <form method="post" id="quizForm" data-lessons-url="{% url 'teachers:ajax_load_lessons' %}" novalidate>
@@ -21,7 +20,7 @@
                             {{ form|crispy }}
                             <center>
                                 <button type="submit" class="btn btn-success">Save</button>
-                                <a href="{% url 'teachers:course_change_list' %}" class="btn btn-danger" role="button">Cancel</a>
+                                <a href="{% url 'teachers:quiz_list' %}" class="btn btn-danger" role="button">Cancel</a>
                             </center>
                         </form>
                     </div>

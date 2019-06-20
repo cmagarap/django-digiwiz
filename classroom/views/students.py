@@ -1,11 +1,11 @@
 from django.contrib import messages
-from django.contrib.auth import login, get_user_model
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model, login
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.contrib.auth.views import PasswordChangeView
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
 from django.db import transaction
-from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
@@ -23,6 +23,16 @@ from ..tokens import account_activation_token
 
 
 User = get_user_model()
+
+
+@method_decorator([login_required, student_required], name='dispatch')
+class ChangePassword(PasswordChangeView):
+    success_url = reverse_lazy('students:profile')
+    template_name = 'classroom/change_password.html'
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Your successfully changed your password!')
+        return super().form_valid(form)
 
 
 @method_decorator([login_required, student_required], name='dispatch')
@@ -55,27 +65,9 @@ class MyCoursesListView(ListView):
     def get_queryset(self):
         queryset = self.request.user.student.taken_courses \
             .select_related('course', 'course__subject') \
-            .filter(status__in=['Enrolled', 'Pending']) \
+            .filter(status__in=['enrolled', 'pending']) \
             .order_by('course__title')
 
-        return queryset
-
-
-@method_decorator([login_required, student_required], name='dispatch')
-class QuizListView(ListView):
-    model = Quiz
-    ordering = ('name', )
-    context_object_name = 'quizzes'
-    template_name = 'classroom/students/quiz_list.html'
-
-    def get_queryset(self):
-        student = self.request.user.student
-        student_interests = student.interests.values_list('pk', flat=True)
-        taken_quizzes = student.quizzes.values_list('pk', flat=True)
-        queryset = Quiz.objects.filter(subject__in=student_interests) \
-            .exclude(pk__in=taken_quizzes) \
-            .annotate(questions_count=Count('questions')) \
-            .filter(questions_count__gt=0)
         return queryset
 
 
@@ -84,13 +76,13 @@ class StudentInterestsView(UpdateView):
     model = Student
     form_class = StudentInterestsForm
     template_name = 'classroom/students/interests_form.html'
-    success_url = reverse_lazy('students:quiz_list')
+    success_url = reverse_lazy('students:mycourses_list')
 
     def get_object(self):
         return self.request.user.student
 
     def form_valid(self, form):
-        messages.success(self.request, 'Interests updated with success!')
+        messages.success(self.request, 'Your interests are successfully updated!')
         return super().form_valid(form)
 
 
@@ -98,14 +90,17 @@ class StudentInterestsView(UpdateView):
 class TakenQuizDetailView(DetailView):
     model = TakenQuiz
     context_object_name = 'taken_quiz'
+    extra_context = {
+        'title': 'Quiz Result'
+    }
     template_name = 'classroom/students/taken_quiz_result.html'
 
     def get_context_data(self, **kwargs):
         kwargs['student_answer'] = StudentAnswer.objects.raw(
             get_taken_quiz(self.request.user.pk, self.kwargs['pk']))
         kwargs['taken_quiz'] = TakenQuiz.objects \
-                .select_related('quiz') \
-                .get(id=self.kwargs['pk'])
+            .select_related('quiz') \
+            .get(id=self.kwargs['pk'])
         return super().get_context_data(**kwargs)
 
 
@@ -180,29 +175,25 @@ def unenroll(request, pk):
 def profile(request):
     if request.method == 'POST':
         user_update_form = UserUpdateForm(request.POST, instance=request.user)
-        interests_form = StudentInterestsForm(request.POST, instance=request.user)
         profile_form = StudentProfileForm(request.POST, request.FILES, instance=request.user.student)
 
-        if user_update_form.is_valid() and interests_form.is_valid() and profile_form.is_valid():
+        if user_update_form.is_valid() and profile_form.is_valid():
             user_update_form.save()
-            interests_form.save()
             profile_form.save()
             messages.success(request, 'Your account has been updated!')
             return redirect('students:profile')
 
     else:
         user_update_form = UserUpdateForm(instance=request.user)
-        interests_form = StudentInterestsForm(instance=request.user)
         profile_form = StudentProfileForm(instance=request.user.student)
 
     context = {
         'u_form': user_update_form,
-        'i_form': interests_form,
         'p_form': profile_form,
         'title': 'My Profile'
     }
 
-    return render(request, 'classroom/students/student_profile.html', context)
+    return render(request, 'classroom/profile.html', context)
 
 
 def register(request):
@@ -230,14 +221,21 @@ def register(request):
 
                 to_email = form.cleaned_data.get('email')
                 email = EmailMessage(mail_subject, message, to=[to_email])
-                # insert try clause:
-                email.send()
-                context = {
-                    'title': 'Account Activation',
-                    'result': 'One more step remaining...',
-                    'message': 'Please confirm your email address to complete the registration.',
-                    'alert': 'info'
-                }
+                try:
+                    email.send()
+                    context = {
+                        'title': 'Account Activation',
+                        'result': 'One more step remaining...',
+                        'message': 'Please confirm your email address to complete the registration.',
+                        'alert': 'info'
+                    }
+                except Exception:
+                    context = {
+                        'title': 'Account Activation',
+                        'result': 'Warning!',
+                        'message': 'We\'re sorry, an error has occurred during activation. Please try again.',
+                        'alert': 'danger'
+                    }
 
                 return render(request, 'authentication/activation.html', context)
         else:
@@ -296,9 +294,11 @@ def take_quiz(request, course_pk, quiz_pk):
     else:
         form = TakeQuizForm(question=question)
 
-    return render(request, 'classroom/students/take_quiz_form.html', {
+    context = {
         'quiz': quiz,
         'question': question,
         'form': form,
         'progress': progress
-    })
+    }
+
+    return render(request, 'classroom/students/take_quiz_form.html', context)

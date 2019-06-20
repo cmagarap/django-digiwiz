@@ -31,6 +31,7 @@ urlpatterns = [
     path('browse-courses/', classroom.browse_courses, name='browse_courses'),
     path('ckeditor/upload/', uploader_views.upload, name='ckeditor_upload'),
     path('ckeditor/browse/', never_cache(uploader_views.browse), name='ckeditor_browse'),
+    path('contact-us/', classroom.contact_us, name='contact_us'),
     path('course/details/<int:pk>/', classroom.CourseDetailView.as_view(), name='course_details'),
     path('course/details/<int:pk>/lesson', students.LessonListView.as_view(), name='lesson_list'),
     path('django-admin/', admin.site.urls),

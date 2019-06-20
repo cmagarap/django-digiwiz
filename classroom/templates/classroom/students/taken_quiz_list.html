@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    {% include 'classroom/students/_header.html' with active='taken' %}
     <section id="courses-section" class="popular-courses-area bg-white s-pd2">
         <div class="container">
             {% if messages %}
@@ -47,7 +46,7 @@
                                     <a href="{% url 'students:taken_quiz_detail' taken_quiz.pk %}">{{ taken_quiz.quiz.title }}</a>
                                 </div>
                                 <div class="col-3">
-                                    {{ taken_quiz.quiz.course.title }}
+                                    <a href="{% url 'course_details' taken_quiz.quiz.course.pk %}">{{ taken_quiz.quiz.course.title }}</a>
                                 </div>
                                 <div class="col-3">
                                     {{ taken_quiz.quiz.lesson.title }}

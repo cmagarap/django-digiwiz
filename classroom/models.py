@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.utils.html import escape, mark_safe
+from sorl.thumbnail import ImageField
 from star_ratings.models import Rating
 
 
@@ -10,6 +11,14 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     is_student = models.BooleanField(default=False)
     is_teacher = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        for field_name in ['first_name', 'last_name']:
+            val = getattr(self, field_name, False)
+            if val:
+                setattr(self, field_name, val.title())
+
+        super(User, self).save(*args, **kwargs)
 
 
 class Subject(models.Model):
@@ -31,7 +40,7 @@ class Course(models.Model):
     code = models.CharField(max_length=20)
     description = models.TextField()
     image = models.ImageField(upload_to='courses')
-    status = models.CharField(max_length=10, default='Pending')
+    status = models.CharField(max_length=10, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='courses')
@@ -55,7 +64,7 @@ class Lesson(models.Model):
     title = models.CharField(max_length=50)
     number = models.IntegerField()
     description = models.TextField()
-    content = RichTextUploadingField(blank=True, null=True)
+    content = RichTextUploadingField()
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='lessons')
 
     def __str__(self):
@@ -106,7 +115,7 @@ class Answer(models.Model):
 
 class Teacher(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    image = models.ImageField(default='profile_pics/default-user.png', upload_to='profile_pics')
+    image = ImageField(default='profile_pics/default-user.png', upload_to='profile_pics')
 
     def __str__(self):
         return f'{self.user.username} - teacher'
@@ -114,7 +123,7 @@ class Teacher(models.Model):
 
 class Student(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    image = models.ImageField(default='profile_pics/default-user.png', upload_to='profile_pics')
+    image = ImageField(default='profile_pics/default-user.png', upload_to='profile_pics')
     courses = models.ManyToManyField(Course, through='TakenCourse')
     quizzes = models.ManyToManyField(Quiz, through='TakenQuiz')
     interests = models.ManyToManyField(Subject, related_name='interested_students')
@@ -133,7 +142,7 @@ class Student(models.Model):
 class TakenCourse(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='taken_courses')
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='taken_courses')
-    status = models.CharField(max_length=12, default='Pending')
+    status = models.CharField(max_length=12, default='pending')
     date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -145,7 +154,7 @@ class TakenQuiz(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='taken_quizzes')
     score = models.FloatField()
     date = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=12, default='Incomplete')
+    status = models.CharField(max_length=12, default='incomplete')
 
     def __str__(self):
         return f'{self.student.user.username}: {self.quiz.title}'
@@ -154,3 +163,13 @@ class TakenQuiz(models.Model):
 class StudentAnswer(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='quiz_answers')
     answer = models.ForeignKey(Answer, on_delete=models.CASCADE, related_name='+')
+
+
+class File(models.Model):
+    file = models.FileField(upload_to='class_resources/')
+    created_at = models.DateTimeField(auto_now_add=True)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='files')
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='files')
+
+    def __str__(self):
+        return f'{self.file}'

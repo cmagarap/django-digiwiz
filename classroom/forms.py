@@ -1,10 +1,28 @@
-from classroom.models import (Answer, Course, Lesson, Question, Quiz, Student,
+from classroom.models import (Answer, Course, File, Lesson, Question, Quiz, Student,
                               StudentAnswer, Subject, Teacher, User)
 from django import forms
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.db import transaction
 from django.forms.utils import ValidationError
+from django.forms.widgets import TextInput
+
+
+class AdminAddForm(UserCreationForm):
+    email = forms.EmailField()
+    last_name = forms.CharField()
+    first_name = forms.CharField()
+
+    class Meta(UserCreationForm.Meta):
+        model = User
+        fields = ('username', 'email', 'last_name', 'first_name')
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.is_staff = True
+        if commit:
+            user.save()
+        return user
 
 
 class BaseAnswerInlineFormSet(forms.BaseInlineFormSet):
@@ -23,7 +41,7 @@ class BaseAnswerInlineFormSet(forms.BaseInlineFormSet):
 
 class CourseAddForm(forms.ModelForm):
     title = forms.CharField(max_length=255)
-    code = forms.CharField(max_length=20)
+    code = forms.CharField(max_length=20, label='Course Code')
     description = forms.Textarea()
     image = forms.ImageField()
 
@@ -38,9 +56,25 @@ class CourseAddForm(forms.ModelForm):
             .all().order_by('name')
 
 
+class FileAddForm(forms.ModelForm):
+    file = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}))
+
+    class Meta:
+        model = File
+        fields = ('file', 'course')
+
+    def __init__(self, current_user, *args, **kwargs):
+        super(FileAddForm, self).__init__(*args, **kwargs)
+        # Gets all the courses and order it by name
+        self.fields['course'].queryset = self.fields['course'].queryset \
+            .filter(owner=current_user) \
+            .exclude(status__iexact='deleted') \
+            .order_by('title')
+
+
 class LessonAddForm(forms.ModelForm):
     title = forms.CharField(max_length=50)
-    number = forms.IntegerField()
+    number = forms.IntegerField(label='Lesson No.')
     description = forms.Textarea()
     content = forms.Textarea()
 
@@ -53,6 +87,7 @@ class LessonAddForm(forms.ModelForm):
         # Gets only the courses that the logged in teacher owns and order it by title
         self.fields['course'].queryset = self.fields['course'].queryset \
             .filter(owner=current_user.id) \
+            .exclude(status__iexact='deleted') \
             .order_by('title')
 
 
@@ -74,8 +109,10 @@ class QuizAddForm(forms.ModelForm):
 
     def __init__(self, current_user, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Gets only the courses that the logged in teacher owns:
-        self.fields['course'].queryset = self.fields['course'].queryset.filter(owner=current_user.id)
+        # Gets only the courses that the logged in teacher owns and exclude the deleted:
+        self.fields['course'].queryset = self.fields['course'] \
+            .queryset.filter(owner=current_user.id) \
+            .exclude(status__iexact='deleted')
         # The lesson field is dependent on course field
         self.fields['lesson'].queryset = Lesson.objects.none()
 
@@ -109,6 +146,15 @@ class SearchCourses(forms.ModelForm):
     class Meta:
         model = Course
         fields = ('search', )
+
+
+class SubjectUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Subject
+        fields = ('name', 'color')
+        widgets = {
+            'color': TextInput(attrs={'type': 'color'}),
+        }
 
 
 class StudentInterestsForm(forms.ModelForm):

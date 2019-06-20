@@ -3,7 +3,8 @@ from django.db.models import Count, Q
 from django.shortcuts import redirect, render
 from django.views.generic import DetailView, ListView
 from ..forms import SearchCourses, UserLoginForm
-from ..models import Course, Lesson, Quiz, TakenQuiz
+from ..models import (Course, Lesson, Quiz, Student,
+                      Teacher, TakenQuiz)
 
 
 class CourseDetailView(DetailView):
@@ -44,7 +45,26 @@ def about(request):
         elif request.user.is_student:
             return redirect('students:mycourses_list')
 
-    return render(request, 'classroom/about.html', {'title': 'About Us'})
+    context = {
+        'title': 'About Us',
+        'courses': Course.objects.filter(status__iexact='approved').count(),
+        'students': Student.objects.all().count(),
+        'teachers': Teacher.objects.all().count(),
+        'quizzes': Quiz.objects.all().count()
+    }
+
+    return render(request, 'classroom/about.html', context)
+
+
+def contact_us(request):
+    if request.user.is_authenticated:
+        if request.user.is_teacher:
+            return redirect('teachers:course_change_list')
+        elif request.user.is_student:
+            return redirect('students:mycourses_list')
+        elif request.user.is_staff:
+            return redirect('staff:dashboard')
+    return render(request, 'classroom/contact.html', {'title': 'Contact Us'})
 
 
 def home(request):
@@ -92,7 +112,7 @@ def register_page(request):
 
 def browse_courses(request):
     query = None
-    courses = Course.objects.all() \
+    courses = Course.objects.filter(status__iexact='approved') \
         .annotate(taken_count=Count('taken_courses',
                                     filter=Q(taken_courses__status__iexact='enrolled'),
                                     distinct=True)) \
@@ -102,7 +122,8 @@ def browse_courses(request):
         if request.user.is_student:
             student = request.user.student
             taken_courses = student.courses.values_list('pk', flat=True)
-            courses = Course.objects.exclude(pk__in=taken_courses) \
+            courses = Course.objects.filter(status__iexact='approved') \
+                .exclude(pk__in=taken_courses) \
                 .annotate(taken_count=Count('taken_courses',
                                             filter=Q(taken_courses__status__iexact='enrolled'),
                                             distinct=True)) \
@@ -112,7 +133,9 @@ def browse_courses(request):
         form = SearchCourses(request.GET)
         if form.is_valid():
             query = form.cleaned_data.get('search')
-            courses = Course.objects.filter(Q(title__icontains=query) | Q(description__icontains=query))
+            courses = Course.objects.filter(Q(title__icontains=query) |
+                                            Q(description__icontains=query)) \
+                .filter(status__iexact='approved')
     else:
         form = SearchCourses()
 

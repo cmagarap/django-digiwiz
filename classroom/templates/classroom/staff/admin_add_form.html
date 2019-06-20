@@ -1,0 +1,57 @@
+{% extends 'staff_base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <!-- ============================================================== -->
+    <!-- pageheader -->
+    <!-- ============================================================== -->
+    <div class="row">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+            <div class="page-header">
+                <h2 class="pageheader-title">Add New Admin</h2>
+                <div class="page-breadcrumb">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'staff:dashboard' %}" class="breadcrumb-link">Admin</a></li>
+                            <li class="breadcrumb-item"><a href="{% url 'staff:admin_list' %}" class="breadcrumb-link">Admin Accounts</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Add Admin</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ============================================================== -->
+    <!-- end pageheader -->
+    <!-- ============================================================== -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                <p{% if forloop.last %} class="mb-0"{% endif %}>{{ message }}</p>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    <div class="container">
+    <div class="row">
+        <!-- ============================================================== -->
+        <!-- basic table  -->
+        <!-- ============================================================== -->
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        <center>
+                            <button type="submit" class="btn btn-success">Save changes</button>
+                            <a href="{% url 'staff:admin_list' %}" class="btn btn-secondary" role="button">Cancel</a>
+                        </center>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+{% endblock %}

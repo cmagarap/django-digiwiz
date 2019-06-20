@@ -41,10 +41,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'classroom.apps.ClassroomConfig',
-    'crispy_forms',
-    'star_ratings',
     'ckeditor',
-    'ckeditor_uploader'
+    'ckeditor_uploader',
+    'crispy_forms',
+    'sorl.thumbnail',
+    'star_ratings'
 ]
 
 CKEDITOR_CONFIGS = {
@@ -52,11 +53,14 @@ CKEDITOR_CONFIGS = {
         'toolbar': 'Custom',
         'width': 728,
         'toolbar_Custom': [
-            ['Styles', 'Format', 'Bold', 'Italic', 'Underline', 'Strike', 'SpellChecker', 'Undo', 'Redo'],
-            ['Link', 'Unlink', 'Anchor'],
-            ['Image', 'Flash', 'Table', 'HorizontalRule'],
-            ['TextColor', 'BGColor'],
-            ['Smiley', 'SpecialChar'], ['Source'],
+            ['Font', 'FontSize', 'TextColor', 'BGColor'],
+            ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript'],
+            ['Undo', 'Redo', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
+            ['RemoveFormat', 'Smiley', 'SpecialChar'],
+            ['Link', 'Unlink', 'Image', 'Table', 'HorizontalRule', 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', 'Blockquote',
+            'BidiLtr', 'BidiRtl'],
+            ['Styles', 'Format'],
+            ['Source']
         ],
     },
 }
