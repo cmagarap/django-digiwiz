@@ -1,8 +1,9 @@
 {% extends 'base.html' %}
 {% load ratings %}
 {% load thumbnail %}
+{% load static %}
 {% block content %}
-    <section id="courses-section" class="popular-courses-area bg-white s-pd2">
+    <section id="courses-section" class="popular-courses-area s-pd2"  >
         <div class="container">
             {% if messages %}
                 {% for message in messages %}
