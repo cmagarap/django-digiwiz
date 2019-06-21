@@ -23,7 +23,7 @@ class User(AbstractUser):
 
 class Subject(models.Model):
     name = models.CharField(max_length=30)
-    color = models.CharField(max_length=7, default='#007bff')
+    color = models.CharField(max_length=9, default='#007bff')
 
     def __str__(self):
         return self.name
@@ -36,9 +36,9 @@ class Subject(models.Model):
 
 
 class Course(models.Model):
-    title = models.CharField(max_length=255)
+    title = models.CharField(max_length=100)
     code = models.CharField(max_length=20)
-    description = models.TextField()
+    description = models.TextField(max_length=255)
     image = models.ImageField(upload_to='courses')
     status = models.CharField(max_length=10, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -61,9 +61,9 @@ class Course(models.Model):
 
 
 class Lesson(models.Model):
-    title = models.CharField(max_length=50)
+    title = models.CharField(max_length=100)
     number = models.IntegerField()
-    description = models.TextField()
+    description = models.TextField(max_length=255)
     content = RichTextUploadingField()
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='lessons')
 
@@ -80,7 +80,7 @@ class Lesson(models.Model):
 
 
 class Quiz(models.Model):
-    title = models.CharField(max_length=255)
+    title = models.CharField(max_length=100)
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='quizzes')
     lesson = models.OneToOneField(Lesson, on_delete=models.CASCADE, related_name='quizzes')
 

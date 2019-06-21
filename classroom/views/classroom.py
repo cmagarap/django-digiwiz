@@ -79,7 +79,7 @@ def home(request):
 
 
 def login_view(request):
-    next = request.GET.get('next')
+    next_link = request.GET.get('next')
     form = UserLoginForm(request.POST or None)
 
     if request.user.is_authenticated:
@@ -91,8 +91,8 @@ def login_view(request):
             user = authenticate(username=username, password=password)
             login(request, user)
 
-            if next:
-                return redirect(next)
+            if next_link:
+                return redirect(next_link)
             else:
                 return redirect('/')
 

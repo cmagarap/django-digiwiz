@@ -97,6 +97,7 @@ class CourseUpdateView(UpdateView):
         return reverse('teachers:course_change_list')
 
 
+@method_decorator([login_required, teacher_required], name='dispatch')
 class EnrollmentRequestsListView(ListView):
     model = Course
     context_object_name = 'taken_courses'

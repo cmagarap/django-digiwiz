@@ -10,8 +10,8 @@ from django.forms.widgets import TextInput
 
 class AdminAddForm(UserCreationForm):
     email = forms.EmailField()
-    last_name = forms.CharField()
-    first_name = forms.CharField()
+    last_name = forms.CharField(max_length=80)
+    first_name = forms.CharField(max_length=80)
 
     class Meta(UserCreationForm.Meta):
         model = User
@@ -40,9 +40,9 @@ class BaseAnswerInlineFormSet(forms.BaseInlineFormSet):
 
 
 class CourseAddForm(forms.ModelForm):
-    title = forms.CharField(max_length=255)
+    title = forms.CharField(max_length=100)
     code = forms.CharField(max_length=20, label='Course Code')
-    description = forms.Textarea()
+    description = forms.CharField(widget=forms.Textarea(), max_length=255, label='Short Description')
     image = forms.ImageField()
 
     class Meta:
@@ -73,10 +73,10 @@ class FileAddForm(forms.ModelForm):
 
 
 class LessonAddForm(forms.ModelForm):
-    title = forms.CharField(max_length=50)
-    number = forms.IntegerField(label='Lesson No.')
-    description = forms.Textarea()
-    content = forms.Textarea()
+    title = forms.CharField(max_length=100)
+    number = forms.IntegerField( max_value=20, label='Lesson No.')
+    description = forms.CharField(widget=forms.Textarea(), label='Short Description', max_length=255)
+    content = forms.CharField(widget=forms.Textarea(), label='Lesson Content')
 
     class Meta:
         model = Lesson
@@ -92,10 +92,10 @@ class LessonAddForm(forms.ModelForm):
 
 
 class LessonEditForm(forms.ModelForm):
-    title = forms.CharField(max_length=50)
-    number = forms.IntegerField()
-    description = forms.Textarea()
-    content = forms.Textarea()
+    title = forms.CharField(max_length=100)
+    number = forms.IntegerField(max_value=20, label='Lesson No.')
+    description = forms.CharField(widget=forms.Textarea(), max_length=255, label='Short Description')
+    content = forms.CharField(widget=forms.Textarea(), label='Lesson content')
 
     class Meta:
         model = Lesson
@@ -105,7 +105,7 @@ class LessonEditForm(forms.ModelForm):
 class QuizAddForm(forms.ModelForm):
     class Meta:
         model = Quiz
-        fields = ('title', 'course', 'lesson', )
+        fields = ('title', 'course', 'lesson')
 
     def __init__(self, current_user, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -141,7 +141,7 @@ class QuestionForm(forms.ModelForm):
 
 
 class SearchCourses(forms.ModelForm):
-    search = forms.CharField(label='', widget=forms.TextInput(attrs={'placeholder': 'Enter your keywords here...'}))
+    search = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Enter your keywords here...'}), label='')
 
     class Meta:
         model = Course
@@ -149,6 +149,8 @@ class SearchCourses(forms.ModelForm):
 
 
 class SubjectUpdateForm(forms.ModelForm):
+    name = forms.CharField(max_length=30, label='Subject')
+
     class Meta:
         model = Subject
         fields = ('name', 'color')
@@ -216,17 +218,17 @@ class TakeQuizForm(forms.ModelForm):
 class TeacherProfileForm(forms.ModelForm):
     class Meta:
         model = Teacher
-        fields = ['image']
+        fields = ('image', )
 
 
 class TeacherSignUpForm(UserCreationForm):
     email = forms.EmailField()
-    first_name = forms.CharField()
-    last_name = forms.CharField()
+    first_name = forms.CharField(max_length=80)
+    last_name = forms.CharField(max_length=80)
 
     class Meta(UserCreationForm.Meta):
         model = User
-        fields = ['username', 'email', 'first_name', 'last_name']
+        fields = ('username', 'email', 'first_name', 'last_name')
 
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -255,9 +257,9 @@ class UserLoginForm(forms.Form):
 
 class UserUpdateForm(forms.ModelForm):
     email = forms.EmailField()
-    first_name = forms.CharField()
-    last_name = forms.CharField()
+    first_name = forms.CharField(max_length=80)
+    last_name = forms.CharField(max_length=80)
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'first_name', 'last_name']
+        fields = ('username', 'email', 'first_name', 'last_name')
