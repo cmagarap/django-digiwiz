@@ -20,7 +20,7 @@ from ..decorators import teacher_required
 from ..forms import (BaseAnswerInlineFormSet, CourseAddForm, FileAddForm,
                      LessonAddForm, LessonEditForm, QuizAddForm, QuizEditForm,
                      QuestionForm, TeacherProfileForm, TeacherSignUpForm, UserUpdateForm)
-from ..models import (Answer, Course, File, Lesson, Question, Quiz,
+from ..models import (Answer, Course, MyFile, Lesson, Question, Quiz,
                       StudentAnswer, TakenCourse, TakenQuiz, User)
 from ..tokens import account_activation_token
 import os
@@ -113,7 +113,7 @@ class EnrollmentRequestsListView(ListView):
 
 @method_decorator([login_required, teacher_required], name='dispatch')
 class FilesListView(ListView):
-    model = File
+    model = MyFile
     context_object_name = 'files'
     extra_context = {
         'title': 'My Files'
@@ -123,7 +123,7 @@ class FilesListView(ListView):
     def get_context_data(self, **kwargs):
         """Get only the files that the logged in teacher owns
         and order by title"""
-        kwargs['courses'] = self.request.user.files \
+        kwargs['courses'] = self.request.user.my_files \
             .all() \
             .order_by('title')
 
@@ -245,13 +245,28 @@ def activate(request, uidb64, token):
 def add_files(request):
     if request.method == 'POST':
         form = FileAddForm(request.user, data=request.POST, files=request.FILES)
+        success = None
         if form.is_valid():
             for file in request.FILES.getlist('file'):
-                # For every file selected in the upload, create a record in File table:
-                File.objects.create(file=file, course=form.cleaned_data['course'], owner=request.user)
+                extension = os.path.splitext(str(request.FILES['file']))[1]
+                # Check the file extensions:
+                if extension == '.pdf'or \
+                        extension == '.doc' or \
+                        extension == '.docx' or \
+                        extension == '.ppt' or \
+                        extension == '.pptx':
 
-            messages.success(request, 'The file was successfully uploaded.')
-            return redirect('teachers:file_list')
+                    # For every file selected in the upload, create a record in File table:
+                    MyFile.objects.create(file=file, course=form.cleaned_data['course'], owner=request.user)
+                    success = True
+
+            if success:
+                messages.success(request, 'The files were successfully uploaded.')
+                return redirect('teachers:file_list')
+            else:
+                messages.error(request, 'The only allowed file formats are .pdf, .doc, .docx, .ppt, and .pptx.')
+                return redirect('teachers:file_add')
+
     else:
         form = FileAddForm(current_user=request.user)
 
@@ -334,9 +349,9 @@ def delete_course(request, pk):
 @teacher_required
 def delete_file(request, file_pk):
     teacher = request.user
-    file_name = File.objects.values_list('file', flat=True).get(id=file_pk)
+    file_name = MyFile.objects.values_list('file', flat=True).get(id=file_pk)
     # delete from the database
-    File.objects.filter(id=file_pk, course__owner=teacher).delete()
+    MyFile.objects.get(id=file_pk, course__owner=teacher).delete()
     # remove from the folder
     os.remove(os.path.join('media', file_name))
     messages.success(request, 'The file has been successfully deleted.')
@@ -517,7 +532,7 @@ def profile(request):
         'title': 'My Profile'
     }
 
-    return render(request, 'classroom/profile.html', context)
+    return render(request, 'classroom/proMyFile.html', context)
 
 
 @login_required

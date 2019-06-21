@@ -16,9 +16,19 @@
                         <form method="post" enctype="multipart/form-data" novalidate>
                             {% csrf_token %}
                             {{ form|crispy }}
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+                                        <p{% if forloop.last %} class="mb-0"{% endif %}>{{ message }}</p>
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
                             <center>
                                 <button type="submit" class="btn btn-success">Save</button>
-                                <a href="{% url 'teachers:course_change_list' %}" class="btn btn-danger" role="button">Cancel</a>
+                                <a href="{% url 'teachers:file_list' %}" class="btn btn-danger" role="button">Cancel</a>
                             </center>
                         </form>
                     </div>

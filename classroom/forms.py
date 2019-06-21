@@ -1,4 +1,4 @@
-from classroom.models import (Answer, Course, File, Lesson, Question, Quiz, Student,
+from classroom.models import (Answer, Course, MyFile, Lesson, Question, Quiz, Student,
                               StudentAnswer, Subject, Teacher, User)
 from django import forms
 from django.contrib.auth import authenticate
@@ -60,7 +60,7 @@ class FileAddForm(forms.ModelForm):
     file = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}))
 
     class Meta:
-        model = File
+        model = MyFile
         fields = ('file', 'course')
 
     def __init__(self, current_user, *args, **kwargs):

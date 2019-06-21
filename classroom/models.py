@@ -165,11 +165,11 @@ class StudentAnswer(models.Model):
     answer = models.ForeignKey(Answer, on_delete=models.CASCADE, related_name='+')
 
 
-class File(models.Model):
+class MyFile(models.Model):
     file = models.FileField(upload_to='class_resources/')
     created_at = models.DateTimeField(auto_now_add=True)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='files')
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='files')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='my_files')
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='my_files')
 
     def __str__(self):
         return f'{self.file}'
