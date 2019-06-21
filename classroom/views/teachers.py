@@ -267,6 +267,11 @@ def add_files(request):
                 messages.error(request, 'The only allowed file formats are .pdf, .doc, .docx, .ppt, and .pptx.')
                 return redirect('teachers:file_add')
 
+        else:
+            if not request.FILES:
+                messages.error(request, 'Please select a file.')
+                return redirect('teachers:file_add')
+
     else:
         form = FileAddForm(current_user=request.user)
 
