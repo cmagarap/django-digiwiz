@@ -20,9 +20,10 @@ from ..decorators import teacher_required
 from ..forms import (BaseAnswerInlineFormSet, CourseAddForm, FileAddForm,
                      LessonAddForm, LessonEditForm, QuizAddForm, QuizEditForm,
                      QuestionForm, TeacherProfileForm, TeacherSignUpForm, UserUpdateForm)
-from ..models import (Answer, Course, Lesson, Question, Quiz,
+from ..models import (Answer, Course, File, Lesson, Question, Quiz,
                       StudentAnswer, TakenCourse, TakenQuiz, User)
 from ..tokens import account_activation_token
+import os
 
 
 @method_decorator([login_required, teacher_required], name='dispatch')
@@ -111,6 +112,25 @@ class EnrollmentRequestsListView(ListView):
 
 
 @method_decorator([login_required, teacher_required], name='dispatch')
+class FilesListView(ListView):
+    model = File
+    context_object_name = 'files'
+    extra_context = {
+        'title': 'My Files'
+    }
+    template_name = 'classroom/teachers/file_list.html'
+
+    def get_context_data(self, **kwargs):
+        """Get only the files that the logged in teacher owns
+        and order by title"""
+        kwargs['courses'] = self.request.user.files \
+            .all() \
+            .order_by('title')
+
+        return super().get_context_data(**kwargs)
+
+
+@method_decorator([login_required, teacher_required], name='dispatch')
 class LessonListView(ListView):
     model = Lesson
     context_object_name = 'lessons'
@@ -128,6 +148,9 @@ class LessonListView(ListView):
 class QuizListView(ListView):
     model = Quiz
     context_object_name = 'quizzes'
+    extra_context = {
+        'title': 'My Quizzes'
+    }
     template_name = 'classroom/teachers/quiz_list.html'
 
     def get_queryset(self):
@@ -219,22 +242,22 @@ def activate(request, uidb64, token):
 
 @login_required
 @teacher_required
-def add_file(request):
+def add_files(request):
     if request.method == 'POST':
         form = FileAddForm(request.user, data=request.POST, files=request.FILES)
         if form.is_valid():
-            file = form.save(commit=False)
-            file.owner = request.user
-            file.save()
+            for file in request.FILES.getlist('file'):
+                # For every file selected in the upload, create a record in File table:
+                File.objects.create(file=file, course=form.cleaned_data['course'], owner=request.user)
 
             messages.success(request, 'The file was successfully uploaded.')
-            return redirect('teachers:course_change_list')
+            return redirect('teachers:file_list')
     else:
         form = FileAddForm(current_user=request.user)
 
     context = {
         'form': form,
-        'title': 'Add a File'
+        'title': 'Add Files'
     }
     return render(request, 'classroom/teachers/file_add_form.html', context)
 
@@ -305,6 +328,20 @@ def delete_course(request, pk):
     request.user.courses.filter(id=pk).update(status='deleted')
     messages.success(request, 'The course has been successfully deleted.')
     return redirect('teachers:course_change_list')
+
+
+@login_required
+@teacher_required
+def delete_file(request, file_pk):
+    teacher = request.user
+    file_name = File.objects.values_list('file', flat=True).get(id=file_pk)
+    # delete from the database
+    File.objects.filter(id=file_pk, course__owner=teacher).delete()
+    # remove from the folder
+    os.remove(os.path.join('media', file_name))
+    messages.success(request, 'The file has been successfully deleted.')
+
+    return redirect('teachers:file_list')
 
 
 @login_required
