@@ -1,10 +1,10 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db.models import Count, Q
 from django.shortcuts import redirect, render
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView
 from ..forms import SearchCourses, UserLoginForm
-from ..models import (Course, Lesson, Quiz, Student,
-                      Teacher, TakenQuiz)
+from ..models import (Course, Lesson, MyFile, Quiz, Student,
+                      Teacher)
 
 
 class CourseDetailView(DetailView):
@@ -29,11 +29,14 @@ class CourseDetailView(DetailView):
         kwargs['enrolled'] = student
         kwargs['owns'] = teacher
         kwargs['title'] = Course.objects.get(id=self.kwargs['pk'])
-
         kwargs['lessons'] = Lesson.objects.select_related('quizzes') \
             .select_related('course') \
             .filter(course__id=self.kwargs['pk']) \
             .order_by('number')
+        kwargs['quizzes'] = Quiz.objects.filter(course_id=self.kwargs['pk']) \
+            .order_by('title')
+        kwargs['files'] = MyFile.objects.filter(course_id=self.kwargs['pk']) \
+            .order_by('file')
 
         return super().get_context_data(**kwargs)
 

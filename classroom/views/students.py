@@ -6,6 +6,7 @@ from django.contrib.auth.views import PasswordChangeView
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
 from django.db import transaction
+from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
@@ -13,11 +14,12 @@ from django.utils.decorators import method_decorator
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.generic import ListView, DetailView, UpdateView
+from os.path import splitext
 from .raw_sql import get_taken_quiz
 from ..decorators import student_required
 from ..forms import (StudentInterestsForm, StudentProfileForm,
                      StudentSignUpForm, TakeQuizForm, UserUpdateForm)
-from ..models import (Course, Lesson, Quiz, Student, StudentAnswer,
+from ..models import (Course, Lesson, MyFile, Quiz, Student, StudentAnswer,
                       TakenCourse, TakenQuiz, User)
 from ..tokens import account_activation_token
 
@@ -168,6 +170,26 @@ def unenroll(request, pk):
 
     messages.success(request, 'You have successfully unenrolled from this course.')
     return redirect('course_details', pk)
+
+
+@login_required
+@student_required
+def file_view(request, pk):
+    file = get_object_or_404(MyFile, pk=pk)
+    file_path = str(file.file)
+    file_type = ''
+
+    try:
+        extension = splitext(file_path[16:])[1]
+        if extension == '.pdf':
+            file_type = 'application/pdf'
+
+        response = FileResponse(open(f'media/{file_path}', 'rb'), content_type=file_type)
+        response['Content-Disposition'] = f'filename={file_path[16:]}'
+
+        return response
+    except FileNotFoundError:
+        raise Http404()
 
 
 @login_required

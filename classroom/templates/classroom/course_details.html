@@ -27,48 +27,36 @@
         <div class="courses-page-content">
             <div class="container">
                 <div class="row">
-                    <div class="col-lg-3 col-md-12">
-                        <div class="courses-sidebar">
-                            <aside class="widget widget-courses-category">
-                                <h2>Categories</h2>
-                                <ul class="list-unstyled">
-                                    <li><a href="#">Design course</a></li>
-                                    <li><a href="#">Languages</a></li>
-                                    <li><a href="#">Food Learnind</a></li>
-                                    <li><a href="#">Driving School</a></li>
-                                </ul>
-                            </aside><!--/.widget-courses-category-->
-                            <aside class="widget widget-courses-level">
-                                <h2>Age level</h2>
-                                <ul class="list-unstyled">
-                                    <li><a href="#">Post-Secondary</a></li>
-                                    <li><a href="#">Beginner</a></li>
-                                    <li><a href="#">Expert</a></li>
-                                    <li><a href="#">Intermediate</a></li>
-                                </ul>
-                            </aside><!--/.widget-courses-level-->
-                            <aside class="widget widget-courses-location">
-                                <h2>durations</h2>
-                                <ul class="list-unstyled">
-                                    <li><a href="#">1 days - 7 days</a></li>
-                                    <li><a href="#">8 days - 14 days</a></li>
-                                    <li><a href="#">15 days - 21 days</a></li>
-                                    <li><a href="#">3 months</a></li>
-                                </ul>
-                            </aside><!--/.widget-courses-location-->
-                            <aside class="widget widget-courses-location">
-                                <h2>location</h2>
-                                <ul class="list-unstyled">
-                                    <li><a href="#">Your city</a></li>
-                                    <li><a href="#">San Francisco</a></li>
-                                    <li><a href="#">Ho Chi Minh City</a></li>
-                                    <li><a href="#">Hong Kong</a></li>
-                                </ul>
-                            </aside><!--/.widget-courses-location-->
-                        </div><!--/.courses-sidebar-->
-                    </div><!--/.col-lg-3-->
+                    {% if quizzes or files %}
+                        <div class="col-lg-3 col-md-12">
+                            <div class="courses-sidebar">
+                                <aside class="widget widget-courses-category">
+                                    <h2>Quizzes</h2>
+                                    <ul class="list-unstyled">
+                                        {% for quiz in quizzes %}
+                                            <li><a href="{% url 'students:take_quiz' course.pk quiz.pk %}">{{ quiz.title }}</a></li>
+                                        {% empty %}
+                                            There are no quizzes for this course.
+                                        {% endfor %}
+                                    </ul>
+                                </aside>
+                                <aside class="widget widget-courses-category">
+                                    <h2>Files</h2>
+                                    <ul class="list-unstyled">
+                                        {% for file in files %}
+                                            <li><a href="{% url 'students:view_file' file.pk %}">{{ file.file|cut:'class_resources/' }}</a></li>
+                                        {% empty %}
+                                            There are no files for this course.
+                                        {% endfor %}
+                                    </ul>
+                                </aside>
+                            </div><!--/.courses-sidebar-->
+                        </div><!--/.col-lg-3-->
 
-                    <div class="col-lg-9">
+                        <div class="col-lg-9">
+                    {% else %}
+                        <div class="col-lg-12">
+                    {% endif %}
                         <div class="course-details">
                             {% if messages %}
                                 {% for message in messages %}

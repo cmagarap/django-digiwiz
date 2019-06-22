@@ -42,7 +42,7 @@
                         <div class="list-group-item">
                             <div class="row">
                                 <div class="col-6">
-                                    {{ file.file.name }}
+                                    {{ file.file|cut:'class_resources/' }}
                                 </div>
                                 <div class="col-2">
                                     {{ file.course.title }}

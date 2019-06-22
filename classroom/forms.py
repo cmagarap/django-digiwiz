@@ -76,7 +76,7 @@ class LessonAddForm(forms.ModelForm):
     title = forms.CharField(max_length=100)
     number = forms.IntegerField( max_value=20, label='Lesson No.')
     description = forms.CharField(widget=forms.Textarea(), label='Short Description', max_length=255)
-    content = forms.CharField(widget=forms.Textarea(), label='Lesson Content')
+    content = forms.Textarea()
 
     class Meta:
         model = Lesson
@@ -95,7 +95,7 @@ class LessonEditForm(forms.ModelForm):
     title = forms.CharField(max_length=100)
     number = forms.IntegerField(max_value=20, label='Lesson No.')
     description = forms.CharField(widget=forms.Textarea(), max_length=255, label='Short Description')
-    content = forms.CharField(widget=forms.Textarea(), label='Lesson content')
+    content = forms.Textarea()
 
     class Meta:
         model = Lesson
@@ -112,7 +112,8 @@ class QuizAddForm(forms.ModelForm):
         # Gets only the courses that the logged in teacher owns and exclude the deleted:
         self.fields['course'].queryset = self.fields['course'] \
             .queryset.filter(owner=current_user.id) \
-            .exclude(status__iexact='deleted')
+            .exclude(status__iexact='deleted') \
+            .order_by('title')
         # The lesson field is dependent on course field
         self.fields['lesson'].queryset = Lesson.objects.none()
 

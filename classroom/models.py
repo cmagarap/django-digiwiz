@@ -62,7 +62,7 @@ class Course(models.Model):
 
 class Lesson(models.Model):
     title = models.CharField(max_length=100)
-    number = models.IntegerField()
+    number = models.IntegerField(unique=True)
     description = models.TextField(max_length=255)
     content = RichTextUploadingField()
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='lessons')
@@ -76,6 +76,7 @@ class Lesson(models.Model):
             if val:
                 setattr(self, field_name, val.capitalize())
 
+        setattr(self, 'title', getattr(self, 'title', False).title())
         super(Lesson, self).save(*args, **kwargs)
 
 

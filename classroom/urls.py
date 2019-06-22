@@ -36,6 +36,7 @@ urlpatterns = [
         path('taken/', students.TakenQuizListView.as_view(), name='taken_quiz_list'),
         path('taken/<int:pk>/', students.TakenQuizDetailView.as_view(), name='taken_quiz_detail'),
         path('unenroll/<int:pk>/', students.unenroll, name='unenroll'),
+        path('view-file/<int:pk>/', students.file_view, name='view_file')
     ], 'classroom'), namespace='students')),
 
     path('teacher/', include(([
