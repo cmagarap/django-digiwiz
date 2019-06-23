@@ -67,7 +67,7 @@
                                         </button>
                                     </div>
                                 {% endfor %}
-                            {% endif %}
+                            {% endif %}<br>
                             <div class="course-title">
                                 <div class="row">
                                     <div class="col-sm-10">
@@ -82,13 +82,16 @@
                                         {% if user.is_student %}
                                             {% if enrolled %}
                                                 <div class="course-cat text-capitalize text-right">
-                                                    {% if enrolled.status.upper == 'ENROLLED' %}
+                                                    {% if enrolled.status == 'enrolled' %}
                                                         <button href="{% url 'students:unenroll' course.pk %}" class="button" type="button" data-hover="UNENROLL" data-active="I'M ACTIVE">
                                                             <a href="{% url 'students:unenroll' course.pk %}"><span>{{ enrolled.status.upper }}</span></a>
                                                         </button>
-                                                    {% elif enrolled.status.upper == 'PENDING' %}
+                                                    {% elif enrolled.status == 'pending' %}
                                                         <button href="{% url 'students:unenroll' course.pk %}" class="button" type="button" data-hover="CANCEL" data-active="I'M ACTIVE">
                                                             <a href="{% url 'students:unenroll' course.pk %}"><span>{{ enrolled.status.upper }}</span></a>
+                                                        </button>
+                                                    {% elif enrolled.status == 'finished' %}
+                                                        <button class="button" style="background-color: #5DA2D5; border-color: #5DA2D5; color: white;" disabled>{{ enrolled.status.upper }}
                                                         </button>
                                                     {% endif %}
                                                 </div>
@@ -134,11 +137,11 @@
                                                         {% endif %}
 
                                                     {% elif user.is_student %}
-                                                        {% if enrolled and enrolled.status.upper == 'ENROLLED' %}
+                                                        {% if enrolled.status == 'enrolled' or enrolled.status == 'finished' %}
                                                             <a href="{% url 'course_details' course.pk %}lesson?page={{ forloop.counter }}" class="btn btn-primary mb-3" style=" border-color:#f78888;" role="button">See Lesson</a>
                                                             {% if lesson.quizzes.taken_quizzes.values.count > 0 %}
                                                                 <a class="btn btn-primary mb-3 disabled" style="background-color: buttonface;border-color: buttonface; color: graytext;"role="button">Quiz Already Taken</a>
-                                                                <br><a href="#">See Results</a>
+                                                                <br><a href="{% url 'students:taken_quiz_detail' lesson.quizzes.taken_quizzes.values.0.id %}">See Results</a>
                                                             {% elif lesson.quizzes.taken_quizzes.values.count == 0 %}
                                                                 <a href="{% url 'students:take_quiz' lesson.course.pk  lesson.quizzes.pk %}" class="btn btn-primary btn-takequiz mb-3"  role="button">Take Quiz</a>
                                                             {% elif not lesson.quizzes %}

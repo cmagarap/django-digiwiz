@@ -62,7 +62,7 @@ class Course(models.Model):
 
 class Lesson(models.Model):
     title = models.CharField(max_length=100)
-    number = models.IntegerField(unique=True)
+    number = models.IntegerField()
     description = models.TextField(max_length=255)
     content = RichTextUploadingField()
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='lessons')
@@ -107,7 +107,7 @@ class Question(models.Model):
 
 class Answer(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='answers')
-    text = models.CharField('Answer', max_length=255)
+    text = models.CharField('', max_length=255)
     is_correct = models.BooleanField('Correct answer', default=False)
 
     def __str__(self):

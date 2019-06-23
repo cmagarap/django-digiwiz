@@ -18,12 +18,14 @@ class CourseDetailView(DetailView):
         if self.request.user.is_authenticated:
             if self.request.user.is_student:
                 # if the logged in user is a student, check if he/she is enrolled in the displayed course
-                student = self.request.user.student.taken_courses.filter(course__id=self.kwargs['pk']).first()
+                student = self.request.user.student.taken_courses \
+                    .filter(course__id=self.kwargs['pk']).first()
                 teacher = None
                 # kwargs['taken_quizzes'] = TakenQuiz.objects.filter(student=self.request.user.student)
             elif self.request.user.is_teacher:
                 # if the logged in user is a teacher, check if he/she owns the displayed course
-                teacher = self.request.user.courses.filter(id=self.kwargs['pk']).first()
+                teacher = self.request.user.courses \
+                    .filter(id=self.kwargs['pk']).first()
                 student = None
 
         kwargs['enrolled'] = student

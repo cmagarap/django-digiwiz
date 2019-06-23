@@ -4,7 +4,7 @@
         <div class="container">
             {% if messages %}
                 {% for message in messages %}
-                    <div class="alert alert-info alert-dismissible fade show" role="alert">
+                    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
                         <p{% if forloop.last %} class="mb-0"{% endif %}>{{ message }}</p>
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>

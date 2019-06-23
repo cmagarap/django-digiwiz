@@ -13,13 +13,13 @@ from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.views.generic import ListView, DetailView, UpdateView
+from django.views.generic import ListView, UpdateView
 from os.path import splitext
 from .raw_sql import get_taken_quiz
 from ..decorators import student_required
 from ..forms import (StudentInterestsForm, StudentProfileForm,
                      StudentSignUpForm, TakeQuizForm, UserUpdateForm)
-from ..models import (Course, Lesson, MyFile, Quiz, Student, StudentAnswer,
+from ..models import (Answer, Course, Lesson, MyFile, Quiz, Question, Student, StudentAnswer,
                       TakenCourse, TakenQuiz, User)
 from ..tokens import account_activation_token
 
@@ -67,7 +67,7 @@ class MyCoursesListView(ListView):
     def get_queryset(self):
         queryset = self.request.user.student.taken_courses \
             .select_related('course', 'course__subject') \
-            .filter(status__in=['enrolled', 'pending']) \
+            .filter(status__in=['enrolled', 'pending', 'finished']) \
             .order_by('course__title')
 
         return queryset
@@ -88,22 +88,22 @@ class StudentInterestsView(UpdateView):
         return super().form_valid(form)
 
 
-@method_decorator([login_required, student_required], name='dispatch')
-class TakenQuizDetailView(DetailView):
-    model = TakenQuiz
-    context_object_name = 'taken_quiz'
-    extra_context = {
-        'title': 'Quiz Result'
-    }
-    template_name = 'classroom/students/taken_quiz_result.html'
-
-    def get_context_data(self, **kwargs):
-        kwargs['student_answer'] = StudentAnswer.objects.raw(
-            get_taken_quiz(self.request.user.pk, self.kwargs['pk']))
-        kwargs['taken_quiz'] = TakenQuiz.objects \
-            .select_related('quiz') \
-            .get(id=self.kwargs['pk'])
-        return super().get_context_data(**kwargs)
+# @method_decorator([login_required, student_required], name='dispatch')
+# class TakenQuizDetailView(DetailView):
+#     model = TakenQuiz
+#     context_object_name = 'taken_quiz'
+#     extra_context = {
+#         'title': 'Quiz Result'
+#     }
+#     template_name = 'classroom/students/taken_quiz_result.html'
+#
+#     def get_context_data(self, **kwargs):
+#         kwargs['student_answer'] = StudentAnswer.objects.raw(
+#             get_taken_quiz(self.request.user.pk, self.kwargs['pk']))
+#         kwargs['taken_quiz'] = TakenQuiz.objects \
+#             .select_related('quiz') \
+#             .get(id=self.kwargs['pk'])
+#         return super().get_context_data(**kwargs)
 
 
 @method_decorator([login_required, student_required], name='dispatch')
@@ -180,6 +180,7 @@ def file_view(request, pk):
     file_type = ''
 
     try:
+        # Get the file extension:
         extension = splitext(file_path[16:])[1]
         if extension == '.pdf':
             file_type = 'application/pdf'
@@ -312,6 +313,16 @@ def take_quiz(request, course_pk, quiz_pk):
                     else:
                         messages.success(request, f'Congratulations! You completed the '
                                                   f'quiz { quiz.title } with success! You scored { score } points.')
+
+                    taken_quiz_count = TakenQuiz.objects.filter(student_id=request.user.pk) \
+                        .values_list('id', flat=True).count()
+                    quiz_count = Quiz.objects.filter(course_id=course_pk) \
+                        .values_list('id', flat=True).count()
+
+                    # Check if the taken quiz and quiz have equal count:
+                    if taken_quiz_count == quiz_count:
+                        TakenCourse.objects.filter(course_id=course_pk).update(status='finished')
+
                     return redirect('course_details', course_pk)
     else:
         form = TakeQuizForm(question=question)
@@ -324,3 +335,31 @@ def take_quiz(request, course_pk, quiz_pk):
     }
 
     return render(request, 'classroom/students/take_quiz_form.html', context)
+
+
+@login_required
+@student_required
+def taken_quiz_result(request, taken_pk, quiz_pk):
+    quiz = get_object_or_404(Quiz, pk=quiz_pk)
+    questions = Question.objects.filter(quiz=quiz)
+    taken_quiz = get_object_or_404(TakenQuiz, pk=taken_pk, quiz=quiz, student_id=request.user.pk)
+
+    student_answers = StudentAnswer.objects\
+        .raw(get_taken_quiz(request.user.pk, taken_quiz.pk))
+
+    taken_quiz = TakenQuiz.objects \
+        .select_related('quiz') \
+        .filter(student=request.user.student, id=taken_quiz.pk, quiz=quiz) \
+        .first()
+
+    answers = Answer.objects.filter(question__in=questions)
+
+    context = {
+        'title': 'Quiz Result',
+        'student_answers': student_answers,
+        'taken_quiz': taken_quiz,
+        'answers': answers,
+        'ownership': 'Your'
+    }
+
+    return render(request, 'classroom/students/taken_quiz_result.html', context)

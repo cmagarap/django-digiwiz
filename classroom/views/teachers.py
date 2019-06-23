@@ -121,14 +121,8 @@ class FilesListView(ListView):
     }
     template_name = 'classroom/teachers/file_list.html'
 
-    def get_context_data(self, **kwargs):
-        """Get only the files that the logged in teacher owns
-        and order by title"""
-        kwargs['courses'] = self.request.user.my_files \
-            .all() \
-            .order_by('title')
-
-        return super().get_context_data(**kwargs)
+    def get_queryset(self):
+        return self.request.user.my_files.all().order_by('file')
 
 
 @method_decorator([login_required, teacher_required], name='dispatch')
@@ -142,7 +136,8 @@ class LessonListView(ListView):
 
     def get_queryset(self):
         """Gets the lesson that the user owns through course FK."""
-        return Lesson.objects.filter(course__in=self.request.user.courses.all()).order_by('title')
+        return Lesson.objects.filter(course__in=self.request.user.courses.all()) \
+            .order_by('title')
 
 
 @method_decorator([login_required, teacher_required], name='dispatch')
@@ -320,7 +315,12 @@ def add_question(request, course_pk, quiz_pk):
     else:
         form = QuestionForm()
 
-    return render(request, 'classroom/teachers/question_add_form.html', {'quiz': quiz, 'form': form})
+    context = {
+        'title': 'Add question',
+        'quiz': quiz,
+        'form': form
+    }
+    return render(request, 'classroom/teachers/question_add_form.html', context)
 
 
 @login_required
@@ -471,6 +471,7 @@ def edit_question(request, course_pk, quiz_pk, question_pk):
         formset = AnswerFormSet(instance=question)
 
     context = {
+        'title': 'Edit Question',
         'quiz': quiz,
         'question': question,
         'form': form,
@@ -538,24 +539,34 @@ def profile(request):
         'title': 'My Profile'
     }
 
-    return render(request, 'classroom/proMyFile.html', context)
+    return render(request, 'classroom/profile.html', context)
 
 
 @login_required
 @teacher_required
 def quiz_result_detail(request, quiz_pk, student_pk, taken_pk):
+    quiz = get_object_or_404(Quiz, pk=quiz_pk)
+    questions = Question.objects.filter(quiz=quiz)
+    taken_quiz = get_object_or_404(TakenQuiz, pk=taken_pk, quiz=quiz, student_id=student_pk)
+
     student_answer = StudentAnswer.objects.raw(
-            get_taken_quiz(student_pk, taken_pk))
+            get_taken_quiz(student_pk, taken_quiz.pk))
+
     taken_quiz = TakenQuiz.objects \
         .select_related('quiz') \
-        .get(id=taken_pk)
+        .filter(student_id=student_pk, id=taken_quiz.pk, quiz=quiz) \
+        .first()
+
+    answers = Answer.objects.filter(question__in=questions)
     student_name = User.objects.get(pk=student_pk)
 
     context = {
         'title': 'Quiz Result',
-        'student_answer': student_answer,
+        'student_answers': student_answer,
         'taken_quiz': taken_quiz,
-        'student_name': student_name
+        'answers': answers,
+        'student_name': student_name,
+        'ownership': 'Student\'s'
     }
 
     return render(request, 'classroom/students/taken_quiz_result.html', context)
