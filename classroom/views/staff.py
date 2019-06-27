@@ -36,6 +36,7 @@ class AdminListView(ListView):
         'sidebar': 'admin_list'
     }
     template_name = 'classroom/staff/admin_list.html'
+    paginate_by = 15
 
     def get_queryset(self):
         """Gets all the admin/staff accounts but not the superuser."""
@@ -63,6 +64,7 @@ class CourseListView(ListView):
         'sidebar': 'course_list'
     }
     template_name = 'classroom/staff/course_list.html'
+    paginate_by = 15
 
     def get_queryset(self):
         """Gets all the approved courses."""
@@ -79,6 +81,7 @@ class CourseRequestsView(ListView):
         'sidebar': 'course_requests'
     }
     template_name = 'classroom/staff/course_requests_list.html'
+    paginate_by = 15
 
     def get_queryset(self):
         """Gets all the courses that have pending as their status."""
@@ -112,6 +115,7 @@ class SubjectListView(ListView):
         'sidebar': 'subject_list'
     }
     template_name = 'classroom/staff/subject_list.html'
+    paginate_by = 5
 
     def get_queryset(self):
         """Gets all the approved courses."""
@@ -127,6 +131,7 @@ class StudentListView(ListView):
         'sidebar': 'student_list'
     }
     template_name = 'classroom/staff/students_list.html'
+    paginate_by = 15
 
     def get_queryset(self):
         """Gets all the student accounts."""
@@ -163,6 +168,7 @@ class TeacherListView(ListView):
         'sidebar': 'teacher_list'
     }
     template_name = 'classroom/staff/teacher_list.html'
+    paginate_by = 15
 
     def get_queryset(self):
         """Gets all the teacher accounts."""
