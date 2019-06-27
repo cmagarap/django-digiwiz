@@ -93,7 +93,7 @@
                                                             {% ratings course %}
                                                         {% else %}
                                                             {{ course.ratings.get.average|floatformat:"-2" }}/5
-                                                            ({{ course.ratings.get.count }} casted)
+                                                            ({{ course.ratings.get.count }} reviews)
                                                         {% endif %}
                                                     </div><!--/.course-reviews-->
                                                     <div class="trainer-profile clearfix">

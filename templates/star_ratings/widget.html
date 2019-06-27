@@ -3,7 +3,7 @@
 {% block rating_detail %}
     {% block rating_average %}
         {% block rating_count %}
-            <div class="star-ratings-rating-average">{% trans 'Rating: ' %}<span class='star-ratings-rating-value'><b>{{ rating.average|floatformat:"-2" }}/5</b> ({{ rating.count }} casted)</span></div>
+            <div class="star-ratings-rating-average">{% trans 'Rating: ' %}<span class='star-ratings-rating-value'><b>{{ rating.average|floatformat:"-2" }}/5</b> ({{ rating.count }} reviews)</span></div>
             {% endblock rating_count %}
     {% endblock rating_average %}
 

@@ -91,7 +91,7 @@
                                                     <div class="course-reviews">
                                                         {% if user.is_teacher %}
                                                             {{ course.ratings.get.average|floatformat:"-2" }}/5
-                                                            ({{ course.ratings.get.count }} casted)
+                                                            ({{ course.ratings.get.count }} reviews)
                                                         {% else %}
                                                             {% ratings course %}
                                                         {% endif %}
