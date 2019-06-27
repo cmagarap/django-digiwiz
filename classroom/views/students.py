@@ -1,28 +1,27 @@
 from django.contrib import messages
-from django.contrib.auth import get_user_model, login
+from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.contrib.auth.views import PasswordChangeView
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
 from django.db import transaction
+from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.views.generic import ListView, DetailView, UpdateView
+from django.views.generic import ListView, UpdateView
+from os.path import splitext
 from .raw_sql import get_taken_quiz
 from ..decorators import student_required
 from ..forms import (StudentInterestsForm, StudentProfileForm,
                      StudentSignUpForm, TakeQuizForm, UserUpdateForm)
-from ..models import (Course, Lesson, Quiz, Student, StudentAnswer,
-                      TakenCourse, TakenQuiz, User)
+from ..models import (Answer, Course, Lesson, MyFile, Quiz, Question,
+                      Student, StudentAnswer, TakenCourse, TakenQuiz,
+                      User, UserLog)
 from ..tokens import account_activation_token
-
-
-User = get_user_model()
 
 
 @method_decorator([login_required, student_required], name='dispatch')
@@ -31,11 +30,15 @@ class ChangePassword(PasswordChangeView):
     template_name = 'classroom/change_password.html'
 
     def form_valid(self, form):
+        UserLog.objects.create(action='Changed password',
+                               user_type='student',
+                               user=self.request.user)
+
         messages.success(self.request, 'Your successfully changed your password!')
         return super().form_valid(form)
 
 
-@method_decorator([login_required, student_required], name='dispatch')
+@method_decorator([login_required], name='dispatch')
 class LessonListView(ListView):
     model = Lesson
     context_object_name = 'lessons'
@@ -65,7 +68,7 @@ class MyCoursesListView(ListView):
     def get_queryset(self):
         queryset = self.request.user.student.taken_courses \
             .select_related('course', 'course__subject') \
-            .filter(status__in=['enrolled', 'pending']) \
+            .filter(status__in=['enrolled', 'pending', 'finished']) \
             .order_by('course__title')
 
         return queryset
@@ -82,26 +85,12 @@ class StudentInterestsView(UpdateView):
         return self.request.user.student
 
     def form_valid(self, form):
+        UserLog.objects.create(action='Updated subject interests',
+                               user_type='student',
+                               user=self.request.user)
+
         messages.success(self.request, 'Your interests are successfully updated!')
         return super().form_valid(form)
-
-
-@method_decorator([login_required, student_required], name='dispatch')
-class TakenQuizDetailView(DetailView):
-    model = TakenQuiz
-    context_object_name = 'taken_quiz'
-    extra_context = {
-        'title': 'Quiz Result'
-    }
-    template_name = 'classroom/students/taken_quiz_result.html'
-
-    def get_context_data(self, **kwargs):
-        kwargs['student_answer'] = StudentAnswer.objects.raw(
-            get_taken_quiz(self.request.user.pk, self.kwargs['pk']))
-        kwargs['taken_quiz'] = TakenQuiz.objects \
-            .select_related('quiz') \
-            .get(id=self.kwargs['pk'])
-        return super().get_context_data(**kwargs)
 
 
 @method_decorator([login_required, student_required], name='dispatch')
@@ -112,6 +101,7 @@ class TakenQuizListView(ListView):
         'title': 'My Taken Quizzes'
     }
     template_name = 'classroom/students/taken_quiz_list.html'
+    paginate_by = 10
 
     def get_queryset(self):
         queryset = self.request.user.student.taken_quizzes \
@@ -154,6 +144,9 @@ def enroll(request, pk):
     student = request.user.student
     take = TakenCourse.objects.create(student=student, course=course)
     take.save()
+    UserLog.objects.create(action=f'Sent enrollment request for: {course.title}',
+                           user_type='student',
+                           user=request.user)
 
     messages.info(request, 'You have successfully sent an enrollment request to the teacher in charge.')
     return redirect('course_details', pk)
@@ -166,8 +159,32 @@ def unenroll(request, pk):
     student = request.user.student
     TakenCourse.objects.filter(student=student, course=course).delete()
 
+    UserLog.objects.create(action=f'Unenrolled in course: {course.title}',
+                           user_type='student',
+                           user=request.user)
+
     messages.success(request, 'You have successfully unenrolled from this course.')
     return redirect('course_details', pk)
+
+
+@login_required
+def file_view(request, pk):
+    file = get_object_or_404(MyFile, pk=pk)
+    file_path = str(file.file)
+    file_type = ''
+
+    try:
+        # Get the file extension:
+        extension = splitext(file_path[16:])[1]
+        if extension == '.pdf':
+            file_type = 'application/pdf'
+
+        response = FileResponse(open(f'media/{file_path}', 'rb'), content_type=file_type)
+        response['Content-Disposition'] = f'filename={file_path[16:]}'
+
+        return response
+    except FileNotFoundError:
+        raise Http404()
 
 
 @login_required
@@ -180,6 +197,11 @@ def profile(request):
         if user_update_form.is_valid() and profile_form.is_valid():
             user_update_form.save()
             profile_form.save()
+
+            UserLog.objects.create(action='Updated Student Profile',
+                                   user_type='student',
+                                   user=request.user)
+
             messages.success(request, 'Your account has been updated!')
             return redirect('students:profile')
 
@@ -252,6 +274,7 @@ def register(request):
 @login_required
 @student_required
 def take_quiz(request, course_pk, quiz_pk):
+    course = get_object_or_404(Course, pk=course_pk)
     quiz = get_object_or_404(Quiz, pk=quiz_pk)
     student = request.user.student
 
@@ -282,14 +305,30 @@ def take_quiz(request, course_pk, quiz_pk):
                     correct_answers = student.quiz_answers.filter(answer__question__quiz=quiz,
                                                                   answer__is_correct=True).count()
                     score = round((correct_answers / total_questions) * 100.0, 2)
-                    TakenQuiz.objects.create(student=student, quiz=quiz,
+                    TakenQuiz.objects.create(student=student, quiz=quiz, course=course,
                                              score=score, status='Finished')
+
+                    UserLog.objects.create(action=f'Took the quiz: {quiz.title}',
+                                           user_type='student',
+                                           user=request.user)
+
                     if score < 50.0:
                         messages.warning(request, f'Better luck next time! Your score for the '
                                                   f'quiz { quiz.title } was { score }.')
                     else:
                         messages.success(request, f'Congratulations! You completed the '
                                                   f'quiz { quiz.title } with success! You scored { score } points.')
+
+                    # Count the taken quizzes and quizzes:
+                    taken_quiz_count = TakenQuiz.objects.filter(student_id=request.user.pk, course=course) \
+                        .values_list('id', flat=True).count()
+                    quiz_count = Quiz.objects.filter(course_id=course_pk) \
+                        .values_list('id', flat=True).count()
+
+                    # Check if the taken quizzes and quizzes have equal count:
+                    if taken_quiz_count == quiz_count:
+                        TakenCourse.objects.filter(course_id=course_pk).update(status='finished')
+
                     return redirect('course_details', course_pk)
     else:
         form = TakeQuizForm(question=question)
@@ -302,3 +341,31 @@ def take_quiz(request, course_pk, quiz_pk):
     }
 
     return render(request, 'classroom/students/take_quiz_form.html', context)
+
+
+@login_required
+@student_required
+def taken_quiz_result(request, taken_pk, quiz_pk):
+    quiz = get_object_or_404(Quiz, pk=quiz_pk)
+    questions = Question.objects.filter(quiz=quiz)
+    taken_quiz = get_object_or_404(TakenQuiz, pk=taken_pk, quiz=quiz, student_id=request.user.pk)
+
+    student_answers = StudentAnswer.objects\
+        .raw(get_taken_quiz(request.user.pk, taken_quiz.pk))
+
+    taken_quiz = TakenQuiz.objects \
+        .select_related('quiz') \
+        .filter(student=request.user.student, id=taken_quiz.pk, quiz=quiz) \
+        .first()
+
+    answers = Answer.objects.filter(question__in=questions)
+
+    context = {
+        'title': 'Quiz Result',
+        'student_answers': student_answers,
+        'taken_quiz': taken_quiz,
+        'answers': answers,
+        'ownership': 'Your'
+    }
+
+    return render(request, 'classroom/students/taken_quiz_result.html', context)

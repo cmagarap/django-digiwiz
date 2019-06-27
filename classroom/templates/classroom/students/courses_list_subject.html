@@ -89,11 +89,11 @@
                                                     {{ course.subject.get_html_badge }}
                                                     <p style="white-space: nowrap; width: 310px; overflow: hidden; text-overflow: ellipsis">{{ course.description }}</p>
                                                     <div class="course-reviews">
-                                                        {% if user.is_student %}
-                                                            {% ratings course %}
-                                                        {% else %}
+                                                        {% if user.is_teacher %}
                                                             {{ course.ratings.get.average|floatformat:"-2" }}/5
                                                             ({{ course.ratings.get.count }} reviews)
+                                                        {% else %}
+                                                            {% ratings course %}
                                                         {% endif %}
                                                     </div><!--/.course-reviews-->
                                                     <div class="trainer-profile clearfix">

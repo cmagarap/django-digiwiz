@@ -1,11 +1,10 @@
 {% extends 'base.html' %}
-
 {% block content %}
     <section id="courses-section" class="popular-courses-area bg-white s-pd2">
         <div class="container">
             {% if messages %}
                 {% for message in messages %}
-                    <div class="alert alert-info alert-dismissible fade show" role="alert">
+                    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
                         <p{% if forloop.last %} class="mb-0"{% endif %}>{{ message }}</p>
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
@@ -51,13 +50,13 @@
                         <div class="list-group-item">
                             <div class="row">
                                 <div class="col-4">
-                                    <a href="">{{ quiz.title }}</a>
+                                    <a href="{% url 'teachers:quiz_edit' quiz.course.pk quiz.pk %}">{{ quiz.title }}</a>
                                 </div>
                                 <div class="col-2">
-                                    <a href="">{{ quiz.course.title }}</a>
+                                    <a href="{% url 'course_details' quiz.course.pk %}">{{ quiz.course.title }}</a>
                                 </div>
                                 <div class="col-2">
-                                    <a href="">{{ quiz.lesson.title }}</a>
+                                    {{ quiz.lesson.title }}
                                 </div>
                                 <div class="col-1">
                                     {{ quiz.questions_count }}
@@ -74,7 +73,7 @@
                         </div>
                     {% empty %}
                         <div class="list-group-item text-center">
-                            <p class="text-muted font-italic mb-0">You haven't created any lessons yet. Go ahead and <a href="">add the first lesson</a>.</p>
+                            <p class="text-muted font-italic mb-0">You haven't created any quizzes yet.</p>
                         </div>
                     {% endfor %}
                 </div>
