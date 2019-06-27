@@ -29,6 +29,7 @@ urlpatterns = [
     path('activate-student/<str:uidb64>/<str:token>', students.activate, name='activate_student'),
     path('activate-teacher/<str:uidb64>/<str:token>', teachers.activate, name='activate_teacher'),
     path('browse-courses/', classroom.browse_courses, name='browse_courses'),
+    path('browse-courses/<int:subject_pk>/', classroom.browse_courses_subject, name='browse_courses_subject'),
     path('ckeditor/upload/', uploader_views.upload, name='ckeditor_upload'),
     path('ckeditor/browse/', never_cache(uploader_views.browse), name='ckeditor_browse'),
     path('contact-us/', classroom.contact_us, name='contact_us'),

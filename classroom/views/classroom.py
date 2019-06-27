@@ -1,10 +1,11 @@
 from django.contrib.auth import authenticate, login, logout
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Count, Q
 from django.shortcuts import redirect, render
 from django.views.generic import DetailView
 from ..forms import SearchCourses, UserLoginForm
-from ..models import (Course, Lesson, MyFile, Quiz, Student,
-                      TakenQuiz, Teacher, UserLog)
+from ..models import (Course, Lesson, MyFile, Quiz, Subject,
+                      Student, TakenQuiz, Teacher, UserLog)
 
 
 def get_user_type(user):
@@ -133,21 +134,36 @@ def register_page(request):
     return render(request, 'authentication/register.html', {'title': 'Register'})
 
 
+def do_paginate(data_list, page_number, results_per_page):
+    ret_data_list = data_list
+    # build the paginator object.
+    paginator = Paginator(data_list, results_per_page)
+    try:
+        # get data list for the specified page_number.
+        ret_data_list = paginator.page(page_number)
+    except EmptyPage:
+        # get the lat page data if the page_number is bigger than last page number.
+        ret_data_list = paginator.page(paginator.num_pages)
+    except PageNotAnInteger:
+        # if the page_number is not an integer then return the first page data.
+        ret_data_list = paginator.page(1)
+    return [ret_data_list, paginator]
+
+
 def browse_courses(request):
     query = None
+    subjects = Subject.objects.all()
     courses = Course.objects.filter(status__iexact='approved') \
         .annotate(taken_count=Count('taken_courses',
                                     filter=Q(taken_courses__status__iexact='enrolled'),
                                     distinct=True)) \
         .order_by('title')
 
-    if request.user.is_authenticated:
-        if request.user.is_student:
-            courses = Course.objects.filter(status__iexact='approved') \
-                .annotate(taken_count=Count('taken_courses',
-                                            filter=Q(taken_courses__status__iexact='enrolled'),
-                                            distinct=True)) \
-                .order_by('title')
+    page_number = request.GET.get('page', 1)
+    paginate_result = do_paginate(courses, page_number, 6)
+    course_list = paginate_result[0]
+    paginator = paginate_result[1]
+    base_url = '/browse-courses/?'
 
     if 'search' in request.GET:
         form = SearchCourses(request.GET)
@@ -156,6 +172,11 @@ def browse_courses(request):
             courses = Course.objects.filter(Q(title__icontains=query) |
                                             Q(description__icontains=query)) \
                 .filter(status__iexact='approved')
+
+            paginate_result = do_paginate(courses, page_number, 6)
+            course_list = paginate_result[0]
+            paginator = paginate_result[1]
+            base_url = f'/browse-courses/?search={query}&'
 
             if request.user.is_authenticated:
                 UserLog.objects.create(action=f'Searched for "{query}"',
@@ -167,7 +188,58 @@ def browse_courses(request):
     context = {
         'title': 'Browse Courses',
         'form': form,
-        'courses': courses,
-        'search_str': query
+        'courses': course_list,
+        'paginator': paginator,
+        'search_str': query,
+        'subjects': subjects,
+        'base_url': base_url
     }
     return render(request, 'classroom/students/courses_list.html', context)
+
+
+def browse_courses_subject(request, subject_pk):
+    courses = Course.objects.filter(status__iexact='approved', subject_id=subject_pk) \
+        .annotate(taken_count=Count('taken_courses',
+                                    filter=Q(taken_courses__status__iexact='enrolled'),
+                                    distinct=True)) \
+        .order_by('title')
+
+    page_number = request.GET.get('page', 1)
+    paginate_result = do_paginate(courses, page_number, 1)
+    course_list = paginate_result[0]
+    paginator = paginate_result[1]
+    base_url = f'/browse-courses/{subject_pk}/?'
+
+    query = None
+    subjects = Subject.objects.all()
+
+    if 'search' in request.GET:
+        form = SearchCourses(request.GET)
+        if form.is_valid():
+            query = form.cleaned_data.get('search')
+            courses = Course.objects.filter(Q(title__icontains=query) |
+                                            Q(description__icontains=query)) \
+                .filter(status__iexact='approved')
+
+            paginate_result = do_paginate(courses, page_number, 1)
+            course_list = paginate_result[0]
+            paginator = paginate_result[1]
+            base_url = f'/browse-courses/{subject_pk}/?search={query}&'
+
+            if request.user.is_authenticated:
+                UserLog.objects.create(action=f'Searched for "{query}"',
+                                       user_type=get_user_type(request.user),
+                                       user=request.user)
+    else:
+        form = SearchCourses()
+
+    context = {
+        'title': 'Browse Courses',
+        'form': form,
+        'courses': course_list,
+        'paginator': paginator,
+        'search_str': query,
+        'subjects': subjects,
+        'base_url': base_url
+    }
+    return render(request, 'classroom/students/courses_list_subject.html', context)

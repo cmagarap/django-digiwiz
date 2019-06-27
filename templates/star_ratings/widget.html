@@ -10,7 +10,7 @@
     {% block rating_user %}
         <div class="star-ratings-rating-user">{% trans 'You Rated: ' %} <span class='star-ratings-rating-value'>{% if user_rating %}<b>{{ user_rating.score }}</b>{% else %}{% trans 'None' %}{% endif %}</span></div>
     {% if not user.is_authenticated and not anonymous_ratings and not read_only %}
-        <p>{% trans '<i>Please log in to rate.</i>' %}</p>
+        <i>Please <a href="{% url 'login' %}"><u>log in</u></a> to rate.</i>
     {% endif %}
     {% endblock rating_user %}
 

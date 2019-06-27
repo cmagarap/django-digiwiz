@@ -134,8 +134,8 @@
             var url = "{% url 'staff:subject_list'  %}";
             var id = $(this).data('id');
             swal({
-                title: "Are you sure you want to delete this subject?",
-                text: "Once you delete this, you will never recover it.",
+                title: "WARNING! Are you sure you want to delete this subject?",
+                text: "Once you delete this, all courses related to it are also deleted and there's no way of recovering it.",
                 icon: "warning",
                 buttons: true,
                 dangerMode: true,
