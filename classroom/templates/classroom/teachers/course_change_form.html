@@ -15,8 +15,10 @@
                         <h2>Edit a Course</h2>
                         <form method="post" enctype="multipart/form-data" novalidate>
                             {% csrf_token %}
+                            {{ form.media }}
                             {{ form|crispy }}
                             <button type="submit" class="btn btn-success">Save changes</button>
+                            <a href="{% url 'teachers:lesson_add' %}" class="btn btn-secondary" role="button">Add a Lesson</a>
                             <a href="{% url 'teachers:course_change_list' %}" class="btn btn-outline-secondary" role="button">Cancel</a>
                             <a href="#" class="btn btn-danger float-right delete">Delete</a>
                         </form>

@@ -17,6 +17,16 @@
                 <div class="col-lg-8">
                     <div class="section-heading-area text-center">
                         <h2 class="section-heading text-capitalize">My Courses</h2>
+                        <ul class="list-unstyled popular-filter-nav text-center">
+                            <li><a class="filter" href="#" data-filter="*">All</a></li>
+                            <li><a href="#" class="filter" data-filter=".approved">Approved</a></li>
+                            <li><a href="#" class="filter" data-filter=".pending">Pending</a></li>
+                            <li><a href="#" class="filter" data-filter=".rejected">Rejected</a></li>
+                            <br>
+                            <li><a class="filter" href="#" data-filter=".English">English</a></li>
+                            <li><a href="#" class="filter" data-filter=".Mathematics">Mathematics</a></li>
+                            <li><a href="#" class="filter" data-filter=".Science">Science</a></li>
+                        </ul><!--/.popular-filter-nav-->
                         <a href="{% url 'teachers:course_add' %}" class="btn btn-primary mb-3" role="button">Add a Course</a>
                     </div><!--/.section-heading-area-->
                 </div><!--/.col-lg-8-->
@@ -24,7 +34,7 @@
 
             <div class="row courses-item-content">
                 {% for course in courses %}
-                    <div class="col-lg-4 col-sm-6 design photography">
+                    <div class="col-lg-4 col-sm-6 {{ course.status }} {{ course.subject }}">
                         <!--Single Course Item Start-->
                         <div class="single-course-item border-radius">
                             <div class="course-thumb-area">

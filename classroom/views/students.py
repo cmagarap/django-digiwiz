@@ -37,7 +37,7 @@ class ChangePassword(PasswordChangeView):
         return super().form_valid(form)
 
 
-@method_decorator([login_required, student_required], name='dispatch')
+@method_decorator([login_required], name='dispatch')
 class LessonListView(ListView):
     model = Lesson
     context_object_name = 'lessons'
@@ -86,24 +86,6 @@ class StudentInterestsView(UpdateView):
     def form_valid(self, form):
         messages.success(self.request, 'Your interests are successfully updated!')
         return super().form_valid(form)
-
-
-# @method_decorator([login_required, student_required], name='dispatch')
-# class TakenQuizDetailView(DetailView):
-#     model = TakenQuiz
-#     context_object_name = 'taken_quiz'
-#     extra_context = {
-#         'title': 'Quiz Result'
-#     }
-#     template_name = 'classroom/students/taken_quiz_result.html'
-#
-#     def get_context_data(self, **kwargs):
-#         kwargs['student_answer'] = StudentAnswer.objects.raw(
-#             get_taken_quiz(self.request.user.pk, self.kwargs['pk']))
-#         kwargs['taken_quiz'] = TakenQuiz.objects \
-#             .select_related('quiz') \
-#             .get(id=self.kwargs['pk'])
-#         return super().get_context_data(**kwargs)
 
 
 @method_decorator([login_required, student_required], name='dispatch')
@@ -275,6 +257,7 @@ def register(request):
 @login_required
 @student_required
 def take_quiz(request, course_pk, quiz_pk):
+    course = get_object_or_404(Course, pk=course_pk)
     quiz = get_object_or_404(Quiz, pk=quiz_pk)
     student = request.user.student
 
@@ -305,7 +288,7 @@ def take_quiz(request, course_pk, quiz_pk):
                     correct_answers = student.quiz_answers.filter(answer__question__quiz=quiz,
                                                                   answer__is_correct=True).count()
                     score = round((correct_answers / total_questions) * 100.0, 2)
-                    TakenQuiz.objects.create(student=student, quiz=quiz,
+                    TakenQuiz.objects.create(student=student, quiz=quiz, course=course,
                                              score=score, status='Finished')
                     if score < 50.0:
                         messages.warning(request, f'Better luck next time! Your score for the '
@@ -314,7 +297,7 @@ def take_quiz(request, course_pk, quiz_pk):
                         messages.success(request, f'Congratulations! You completed the '
                                                   f'quiz { quiz.title } with success! You scored { score } points.')
 
-                    taken_quiz_count = TakenQuiz.objects.filter(student_id=request.user.pk) \
+                    taken_quiz_count = TakenQuiz.objects.filter(student_id=request.user.pk, course=course) \
                         .values_list('id', flat=True).count()
                     quiz_count = Quiz.objects.filter(course_id=course_pk) \
                         .values_list('id', flat=True).count()

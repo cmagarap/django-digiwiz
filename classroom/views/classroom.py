@@ -4,7 +4,7 @@ from django.shortcuts import redirect, render
 from django.views.generic import DetailView
 from ..forms import SearchCourses, UserLoginForm
 from ..models import (Course, Lesson, MyFile, Quiz, Student,
-                      Teacher)
+                      TakenQuiz, Teacher)
 
 
 class CourseDetailView(DetailView):
@@ -18,13 +18,24 @@ class CourseDetailView(DetailView):
         if self.request.user.is_authenticated:
             if self.request.user.is_student:
                 # if the logged in user is a student, check if he/she is enrolled in the displayed course
-                student = self.request.user.student.taken_courses \
+                student = self.request.user.student.taken_courses.values('id', 'status') \
                     .filter(course__id=self.kwargs['pk']).first()
+
+                kwargs['taken_quizzes'] = TakenQuiz.objects\
+                    .filter(student=self.request.user.student, course_id=self.kwargs['pk'])
+
+                taken_quiz_count = TakenQuiz.objects.filter(student_id=self.request.user.pk,
+                                                            course_id=self.kwargs['pk']) \
+                    .values_list('id', flat=True).count()
+                quiz_count = Quiz.objects.filter(course_id=self.kwargs['pk']) \
+                    .values_list('id', flat=True).count()
+
+                kwargs['progress'] = (taken_quiz_count / quiz_count) * 100 if quiz_count != 0 else 0
                 teacher = None
-                # kwargs['taken_quizzes'] = TakenQuiz.objects.filter(student=self.request.user.student)
+
             elif self.request.user.is_teacher:
                 # if the logged in user is a teacher, check if he/she owns the displayed course
-                teacher = self.request.user.courses \
+                teacher = self.request.user.courses.values_list('id', flat=True) \
                     .filter(id=self.kwargs['pk']).first()
                 student = None
 
@@ -125,10 +136,7 @@ def browse_courses(request):
 
     if request.user.is_authenticated:
         if request.user.is_student:
-            student = request.user.student
-            taken_courses = student.courses.values_list('pk', flat=True)
             courses = Course.objects.filter(status__iexact='approved') \
-                .exclude(pk__in=taken_courses) \
                 .annotate(taken_count=Count('taken_courses',
                                             filter=Q(taken_courses__status__iexact='enrolled'),
                                             distinct=True)) \

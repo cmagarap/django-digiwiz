@@ -42,7 +42,7 @@ class BaseAnswerInlineFormSet(forms.BaseInlineFormSet):
 class CourseAddForm(forms.ModelForm):
     title = forms.CharField(max_length=100)
     code = forms.CharField(max_length=20, label='Course Code')
-    description = forms.CharField(widget=forms.Textarea(), max_length=255, label='Short Description')
+    description = forms.CharField(widget=forms.Textarea(), max_length=500, label='Short Description')
     image = forms.ImageField()
 
     class Meta:
@@ -74,8 +74,9 @@ class FileAddForm(forms.ModelForm):
 
 class LessonAddForm(forms.ModelForm):
     title = forms.CharField(max_length=100)
-    number = forms.IntegerField( max_value=20, label='Lesson No.')
-    description = forms.CharField(widget=forms.Textarea(), label='Short Description', max_length=255)
+    number = forms.IntegerField(max_value=20, label='Lesson No.',
+                                help_text='This helps the ordering of your lessons in the display.')
+    description = forms.CharField(widget=forms.Textarea(), label='Short Description', max_length=500)
     content = forms.Textarea()
 
     class Meta:
@@ -93,8 +94,9 @@ class LessonAddForm(forms.ModelForm):
 
 class LessonEditForm(forms.ModelForm):
     title = forms.CharField(max_length=100)
-    number = forms.IntegerField(max_value=20, label='Lesson No.')
-    description = forms.CharField(widget=forms.Textarea(), max_length=255, label='Short Description')
+    number = forms.IntegerField(max_value=20, label='Lesson No.',
+                                help_text='This helps the ordering of your lessons in the display.')
+    description = forms.CharField(widget=forms.Textarea(), max_length=500, label='Short Description')
     content = forms.Textarea()
 
     class Meta:
@@ -213,7 +215,7 @@ class TakeQuizForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         question = kwargs.pop('question')
         super().__init__(*args, **kwargs)
-        self.fields['answer'].queryset = question.answers.order_by('text')
+        self.fields['answer'].queryset = question.answers.order_by('id')
 
 
 class TeacherProfileForm(forms.ModelForm):

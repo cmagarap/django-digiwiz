@@ -27,36 +27,32 @@
         <div class="courses-page-content">
             <div class="container">
                 <div class="row">
-                    {% if quizzes or files %}
-                        <div class="col-lg-3 col-md-12">
-                            <div class="courses-sidebar">
-                                <aside class="widget widget-courses-category">
-                                    <h2>Quizzes</h2>
-                                    <ul class="list-unstyled">
-                                        {% for quiz in quizzes %}
-                                            <li><a href="{% url 'students:take_quiz' course.pk quiz.pk %}">{{ quiz.title }}</a></li>
-                                        {% empty %}
-                                            There are no quizzes for this course.
-                                        {% endfor %}
-                                    </ul>
-                                </aside>
-                                <aside class="widget widget-courses-category">
-                                    <h2>Files</h2>
-                                    <ul class="list-unstyled">
-                                        {% for file in files %}
-                                            <li><a href="{% url 'students:view_file' file.pk %}">{{ file.file|cut:'class_resources/' }}</a></li>
-                                        {% empty %}
-                                            There are no files for this course.
-                                        {% endfor %}
-                                    </ul>
-                                </aside>
-                            </div><!--/.courses-sidebar-->
-                        </div><!--/.col-lg-3-->
+                    <div class="col-lg-3 col-md-12">
+                        <div class="courses-sidebar">
+                            <aside class="widget widget-courses-category">
+                                <h2>Quizzes</h2>
+                                <ul class="list-unstyled">
+                                    {% for quiz in quizzes %}
+                                        <li><a href="{% url 'students:take_quiz' course.pk quiz.pk %}">{{ quiz.title }}</a></li>
+                                    {% empty %}
+                                        There are no quizzes for this course.
+                                    {% endfor %}
+                                </ul>
+                            </aside>
+                            <aside class="widget widget-courses-category">
+                                <h2>Files</h2>
+                                <ul class="list-unstyled">
+                                    {% for file in files %}
+                                        <li><a href="{% url 'students:view_file' file.pk %}">{{ file.file|cut:'class_resources/' }}</a></li>
+                                    {% empty %}
+                                        There are no files for this course.
+                                    {% endfor %}
+                                </ul>
+                            </aside>
+                        </div><!--/.courses-sidebar-->
+                    </div><!--/.col-lg-3-->
 
-                        <div class="col-lg-9">
-                    {% else %}
-                        <div class="col-lg-12">
-                    {% endif %}
+                    <div class="col-lg-9">
                         <div class="course-details">
                             {% if messages %}
                                 {% for message in messages %}
@@ -67,11 +63,11 @@
                                         </button>
                                     </div>
                                 {% endfor %}
-                            {% endif %}<br>
+                            {% endif %}
                             <div class="course-title">
                                 <div class="row">
                                     <div class="col-sm-10">
-                                        <h2>{{ course.title }}</h2>
+                                        <h2><b>{{ course.title }}</b></h2>
                                         <span class="course-date">By: {{ course.owner.first_name }} {{ course.owner.last_name }}</span>
                                         <br>
                                         <small>{{ course.created_at|date:"F d, Y" }}</small>
@@ -118,13 +114,22 @@
                                 {% endif %}
                                 <br><br>
                                 <p>{{ course.description }}</p>
-                                <br>
+                                <br><hr><br>
+
+                                {% if enrolled %}
+                                    <h3>Your Progress</h3>
+                                    {{ progress|floatformat:'0' }}%
+                                    <div class="progress mb-3">
+                                        <div class="progress-bar" role="progressbar" aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ progress }}%; background-color: #5DA2D5"></div>
+                                    </div>
+                                {% endif %}
+
                                 {% for lesson in lessons %}
                                     <div class="panel panel-default single-standard">
                                         <div class="panel-heading" role="tab">
                                             <h3 class="panel-title">
                                                 <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ forloop.counter }}">
-                                                    <font color="5da2d5">{{ lesson.title }}
+                                                    <font color="#5DA2D5">{{ lesson.title }}</font>
                                                 </a>
                                             </h3>
                                             <div id="collapse{{ forloop.counter }}" class="panel-collapse collapse" role="tabpanel">
@@ -132,6 +137,7 @@
                                                     <p>{{ lesson.description }}</p><br>
                                                     {% if user.is_teacher %}
                                                         {% if owns != None %}
+                                                            <a href="{% url 'course_details' course.pk %}lesson?page={{ forloop.counter }}" class="btn btn-primary mb-3" style="border-color:#f78888;" role="button">View Lesson</a>
                                                             <a href="{% url 'teachers:lesson_edit' course.pk lesson.pk %}" class="btn btn-primary btn-takequiz mb-3" role="button">Edit</a>
                                                             <a href="#" class="btn btn-primary mb-3 delete" data-id="{{ lesson.pk }}" role="button">Delete</a>
                                                         {% endif %}
@@ -139,14 +145,39 @@
                                                     {% elif user.is_student %}
                                                         {% if enrolled.status == 'enrolled' or enrolled.status == 'finished' %}
                                                             <a href="{% url 'course_details' course.pk %}lesson?page={{ forloop.counter }}" class="btn btn-primary mb-3" style=" border-color:#f78888;" role="button">See Lesson</a>
-                                                            {% if lesson.quizzes.taken_quizzes.values.count > 0 %}
-                                                                <a class="btn btn-primary mb-3 disabled" style="background-color: buttonface;border-color: buttonface; color: graytext;"role="button">Quiz Already Taken</a>
-                                                                <br><a href="{% url 'students:taken_quiz_detail' lesson.quizzes.taken_quizzes.values.0.id %}">See Results</a>
-                                                            {% elif lesson.quizzes.taken_quizzes.values.count == 0 %}
-                                                                <a href="{% url 'students:take_quiz' lesson.course.pk  lesson.quizzes.pk %}" class="btn btn-primary btn-takequiz mb-3"  role="button">Take Quiz</a>
-                                                            {% elif not lesson.quizzes %}
-                                                                <i>There is no quiz for this lesson.</i>
-                                                            {% endif %}
+
+                                                            {% for taken in lesson.quizzes.taken_quizzes.values %}
+                                                                {% if taken.student_id == user.pk %}
+                                                                    <a class="btn btn-primary mb-3 disabled" style="background-color: buttonface;border-color: buttonface; color: graytext;"role="button">Quiz Already Taken</a><br>
+                                                                    <a href="{% url 'students:taken_quiz_detail' taken.id lesson.quizzes.pk %}">See Results</a>
+                                                                {% else %}
+                                                                    <a href="{% url 'students:take_quiz' lesson.course.pk lesson.quizzes.pk %}" class="btn btn-primary btn-takequiz mb-3" role="button">Take Quiz</a>
+                                                                {% endif %}
+                                                            {% endfor %}
+{#                                                            {% for taken in taken_quizzes %}#}
+{#                                                                {% if lesson.quizzes.pk == taken.quiz.pk %}#}
+{#                                                                    <a class="btn btn-primary mb-3 disabled" style="background-color: buttonface;border-color: buttonface; color: graytext;"role="button">Quiz Already Taken</a><br>#}
+{#                                                                    <a href="{% url 'students:taken_quiz_detail' taken.pk lesson.quizzes.pk %}">See Results</a>#}
+{#                                                                    {{ forloop|break }}#}
+{#                                                                {% else %}#}
+{#                                                                    {% if lesson.quizzes.pk %}#}
+{#                                                                        <a href="{% url 'students:take_quiz' lesson.course.pk lesson.quizzes.pk %}" class="btn btn-primary btn-takequiz mb-3" role="button">Take Quiz</a>#}
+{#                                                                    {% else %}#}
+{#                                                                        <br>There's no quiz for this lesson#}
+{#                                                                    {% endif %}#}
+{#                                                                    {{ forloop|break }}#}
+{#                                                                {% endif %}#}
+{#                                                            {% endfor %}#}
+
+
+{#                                                            {% if lesson.quizzes.taken_quizzes.values.count > 0 %}#}
+{#                                                                <a class="btn btn-primary mb-3 disabled" style="background-color: buttonface;border-color: buttonface; color: graytext;"role="button">Quiz Already Taken</a>#}
+{#                                                                <br><a href="{% url 'students:taken_quiz_detail' lesson.quizzes.taken_quizzes.values.0.id lesson.quizzes.pk %}">See Results</a>#}
+{#                                                            {% elif lesson.quizzes.taken_quizzes.values.count == 0 %}#}
+{#                                                                <a href="{% url 'students:take_quiz' lesson.course.pk  lesson.quizzes.pk %}" class="btn btn-primary btn-takequiz mb-3"  role="button">Take Quiz</a>#}
+{#                                                            {% elif not lesson.quizzes %}#}
+{#                                                                <i>There is no quiz for this lesson.</i>#}
+{#                                                            {% endif %}#}
                                                         {% else %}
                                                             <i>Enroll in this course to see more.</i>
                                                         {% endif %}

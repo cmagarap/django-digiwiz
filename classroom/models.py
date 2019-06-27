@@ -38,8 +38,9 @@ class Subject(models.Model):
 class Course(models.Model):
     title = models.CharField(max_length=100)
     code = models.CharField(max_length=20)
-    description = models.TextField(max_length=255)
-    image = models.ImageField(upload_to='courses')
+    description = models.TextField(max_length=500)
+    image = models.ImageField(upload_to='courses',
+                              help_text='Recommended image resolution: 740px x 480px')
     status = models.CharField(max_length=10, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -53,8 +54,6 @@ class Course(models.Model):
     def save(self, *args, **kwargs):
         # Set every first letter to capital:
         setattr(self, 'title', getattr(self, 'title', False).title())
-        # Set the first letter to capital:
-        setattr(self, 'description', getattr(self, 'description', False).capitalize())
         # Set the course code to ALL CAPS
         setattr(self, 'code', getattr(self, 'code', False).upper())
         super(Course, self).save(*args, **kwargs)
@@ -63,7 +62,7 @@ class Course(models.Model):
 class Lesson(models.Model):
     title = models.CharField(max_length=100)
     number = models.IntegerField()
-    description = models.TextField(max_length=255)
+    description = models.TextField(max_length=500)
     content = RichTextUploadingField()
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='lessons')
 
@@ -71,11 +70,6 @@ class Lesson(models.Model):
         return self.title
 
     def save(self, *args, **kwargs):
-        for field_name in ['description', 'content']:
-            val = getattr(self, field_name, False)
-            if val:
-                setattr(self, field_name, val.capitalize())
-
         setattr(self, 'title', getattr(self, 'title', False).title())
         super(Lesson, self).save(*args, **kwargs)
 
@@ -133,7 +127,7 @@ class Student(models.Model):
         answered_questions = self.quiz_answers \
             .filter(answer__question__quiz=quiz) \
             .values_list('answer__question__pk', flat=True)
-        questions = quiz.questions.exclude(pk__in=answered_questions).order_by('text')
+        questions = quiz.questions.exclude(pk__in=answered_questions).order_by('id')
         return questions
 
     def __str__(self):
@@ -153,6 +147,7 @@ class TakenCourse(models.Model):
 class TakenQuiz(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='taken_quizzes')
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='taken_quizzes')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='taken_quizzes')
     score = models.FloatField()
     date = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=12, default='incomplete')
