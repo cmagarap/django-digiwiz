@@ -51,6 +51,7 @@
             <div class="container">
                 <div class="row">
                     <div class="col-lg-12">
+
                         <center>
                             <a href="{% url 'browse_courses' %}" class="btn btn-default btn-primary" role="button">All</a>
                             {% for subject in subjects %}
@@ -91,10 +92,16 @@
                                                     <div class="course-reviews">
                                                         {% if user.is_student %}
                                                             {% ratings course %}
+                                                        {% elif user.is_teacher %}
+                                                            {{ course.ratings.get.average|floatformat:"-2" }}/5
+                                                            ({{ course.ratings.get.count }} reviews)
+                                                            <div class="star-ratings-sprite"><span style="width:32%" class="star-ratings-sprite-rating"></span></div>
                                                         {% else %}
                                                             {{ course.ratings.get.average|floatformat:"-2" }}/5
                                                             ({{ course.ratings.get.count }} reviews)
+                                                            <div class="star-ratings-sprite"><span style="width:32%" class="star-ratings-sprite-rating"></span></div>
                                                         {% endif %}
+
                                                     </div><!--/.course-reviews-->
                                                     <div class="trainer-profile clearfix">
                                                         {% thumbnail course.owner.teacher.image "100x100" crop="center" as im %}
