@@ -9,7 +9,7 @@ from django.db.models import Avg, Count, Q
 from django.forms import inlineformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -19,9 +19,10 @@ from .raw_sql import get_taken_quiz
 from ..decorators import teacher_required
 from ..forms import (BaseAnswerInlineFormSet, CourseAddForm, FileAddForm,
                      LessonAddForm, LessonEditForm, QuizAddForm, QuizEditForm,
-                     QuestionForm, TeacherProfileForm, TeacherSignUpForm, UserUpdateForm)
+                     QuestionForm, TeacherProfileForm, TeacherSignUpForm,
+                     UserUpdateForm)
 from ..models import (Answer, Course, MyFile, Lesson, Question, Quiz,
-                      StudentAnswer, TakenCourse, TakenQuiz, User)
+                      StudentAnswer, TakenCourse, TakenQuiz, User, UserLog)
 from ..tokens import account_activation_token
 import os
 
@@ -32,6 +33,10 @@ class ChangePassword(PasswordChangeView):
     template_name = 'classroom/change_password.html'
 
     def form_valid(self, form):
+        UserLog.objects.create(action='Changed password',
+                               user_type='teacher',
+                               user=self.request.user)
+
         messages.success(self.request, 'Your successfully changed your password!')
         return super().form_valid(form)
 
@@ -49,6 +54,11 @@ class CourseCreateView(CreateView):
         course = form.save(commit=False)
         course.owner = self.request.user
         course.save()
+
+        UserLog.objects.create(action=f'Created the course: {course.title}',
+                               user_type='teacher',
+                               user=self.request.user)
+
         messages.success(self.request, 'The course was successfully created!')
         return redirect('teachers:course_change_list')
 
@@ -78,7 +88,7 @@ class CourseListView(ListView):
 @method_decorator([login_required, teacher_required], name='dispatch')
 class CourseUpdateView(UpdateView):
     model = Course
-    fields = ('title', 'code', 'subject', 'description', 'image')
+    form_class = CourseAddForm
     context_object_name = 'course'
     template_name = 'classroom/teachers/course_change_form.html'
     extra_context = {
@@ -89,12 +99,19 @@ class CourseUpdateView(UpdateView):
         """This method is an implicit object-level permission management.
         This view will only match the ids of existing courses that belongs
         to the logged in user."""
-        return self.request.user.courses.all()
+        return self.request.user.courses.exclude(status__iexact='deleted')
 
-    def get_success_url(self):
-        title = self.get_object()
-        messages.success(self.request, f'{title} has been successfully updated.')
-        return reverse('teachers:course_change_list')
+    def form_valid(self, form):
+        course = form.save(commit=False)
+        course.status = 'pending'
+        course.save()
+
+        UserLog.objects.create(action=f'Edited the course: {course.title}',
+                               user_type='teacher',
+                               user=self.request.user)
+
+        messages.success(self.request, f'{course.title} has been successfully updated.')
+        return redirect('teachers:course_change_list')
 
 
 @method_decorator([login_required, teacher_required], name='dispatch')
@@ -203,7 +220,12 @@ class TeacherSignUpView(CreateView):
 @login_required
 @teacher_required
 def accept_enrollment(request, taken_course_pk):
-    TakenCourse.objects.filter(id=taken_course_pk).update(status='enrolled')
+    taken_course_get = get_object_or_404(TakenCourse, pk=taken_course_pk)
+    TakenCourse.objects.filter(id=taken_course_get.pk).update(status='enrolled')
+
+    UserLog.objects.create(action='Accepted enrollment request',
+                           user_type='teacher',
+                           user=request.user)
 
     messages.success(request, 'The student has been successfully enrolled.')
     return redirect('teachers:enrollment_requests_list')
@@ -257,6 +279,9 @@ def add_files(request):
                     success = True
 
             if success:
+                UserLog.objects.create(action='Uploaded file/s',
+                                       user_type='teacher',
+                                       user=request.user)
                 messages.success(request, 'The files were successfully uploaded.')
                 return redirect('teachers:file_list')
             else:
@@ -286,6 +311,10 @@ def add_lesson(request):
         if form.is_valid():
             lesson = form.save(commit=False)
             lesson.save()
+
+            UserLog.objects.create(action=f'Created lesson: {lesson.title}',
+                                   user_type='teacher',
+                                   user=request.user)
             messages.success(request, 'The lesson was successfully created.')
             return redirect('teachers:lesson_list')
     else:
@@ -310,6 +339,10 @@ def add_question(request, course_pk, quiz_pk):
             question = form.save(commit=False)
             question.quiz = quiz
             question.save()
+
+            UserLog.objects.create(action=f'Added question for the quiz: {quiz.title}',
+                                   user_type='teacher',
+                                   user=request.user)
             messages.success(request, 'You may now add answers/options to the question.')
             return redirect('teachers:question_change', quiz.course.pk, quiz.pk, question.pk)
     else:
@@ -331,6 +364,10 @@ def add_quiz(request):
         if form.is_valid():
             quiz = form.save(commit=False)
             quiz.save()
+
+            UserLog.objects.create(action=f'Created quiz: {quiz.title}',
+                                   user_type='teacher',
+                                   user=request.user)
             messages.success(request, 'The quiz was successfully created. You may now add some questions.')
             return redirect('teachers:quiz_edit', quiz.course.pk, quiz.pk)
     else:
@@ -346,8 +383,16 @@ def add_quiz(request):
 @login_required
 @teacher_required
 def delete_course(request, pk):
-    request.user.courses.filter(id=pk).update(status='deleted')
+    course_get = get_object_or_404(Course, pk=pk)
+    course = request.user.courses.get(id=course_get.pk)
+    course.status = 'deleted'
+    course.save()
+
+    UserLog.objects.create(action=f'Deleted the course: {course.title}',
+                           user_type='teacher',
+                           user=request.user)
     messages.success(request, 'The course has been successfully deleted.')
+
     return redirect('teachers:course_change_list')
 
 
@@ -355,11 +400,16 @@ def delete_course(request, pk):
 @teacher_required
 def delete_file(request, file_pk):
     teacher = request.user
-    file_name = MyFile.objects.values_list('file', flat=True).get(id=file_pk)
+    file_get = get_object_or_404(MyFile, pk=file_pk)
+    file_name = MyFile.objects.values_list('file', flat=True).get(id=file_get.pk)
     # delete from the database
     MyFile.objects.get(id=file_pk, course__owner=teacher).delete()
     # remove from the folder
     os.remove(os.path.join('media', file_name))
+
+    UserLog.objects.create(action=f'Deleted file: {str(file_get.file)[16:]}',
+                           user_type='teacher',
+                           user=request.user)
     messages.success(request, 'The file has been successfully deleted.')
 
     return redirect('teachers:file_list')
@@ -369,7 +419,12 @@ def delete_file(request, file_pk):
 @teacher_required
 def delete_lesson(request, course_pk, lesson_pk):
     teacher = request.user
-    Lesson.objects.filter(id=lesson_pk, course__owner=teacher).delete()
+    lesson_get = get_object_or_404(Lesson, pk=lesson_pk)
+    Lesson.objects.filter(id=lesson_get.pk, course__owner=teacher).delete()
+
+    UserLog.objects.create(action=f'Deleted lesson: {lesson_get.title}',
+                           user_type='teacher',
+                           user=request.user)
     messages.success(request, 'The lesson has been successfully deleted.')
 
     return redirect('course_details', course_pk)
@@ -378,9 +433,14 @@ def delete_lesson(request, course_pk, lesson_pk):
 @login_required
 @teacher_required
 def delete_lesson_from_list(request, lesson_pk):
+    lesson_get = get_object_or_404(Lesson, pk=lesson_pk)
     Lesson.objects.filter(id=lesson_pk, course__owner=request.user).delete()
     messages.success(request, 'The lesson has been successfully deleted.')
 
+    UserLog.objects.create(action=f'Deleted lesson: {lesson_get.title}',
+                           user_type='teacher',
+                           user=request.user) 
+    
     return redirect('teachers:lesson_list')
 
 
@@ -388,8 +448,15 @@ def delete_lesson_from_list(request, lesson_pk):
 @teacher_required
 def delete_question(request, course_pk, quiz_pk, question_pk):
     teacher = request.user
-    quiz = Quiz.objects.get(id=quiz_pk, course__owner=teacher)
-    Question.objects.get(id=question_pk, quiz=quiz).delete()
+    quiz_get = get_object_or_404(Quiz, pk=quiz_pk)
+    question_get = get_object_or_404(Question, pk=question_pk)
+    quiz = Quiz.objects.get(id=quiz_get.pk, course__owner=teacher)
+    Question.objects.get(id=question_get.pk, quiz=quiz).delete()
+
+    UserLog.objects.create(action=f'Deleted question for the quiz: {quiz_get.title}',
+                           user_type='teacher',
+                           user=request.user)
+
     messages.success(request, 'The question has been successfully deleted.')
 
     return redirect('teachers:quiz_edit', course_pk, quiz_pk)
@@ -399,16 +466,28 @@ def delete_question(request, course_pk, quiz_pk, question_pk):
 @teacher_required
 def delete_quiz(request, quiz_pk):
     teacher = request.user
-    Quiz.objects.filter(id=quiz_pk, course__owner=teacher).delete()
+    quiz_get = get_object_or_404(Quiz, pk=quiz_pk)
+    Quiz.objects.filter(id=quiz_get.pk, course__owner=teacher).delete()
+
+    UserLog.objects.create(action=f'Deleted quiz: {quiz_get.title}',
+                           user_type='teacher',
+                           user=request.user)
+
     messages.success(request, 'The quiz has been successfully deleted.')
 
-    return redirect('teachers:course_change_list')
+    return redirect('teachers:quiz_list')
 
 
 @login_required
 @teacher_required
 def delete_quiz_from_list(request, quiz_pk):
+    quiz_get = get_object_or_404(Quiz, pk=quiz_pk)
     Quiz.objects.filter(id=quiz_pk, course__owner=request.user).delete()
+
+    UserLog.objects.create(action=f'Deleted quiz: {quiz_get.title}',
+                           user_type='teacher',
+                           user=request.user)
+
     messages.success(request, 'The quiz has been successfully deleted.')
 
     return redirect('teachers:quiz_list')
@@ -425,6 +504,11 @@ def edit_lesson(request, course_pk, lesson_pk):
         if form.is_valid():
             lesson = form.save(commit=False)
             lesson.save()
+
+            UserLog.objects.create(action=f'Edited lesson: {lesson.title}',
+                                   user_type='teacher',
+                                   user=request.user)
+
             messages.success(request, 'The lesson was successfully changed.')
             return redirect('teachers:lesson_list')
     else:
@@ -464,6 +548,11 @@ def edit_question(request, course_pk, quiz_pk, question_pk):
             with transaction.atomic():
                 form.save()
                 formset.save()
+
+                UserLog.objects.create(action=f'Edited question for the quiz: {quiz.title}',
+                                       user_type='teacher',
+                                       user=request.user)
+
             messages.success(request, 'Question and answers are successfully saved!')
             return redirect('teachers:quiz_edit', course.pk, quiz.pk)
     else:
@@ -493,6 +582,11 @@ def edit_quiz(request, course_pk, quiz_pk):
         if form.is_valid():
             quiz = form.save(commit=False)
             quiz.save()
+
+            UserLog.objects.create(action=f'Edited quiz: {quiz.title}',
+                                   user_type='teacher',
+                                   user=request.user)
+
             messages.success(request, 'The quiz was successfully changed.')
             return redirect('teachers:quiz_edit', quiz.course.pk, quiz.pk)
     else:
@@ -526,6 +620,11 @@ def profile(request):
         if user_update_form.is_valid() and profile_form.is_valid():
             user_update_form.save()
             profile_form.save()
+
+            UserLog.objects.create(action='Updated Teacher Profile',
+                                   user_type='teacher',
+                                   user=request.user)
+
             messages.success(request, 'Your account has been updated!')
             return redirect('teachers:profile')
 
@@ -627,7 +726,12 @@ def register(request):
 @login_required
 @teacher_required
 def reject_enrollment(request, taken_course_pk):
-    TakenCourse.objects.filter(id=taken_course_pk).delete()
+    taken_course_get = get_object_or_404(TakenCourse, pk=taken_course_pk)
+    TakenCourse.objects.filter(id=taken_course_get.pk).delete()
+
+    UserLog.objects.create(action='Rejected enrollment request',
+                           user_type='teacher',
+                           user=request.user)
 
     messages.success(request, 'The student\'s request has been successfully rejected.')
     return redirect('teachers:enrollment_requests_list')

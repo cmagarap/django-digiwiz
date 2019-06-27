@@ -49,7 +49,7 @@
                                     {{ lesson.number }}
                                 </div>
                                 <div class="col-2">
-                                    {{ lesson.course.title }}
+                                    <a href="{% url 'course_details' lesson.course.pk %}">{{ lesson.course.title }}</a>
                                 </div>
                                 <div class="col-2">
                                     <a href="{% url 'teachers:lesson_edit' lesson.course_id lesson.pk %}" class="btn btn-rounded btn-info">Edit</a>

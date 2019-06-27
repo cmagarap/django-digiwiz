@@ -57,7 +57,8 @@ class CourseAddForm(forms.ModelForm):
 
 
 class FileAddForm(forms.ModelForm):
-    file = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}))
+    file = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}),
+                           help_text='Allowed file formats: .pdf, .doc, .docx, .ppt, and .pptx.')
 
     class Meta:
         model = MyFile

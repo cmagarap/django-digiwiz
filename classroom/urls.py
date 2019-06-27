@@ -24,6 +24,8 @@ urlpatterns = [
         path('subjects/<int:pk>/delete/', staff.delete_subject, name='subject_delete'),
         path('teachers/', staff.TeacherListView.as_view(), name='teacher_list'),
         path('teachers/<int:pk>/delete/', staff.deactivate_teacher, name='teacher_deactivate'),
+        path('user-log/', staff.UserLogListView.as_view(), name='user_log_list'),
+        path('user-log/<int:pk>/delete/', staff.delete_log, name='user_log_delete')
     ], 'classroom'), namespace='staff')),
 
     path('student/', include(([

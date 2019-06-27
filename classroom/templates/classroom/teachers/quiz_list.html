@@ -50,13 +50,13 @@
                         <div class="list-group-item">
                             <div class="row">
                                 <div class="col-4">
-                                    <a href="">{{ quiz.title }}</a>
+                                    <a href="{% url 'teachers:quiz_edit' quiz.course.pk quiz.pk %}">{{ quiz.title }}</a>
                                 </div>
                                 <div class="col-2">
-                                    <a href="">{{ quiz.course.title }}</a>
+                                    <a href="{% url 'course_details' quiz.course.pk %}">{{ quiz.course.title }}</a>
                                 </div>
                                 <div class="col-2">
-                                    <a href="">{{ quiz.lesson.title }}</a>
+                                    {{ quiz.lesson.title }}
                                 </div>
                                 <div class="col-1">
                                     {{ quiz.questions_count }}

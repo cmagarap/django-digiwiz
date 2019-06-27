@@ -7,7 +7,7 @@ from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, ListView, UpdateView
 from ..decorators import staff_required, superuser_required
 from ..forms import AdminAddForm, SubjectUpdateForm, UserUpdateForm
-from ..models import Course, Subject, User
+from ..models import Course, Subject, User, UserLog
 
 
 @method_decorator([login_required, superuser_required], name='dispatch')
@@ -170,6 +170,21 @@ class TeacherListView(ListView):
             .order_by('username')
 
 
+@method_decorator([login_required, staff_required], name='dispatch')
+class UserLogListView(ListView):
+    model = UserLog
+    context_object_name = 'logs'
+    extra_context = {
+        'title': 'User Log',
+        'sidebar': 'user_log'
+    }
+    template_name = 'classroom/staff/user_log_list.html'
+    paginate_by = 15
+
+    def get_queryset(self):
+        return UserLog.objects.filter(is_active=True).order_by('-id')
+
+
 @login_required
 @staff_required
 def accept_course(request, course_pk):
@@ -247,6 +262,16 @@ def delete_course(request, course_pk):
 
     messages.success(request, 'The course has been successfully deleted.')
     return redirect('staff:course_list')
+
+
+@login_required
+@staff_required
+def delete_log(request, pk):
+    """Permanently deletes the log from the table"""
+    UserLog.objects.filter(id=pk).delete()
+
+    messages.success(request, 'The log has been successfully deleted.')
+    return redirect('staff:user_log_list')
 
 
 @login_required

@@ -4,7 +4,14 @@ from django.shortcuts import redirect, render
 from django.views.generic import DetailView
 from ..forms import SearchCourses, UserLoginForm
 from ..models import (Course, Lesson, MyFile, Quiz, Student,
-                      TakenQuiz, Teacher)
+                      TakenQuiz, Teacher, UserLog)
+
+
+def get_user_type(user):
+    if user.is_student:
+        return 'student'
+    elif user.is_teacher:
+        return 'teacher'
 
 
 class CourseDetailView(DetailView):
@@ -149,6 +156,11 @@ def browse_courses(request):
             courses = Course.objects.filter(Q(title__icontains=query) |
                                             Q(description__icontains=query)) \
                 .filter(status__iexact='approved')
+
+            if request.user.is_authenticated:
+                UserLog.objects.create(action=f'Searched for "{query}"',
+                                       user_type=get_user_type(request.user),
+                                       user=request.user)
     else:
         form = SearchCourses()
 
