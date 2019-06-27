@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
+{% load ratings %}
 {% load static %}
+{% load thumbnail %}
 {% block content %}
     <!--====Home Search Section
     ====================================-->
@@ -83,213 +85,47 @@
                 <div class="col-lg-12">
                     <ul class="list-unstyled popular-filter-nav text-center">
                         <li><a class="filter" href="#" data-filter="*">All</a></li>
-                        <li><a class="filter" href="#" data-filter=".english">English</a></li>
-                        <li><a href="#" class="filter" data-filter=".math">Mathematics</a></li>
-                        <li><a href="#" class="filter" data-filter=".science">Science</a></li>
+                        {% for subject in subjects %}
+                            <li><a class="filter" href="#" data-filter=".{{ subject.name }}">{{ subject.name }}</a></li>
+                        {% endfor %}
                     </ul><!--/.popular-filter-nav-->
                 </div><!--/.col-lg-12-->
             </div><!--/.row-->
             <div class="row courses-item-content">
-                <div class="col-lg-4 col-sm-6 design photography">
-                    <!--Single Course Item Start-->
-                    <div class="single-course-item border-radius">
-                        <div class="course-thumb-area">
-                            <img class="img-fluid" src="images/courses/course1.jpg" alt="img">
-                            <div class="course-meta">
-                                <a href="#"><i class="fa fa-heart-o"></i></a>
-                                <a href="#"><i class="fa fa-share-alt"></i></a>
-                            </div>
-                            <span class="course-duration">2.2 hours</span>
-                        </div><!--/.course-thumb-area-->
-                        <div class="course-content">
-                            <h2><a href="single-course.html">Object-Oriented Python</a></h2>
-                            <p>Consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna</p>
-                            <div class="course-reviews">
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                <i class="fa fa-star-o" aria-hidden="true"></i>
-                                <span class="total-reviews">(105 reviews)</span>
-                            </div><!--/.course-reviews-->
-                            <div class="trainer-profile clearfix">
-                                <img class="rounded-circle" src="images/author/author-1.jpg" alt="img">
-                                <div class="trainer-info">
-                                    <h3>Kelium Smith</h3>
-                                    <p>24 april 2017</p>
+                {% for course in popular_courses %}
+                    <div class="col-lg-4 col-sm-6 {{ course.subject.name }}">
+                        <!--Single Course Item Start-->
+                        <div class="single-course-item border-radius">
+                            <div class="course-thumb-area">
+                                <div style="width: 350px; height: 200px; overflow: hidden">
+                                    <img class="img-fluid" src="{{ course.image.url }}" alt="img">
                                 </div>
-                                <div class="course-cat text-capitalize text-right"><a href="#">Development</a></div>
-                            </div><!--/.trainer-profile-->
-                        </div><!--/.course-content-->
-                    </div><!--/.single-course-item-end-->
-                </div><!--/.col-lg-4-->
-
-                <div class="col-lg-4 col-sm-6 business">
-                    <!--Single Course Item Start-->
-                    <div class="single-course-item border-radius">
-                        <div class="course-thumb-area">
-                            <img class="img-fluid" src="images/courses/course2.jpg" alt="img">
-                            <div class="course-meta">
-                                <a href="#"><i class="fa fa-heart-o"></i></a>
-                                <a href="#"><i class="fa fa-share-alt"></i></a>
-                            </div>
-                            <span class="course-duration">2.2 hours</span>
-                        </div><!--/.course-thumb-area-->
-                        <div class="course-content">
-                            <h2><a href="single-course.html">Isometric Mockup Design</a></h2>
-                            <p>Consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna</p>
-                            <div class="course-reviews">
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                <i class="fa fa-star-o" aria-hidden="true"></i>
-                                <span class="total-reviews">(105 reviews)</span>
-                            </div><!--/.course-reviews-->
-                            <div class="trainer-profile clearfix">
-                                <img class="rounded-circle" src="images/author/author-1.jpg" alt="img">
-                                <div class="trainer-info">
-                                    <h3>Kelium Smith</h3>
-                                    <p>24 april 2017</p>
-                                </div>
-                                <div class="course-cat text-capitalize text-right"><a href="#">Design</a></div>
-                            </div><!--/.trainer-profile-->
-                        </div><!--/.course-content-->
-                    </div><!--/.single-course-item-end-->
-                </div><!--/.col-lg-4-->
-                <div class="col-lg-4 col-sm-6 design photography">
-                    <!--Single Course Item Start-->
-                    <div class="single-course-item border-radius">
-                        <div class="course-thumb-area">
-                            <img class="img-fluid" src="images/courses/course3.jpg" alt="img">
-                            <div class="course-meta">
-                                <a href="#"><i class="fa fa-heart-o"></i></a>
-                                <a href="#"><i class="fa fa-share-alt"></i></a>
-                            </div>
-                            <span class="course-duration">2.2 hours</span>
-                        </div><!--/.course-thumb-area-->
-                        <div class="course-content">
-                            <h2><a href="single-course.html">HTML5 Essential Training</a></h2>
-                            <p>Consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna</p>
-                            <div class="course-reviews">
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                <i class="fa fa-star-o" aria-hidden="true"></i>
-                                <span class="total-reviews">(105 reviews)</span>
-                            </div><!--/.course-reviews-->
-                            <div class="trainer-profile clearfix">
-                                <img class="rounded-circle" src="images/author/author-1.jpg" alt="img">
-                                <div class="trainer-info">
-                                    <h3>Kelium Smith</h3>
-                                    <p>24 april 2017</p>
-                                </div>
-                                <div class="course-cat text-capitalize text-right"><a href="#">Development</a></div>
-                            </div><!--/.trainer-profile-->
-                        </div><!--/.course-content-->
-                    </div><!--/.single-course-item-end-->
-                </div><!--/.col-lg-4-->
-                <div class="col-lg-4 col-sm-6 development business">
-                    <!--Single Course Item Start-->
-                    <div class="single-course-item border-radius">
-                        <div class="course-thumb-area">
-                            <img class="img-fluid" src="images/courses/course4.jpg" alt="img">
-                            <div class="course-meta">
-                                <a href="#"><i class="fa fa-heart-o"></i></a>
-                                <a href="#"><i class="fa fa-share-alt"></i></a>
-                            </div>
-                            <span class="course-duration">2.2 hours</span>
-                        </div><!--/.course-thumb-area-->
-                        <div class="course-content">
-                            <h2><a href="single-course.html">Photo Manipulation</a></h2>
-                            <p>Consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna</p>
-                            <div class="course-reviews">
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                <i class="fa fa-star-o" aria-hidden="true"></i>
-                                <span class="total-reviews">(105 reviews)</span>
-                            </div><!--/.course-reviews-->
-                            <div class="trainer-profile clearfix">
-                                <img class="rounded-circle" src="images/author/author-1.jpg" alt="img">
-                                <div class="trainer-info">
-                                    <h3>Kelium Smith</h3>
-                                    <p>24 april 2017</p>
-                                </div>
-                                <div class="course-cat text-capitalize text-right"><a href="#">Design</a></div>
-                            </div><!--/.trainer-profile-->
-                        </div><!--/.course-content-->
-                    </div><!--/.single-course-item-end-->
-                </div><!--/.col-lg-4-->
-
-                <div class="col-lg-4 col-sm-6 design">
-                    <!--Single Course Item Start-->
-                    <div class="single-course-item border-radius">
-                        <div class="course-thumb-area">
-                            <img class="img-fluid" src="images/courses/course5.jpg" alt="img">
-                            <div class="course-meta">
-                                <a href="#"><i class="fa fa-heart-o"></i></a>
-                                <a href="#"><i class="fa fa-share-alt"></i></a>
-                            </div>
-                            <span class="course-duration">2.2 hours</span>
-                        </div><!--/.course-thumb-area-->
-                        <div class="course-content">
-                            <h2><a href="single-course.html">PHP Essential Training</a></h2>
-                            <p>Consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna</p>
-                            <div class="course-reviews">
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                <i class="fa fa-star-o" aria-hidden="true"></i>
-                                <span class="total-reviews">(105 reviews)</span>
-                            </div><!--/.course-reviews-->
-                            <div class="trainer-profile clearfix">
-                                <img class="rounded-circle" src="images/author/author-1.jpg" alt="img">
-                                <div class="trainer-info">
-                                    <h3>Kelium Smith</h3>
-                                    <p>24 april 2017</p>
-                                </div>
-                                <div class="course-cat text-capitalize text-right"><a href="#">Development</a></div>
-                            </div><!--/.trainer-profile-->
-                        </div><!--/.course-content-->
-                    </div><!--/.single-course-item-end-->
-                </div><!--/.col-lg-4-->
-                <div class="col-lg-4 col-sm-6 development photography">
-                    <!--Single Course Item Start-->
-                    <div class="single-course-item border-radius">
-                        <div class="course-thumb-area">
-                            <img class="img-fluid" src="images/courses/course6.jpg" alt="img">
-                            <div class="course-meta">
-                                <a href="#"><i class="fa fa-heart-o"></i></a>
-                                <a href="#"><i class="fa fa-share-alt"></i></a>
-                            </div>
-                            <span class="course-duration">2.2 hours</span>
-                        </div><!--/.course-thumb-area-->
-                        <div class="course-content">
-                            <h2><a href="single-course.html">Illustration For Beginner</a></h2>
-                            <p>Consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna</p>
-                            <div class="course-reviews">
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                <i class="fa fa-star" aria-hidden="true"></i>
-                                <i class="fa fa-star-o" aria-hidden="true"></i>
-                                <span class="total-reviews">(105 reviews)</span>
-                            </div><!--/.course-reviews-->
-                            <div class="trainer-profile clearfix">
-                                <img class="rounded-circle" src="images/author/author-1.jpg" alt="img">
-                                <div class="trainer-info">
-                                    <h3>Kelium Smith</h3>
-                                    <p>24 april 2017</p>
-                                </div>
-                                <div class="course-cat text-capitalize text-right"><a href="#">Design</a></div>
-                            </div><!--/.trainer-profile-->
-                        </div><!--/.course-content-->
-                    </div><!--/.single-course-item-end-->
-                </div><!--/.col-lg-4-->
+                            </div><!--/.course-thumb-area-->
+                            <div class="course-content">
+                                <h2><a href="{% url 'course_details' course.object_id %}">{{ course.title }}</a></h2>
+                                {{ course.subject.get_html_badge }}
+                                <p style="white-space: nowrap; width: 310px; overflow: hidden; text-overflow: ellipsis">{{ course.description }}</p>
+                                <div class="course-reviews">
+                                    {% if user.is_student %}
+                                        {% ratings course %}
+                                    {% else %}
+                                        {{ course.average|floatformat:"-2" }}/5
+                                        ({{ course.count }} reviews)
+                                    {% endif %}
+                                </div><!--/.course-reviews-->
+                                <div class="trainer-profile clearfix">
+                                    {% thumbnail course.owner.teacher.image "100x100" crop="center" as im %}
+                                        <img class="rounded-circle" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="course-owner">
+                                    {% endthumbnail %}
+                                    <div class="trainer-info">
+                                        <h3>{{ course.owner.first_name }} {{ course.owner.last_name }}</h3>
+                                        <p>{{ course.created_at|date:"F d, Y" }}</p>
+                                    </div>
+                                </div><!--/.trainer-profile-->
+                            </div><!--/.course-content-->
+                        </div><!--/.single-course-item-end-->
+                    </div><!--/.col-lg-4-->
+                {% endfor %}
             </div><!--/.row-->
             <div class="row">
                 <div class="col-lg-12">

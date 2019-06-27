@@ -3,6 +3,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Count, Q
 from django.shortcuts import redirect, render
 from django.views.generic import DetailView
+from .raw_sql import get_popular_courses
 from ..forms import SearchCourses, UserLoginForm
 from ..models import (Course, Lesson, MyFile, Quiz, Subject,
                       Student, TakenQuiz, Teacher, UserLog)
@@ -49,7 +50,7 @@ class CourseDetailView(DetailView):
 
         kwargs['enrolled'] = student
         kwargs['owns'] = teacher
-        kwargs['title'] = Course.objects.get(id=self.kwargs['pk'])
+        kwargs['title'] = self.get_object()
         kwargs['lessons'] = Lesson.objects.select_related('quizzes') \
             .select_related('course') \
             .filter(course__id=self.kwargs['pk']) \
@@ -99,7 +100,13 @@ def home(request):
             return redirect('students:mycourses_list')
         elif request.user.is_staff:
             return redirect('staff:dashboard')
-    return render(request, 'classroom/home.html')
+    else:
+        context = {
+            'popular_courses': Course.objects.raw(get_popular_courses()),
+            'subjects': Subject.objects.all().order_by('name')
+        }
+
+        return render(request, 'classroom/home.html', context)
 
 
 def login_view(request):
