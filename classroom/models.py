@@ -105,10 +105,6 @@ class Question(models.Model):
     def __str__(self):
         return self.text
 
-    def save(self, *args, **kwargs):
-        setattr(self, 'text', getattr(self, 'text', False).capitalize())
-        super(Question, self).save(*args, **kwargs)
-
 
 class Answer(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='answers')

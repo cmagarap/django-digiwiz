@@ -55,6 +55,10 @@
                             <td>{{ taken_quiz.date|naturaltime }}</td>
                             <td><b>{{ taken_quiz.score|floatformat:'-2' }}</b>/100</td>
                         </tr>
+                    {% empty %}
+                        <div class="list-group-item text-center">
+                            <p class="text-muted font-italic mb-0">There are no students who took this quiz.</p>
+                        </div>
                     {% endfor %}
                     </tbody>
                 </table>
