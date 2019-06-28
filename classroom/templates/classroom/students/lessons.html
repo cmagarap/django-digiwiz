@@ -36,6 +36,7 @@
                                 <div class="course-desc">
                                     <p>{{ lesson.content|safe }}</p>
                                     <br>
+                                {% if user.is_student %}
                                     {% if lesson.quizzes.taken_quizzes.values.count > 0 %}
                                         <button class="btn" disabled>Quiz Already Taken</button>
                                         <br><a href="{% url 'students:taken_quiz_detail' lesson.quizzes.taken_quizzes.values.0.id lesson.quizzes.pk %}">See Results</a>
@@ -44,6 +45,7 @@
                                     {% elif not lesson.quizzes %}
                                         <i>There's no quiz for this lesson.</i>
                                     {% endif %}
+                                {% endif %}
                                 </div>
                             </div>
                         </div>

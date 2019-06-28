@@ -1,4 +1,4 @@
-{% load crispy_forms_tags %}{% load static %}<!DOCTYPE html>
+{% load crispy_forms_tags %}{% load static %}{% load thumbnail %}<!DOCTYPE html>
 <html lang="en">
 
 <!-- Mirrored from bdevs.net/edulab/edulab/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 12 May 2019 04:43:35 GMT -->
@@ -77,7 +77,11 @@
                                                 </form>
                                                 </li>
                                             {% endif %}
-                                            <li class="dropdown-trigger"><a href="#">{{ user.first_name }}</a>
+                                            <li class="dropdown-trigger">
+                                                {% thumbnail user.student.image "40x40" crop="center" as im %}
+                                                    <img class="rounded-circle" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="course-owner">
+                                                {% endthumbnail %}&nbsp;&nbsp;
+                                                <a href="#">{{ user.first_name }}</a>
                                                 <ul class="dropdown-content">
                                                     <li><a href="{% url 'students:profile' %}">My Profile</a></li>
                                                     <li><a href="{% url 'students:mycourses_list' %}">My Courses</a></li>
@@ -87,7 +91,12 @@
                                             </li>
 
                                         {% elif user.is_teacher %}
-                                            <li class="dropdown-trigger"><a href="#">{{ user.first_name }}</a>
+
+                                            <li class="dropdown-trigger">
+                                                {% thumbnail user.teacher.image "40x40" crop="center" as im %}
+                                                    <img class="rounded-circle" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="course-owner">
+                                                {% endthumbnail %}&nbsp;&nbsp;
+                                                <a href="#">{{ user.first_name }}</a>
                                                 <ul class="dropdown-content">
                                                     <li><a href="{% url 'teachers:profile' %}">My Profile</a></li>
                                                     <li><a href="{% url 'teachers:course_change_list' %}">My Courses</a></li>

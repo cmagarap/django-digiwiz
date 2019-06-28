@@ -102,11 +102,11 @@
                                 <img src="{{ course.image.url }}" alt="" />
                             </div>
                             <div class="course-desc">
-                                {% if not user.is_teacher %}
+                                {% if user.is_student or not user.is_authenticated %}
                                     {% ratings course %}
                                 {% else %}
                                     {{ course.ratings.get.average|floatformat:"-2" }}/5
-                                    ({{ course.ratings.get.count }} casted)
+                                    ({{ course.ratings.get.count }} reviews)
                                 {% endif %}
                                 <br><br>
                                 <p>{{ course.description }}</p>
@@ -131,7 +131,9 @@
                                             <div id="collapse{{ forloop.counter }}" class="panel-collapse collapse" role="tabpanel">
                                                 <div class="single-standard-content">
                                                     <p>{{ lesson.description }}</p><br>
-                                                    {% if user.is_teacher %}
+                                                    {% if user.is_staff %}
+                                                        <a href="{% url 'course_details' course.pk %}lesson?page={{ forloop.counter }}" class="btn btn-primary mb-3" style="border-color:#f78888;" role="button">View Lesson</a>
+                                                    {% elif user.is_teacher %}
                                                         {% if owns != None %}
                                                             <a href="{% url 'course_details' course.pk %}lesson?page={{ forloop.counter }}" class="btn btn-primary mb-3" style="border-color:#f78888;" role="button">View Lesson</a>
                                                             <a href="{% url 'teachers:lesson_edit' course.pk lesson.pk %}" class="btn btn-primary btn-takequiz mb-3" role="button">Edit</a>
