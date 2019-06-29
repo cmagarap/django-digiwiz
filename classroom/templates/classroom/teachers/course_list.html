@@ -32,7 +32,9 @@
                     </div><!--/.section-heading-area-->
                 </div><!--/.col-lg-8-->
             </div><!--/.row-->
-
+            {% if not courses %}
+                <center>You currently do not own any courses.</center>
+            {% endif %}
             <div class="row courses-item-content">
                 {% for course in courses %}
                     <div class="col-lg-4 col-sm-6 {{ course.status }} {{ course.subject }}">
@@ -81,8 +83,6 @@
                         </div><!--/.single-course-item-end-->
 
                     </div><!--/.col-lg-4-->
-                {% empty %}
-                    no subjects
                 {% endfor %}
             </div>
         </div>

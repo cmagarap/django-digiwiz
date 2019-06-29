@@ -21,7 +21,7 @@
         {% endif %}
     </title>
     <script src="{% static 'js/jquery-3.4.1.js' %}" type="text/javascript"></script>
-        <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     </head>
 <body>
     <!-- ============================================================== -->
@@ -215,6 +215,8 @@
         var today = new Date();
         document.getElementById('time').innerHTML=today;
     </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
     <!-- Optional JavaScript -->
     <!-- jquery 3.3.1 -->
     <script src="{% static 'staff/assets/vendor/jquery/jquery-3.3.1.min.js' %}" type="44c04729fd72133bc12c335c-text/javascript"></script>
@@ -225,26 +227,26 @@
     <!-- main js -->
     <script src="{% static 'staff/assets/libs/js/main-js.js' %}" type="44c04729fd72133bc12c335c-text/javascript"></script>
     <!-- chart chartist js -->
-    <script src="{% static 'staff/assets/vendor/charts/chartist-bundle/chartist.min.js' %}" type="44c04729fd72133bc12c335c-text/javascript"></script>
-    <!-- sparkline js -->
-    <script src="{% static 'staff/assets/vendor/charts/sparkline/jquery.sparkline.js' %}" type="44c04729fd72133bc12c335c-text/javascript"></script>
-    <!-- morris js -->
-    <script src="{% static 'staff/assets/vendor/charts/morris-bundle/raphael.min.js' %}" type="44c04729fd72133bc12c335c-text/javascript"></script>
-    <script src="{% static 'staff/assets/vendor/charts/morris-bundle/morris.js' %}" type="44c04729fd72133bc12c335c-text/javascript"></script>
-    <!-- chart c3 js -->
-    <script src="{% static 'staff/assets/vendor/charts/c3charts/c3.min.js' %}" type="44c04729fd72133bc12c335c-text/javascript"></script>
-    <script src="{% static 'staff/assets/vendor/charts/c3charts/d3-5.4.0.min.js' %}" type="44c04729fd72133bc12c335c-text/javascript"></script>
-    <script src="{% static 'staff/assets/vendor/charts/c3charts/C3chartjs.js' %}" type="44c04729fd72133bc12c335c-text/javascript"></script>
-    <script src="{% static 'staff/assets/libs/js/dashboard-ecommerce.js' %}" type="44c04729fd72133bc12c335c-text/javascript"></script>
+{#    <script src="{% static 'staff/assets/vendor/charts/chartist-bundle/chartist.min.js' %}" type="44c04729fd72133bc12c335c-text/javascript"></script>#}
+{#    <!-- sparkline js -->#}
+{#    <script src="{% static 'staff/assets/vendor/charts/sparkline/jquery.sparkline.js' %}" type="44c04729fd72133bc12c335c-text/javascript"></script>#}
+{#    <!-- morris js -->#}
+{#    <script src="{% static 'staff/assets/vendor/charts/morris-bundle/raphael.min.js' %}" type="44c04729fd72133bc12c335c-text/javascript"></script>#}
+{#    <script src="{% static 'staff/assets/vendor/charts/morris-bundle/morris.js' %}" type="44c04729fd72133bc12c335c-text/javascript"></script>#}
+{#    <!-- chart c3 js -->#}
+{#    <script src="{% static 'staff/assets/vendor/charts/c3charts/c3.min.js' %}" type="44c04729fd72133bc12c335c-text/javascript"></script>#}
+{#    <script src="{% static 'staff/assets/vendor/charts/c3charts/d3-5.4.0.min.js' %}" type="44c04729fd72133bc12c335c-text/javascript"></script>#}
+{#    <script src="{% static 'staff/assets/vendor/charts/c3charts/C3chartjs.js' %}" type="44c04729fd72133bc12c335c-text/javascript"></script>#}
+{#    <script src="{% static 'staff/assets/libs/js/dashboard-ecommerce.js' %}" type="44c04729fd72133bc12c335c-text/javascript"></script>#}
     <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-23581568-13" type="44c04729fd72133bc12c335c-text/javascript"></script>
-    <script type="44c04729fd72133bc12c335c-text/javascript">
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'UA-23581568-13');
-    </script>
+{#    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-23581568-13" type="44c04729fd72133bc12c335c-text/javascript"></script>#}
+{#    <script type="44c04729fd72133bc12c335c-text/javascript">#}
+{#      window.dataLayer = window.dataLayer || [];#}
+{#      function gtag(){dataLayer.push(arguments);}#}
+{#      gtag('js', new Date());#}
+{##}
+{#      gtag('config', 'UA-23581568-13');#}
+{#    </script>#}
     <script src="https://ajax.cloudflare.com/cdn-cgi/scripts/a2bd7673/cloudflare-static/rocket-loader.min.js" data-cf-settings="44c04729fd72133bc12c335c-|49" defer=""></script>
 </body>
 

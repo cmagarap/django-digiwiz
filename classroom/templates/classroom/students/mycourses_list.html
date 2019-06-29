@@ -38,7 +38,9 @@
                     </div><!--/.section-heading-area-->
                 </div><!--/.col-lg-8-->
             </div><!--/.row-->
-
+            {% if not taken_courses %}
+                <center>You are not yet enrolled in any course.</center>
+            {% endif %}
             <div class="row courses-item-content">
                 {% for taken_course in taken_courses %}
                     <div class="col-lg-4 col-sm-6 {{ taken_course.status }} {{ taken_course.course.subject }}">
@@ -72,8 +74,6 @@
                             </div><!--/.course-content-->
                         </div><!--/.single-course-item-end-->
                     </div><!--/.col-lg-4-->
-                {% empty %}
-                    You are not yet enrolled in any subjects.
                 {% endfor %}
             </div>
         </div>

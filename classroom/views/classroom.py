@@ -14,6 +14,8 @@ def get_user_type(user):
         return 'student'
     elif user.is_teacher:
         return 'teacher'
+    elif user.is_staff:
+        return 'admin'
 
 
 class CourseDetailView(DetailView):

@@ -1,6 +1,8 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import PasswordChangeView
+from django.db.models import Count
+from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
@@ -8,7 +10,7 @@ from django.views.generic import CreateView, ListView, UpdateView
 from ..decorators import staff_required, superuser_required
 from ..forms import AdminAddForm, SubjectUpdateForm, UserUpdateForm
 from ..models import Course, Subject, User, UserLog
-
+import datetime
 
 @method_decorator([login_required, superuser_required], name='dispatch')
 class AdminCreateView(CreateView):
@@ -228,7 +230,15 @@ def account(request):
 def dashboard(request):
     context = {
         'title': 'Admin',
-        'sidebar': 'dashboard'
+        'sidebar': 'dashboard',
+        'courses_count': Course.objects.values_list('id', flat=True)
+                                       .filter(status__iexact='approved').count(),
+        'students_count': User.objects.values_list('id', flat=True)
+                                      .filter(is_student=True).count(),
+        'teachers_count': User.objects.values_list('id', flat=True)
+                                      .filter(is_teacher=True).count(),
+        'actions_today_count': UserLog.objects.values_list('id', flat=True)
+                                      .filter(created_at__lte=datetime.date.today()).count()
     }
     return render(request, 'classroom/staff/dashboard.html', context)
 
@@ -287,6 +297,17 @@ def delete_subject(request, pk):
 
     messages.success(request, 'The subject has been successfully deleted.')
     return redirect('staff:subject_list')
+
+
+@login_required
+@staff_required
+def get_user_activities(request):
+    select_data = {"action_date": """strftime('%%m-%%d-%%Y', datetime(created_at, 'localtime'))"""}
+    user_activities = tuple(UserLog.objects.extra(select=select_data)
+                            .values('action_date')
+                            .annotate(action_count=Count("id")))
+
+    return JsonResponse(user_activities, safe=False)
 
 
 @login_required

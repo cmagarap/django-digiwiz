@@ -66,6 +66,9 @@
                             </center>
                         {% endif %}
                         <br>
+                        {% if not courses %}
+                            <center><p>There are no courses to be shown.</p></center>
+                        {% endif %}
                         <div class="courses-page-content">
                             <div class="courses-content">
                                 <div class="row">
@@ -116,8 +119,6 @@
                                             </div><!--/.single-course-item-end-->
 
                                         </div><!--/.col-lg-4-->
-                                    {% empty %}
-                                        <center><p>There are no courses to be shown.</p></center>
                                     {% endfor %}
                                 </div>
                                 <div class="row">

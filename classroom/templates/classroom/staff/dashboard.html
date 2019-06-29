@@ -1,5 +1,151 @@
 {% extends 'staff_base.html' %}
-
+{% load static %}
 {% block content %}
+    <!-- ============================================================== -->
+    <!-- pageheader -->
+    <!-- ============================================================== -->
+    <div class="row">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+            <div class="page-header">
+                <h2 class="pageheader-title">Dashboard</h2>
+                <div class="page-breadcrumb">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'staff:dashboard' %}" class="breadcrumb-link">Admin</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ============================================================== -->
+    <!-- end pageheader -->
+    <!-- ============================================================== -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+                <p{% if forloop.last %} class="mb-0"{% endif %}>{{ message }}</p>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    {% endif %}
 
+    <div class="row">
+        <!-- metric -->
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="text-muted">Courses</h5>
+                    <div class="metric-value d-inline-block">
+                        <h1 class="mb-1 text-primary">{{ courses_count }} </h1>
+                    </div>
+                    <div class="metric-label d-inline-block float-right">
+                        <h1 class="mb-1 text-primary"><i class="fas fa-book"></i></h1>
+                    </div>
+                </div>
+                <div id="sparkline-1"></div>
+            </div>
+        </div>
+        <!-- /. metric -->
+        <!-- metric -->
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="text-muted">Students</h5>
+                    <div class="metric-value d-inline-block">
+                        <h1 class="mb-1 text-primary">{{ students_count }} </h1>
+                    </div>
+                    <div class="metric-label d-inline-block float-right">
+                        <h1 class="mb-1 text-primary"><i class="fas fa-child"></i></h1>
+                    </div>
+                </div>
+                <div id="sparkline-2"></div>
+            </div>
+        </div>
+        <!-- /. metric -->
+        <!-- metric -->
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="text-muted">Teachers</h5>
+                    <div class="metric-value d-inline-block">
+                        <h1 class="mb-1 text-primary">{{ teachers_count }}</h1>
+                    </div>
+                    <div class="metric-label d-inline-block float-right">
+                        <h1 class="mb-1 text-primary"><i class="fab fa-black-tie"></i></h1>
+                    </div>
+                </div>
+                <div id="sparkline-3">
+                </div>
+            </div>
+        </div>
+        <!-- /. metric -->
+        <!-- metric -->
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="text-muted">[TBD]</h5>
+                    <div class="metric-value d-inline-block">
+                        <h1 class="mb-1 text-primary">+28.45% </h1>
+                    </div>
+                    <div class="metric-label d-inline-block float-right">
+                        <h1 class="mb-1 text-primary"><i class="fas fa-book"></i></h1>
+                    </div>
+                </div>
+                <div id="sparkline-4"></div>
+            </div>
+        </div>
+        <!-- /. metric -->
+    </div>
+    <div class="row">
+        <div class="col-xl-8 col-lg-12 col-md-8 col-sm-12 col-12">
+            <div class="card">
+                <h5 class="card-header">Daily User Activities</h5>
+                <div class="card-body">
+                    <canvas id="activities-line" width="500" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        <!-- ============================================================== -->
+        <!-- end reveune  -->
+        <!-- ============================================================== -->
+        <!-- ============================================================== -->
+        <!-- total sale  -->
+        <!-- ============================================================== -->
+        <div class="col-xl-4 col-lg-12 col-md-4 col-sm-12 col-12">
+            <div class="card">
+                <h5 class="card-header">Courses Status</h5>
+                <div class="card-body">
+                    <canvas id="courses-status" width="220" height="155"></canvas>
+                    <div class="chart-widget-list">
+                        <p>
+                            <span class="fa-xs text-primary mr-1 legend-title"><i class="fa fa-fw fa-square-full"></i></span><span class="legend-text"> Direct</span>
+                            <span class="float-right">$300.56</span>
+                        </p>
+                        <p>
+                            <span class="fa-xs text-secondary mr-1 legend-title"><i class="fa fa-fw fa-square-full"></i></span>
+                            <span class="legend-text">Affilliate</span>
+                            <span class="float-right">$135.18</span>
+                        </p>
+                        <p>
+                            <span class="fa-xs text-brand mr-1 legend-title"><i class="fa fa-fw fa-square-full"></i></span> <span class="legend-text">Sponsored</span>
+                            <span class="float-right">$48.96</span>
+                        </p>
+                        <p class="mb-0">
+                            <span class="fa-xs text-info mr-1 legend-title"><i class="fa fa-fw fa-square-full"></i></span> <span class="legend-text"> E-mail</span>
+                            <span class="float-right">$154.02</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ============================================================== -->
+        <!-- end total sale  -->
+        <!-- ============================================================== -->
+    </div>
+
+    <script type="text/javascript" src="{% static 'staff/assets/charts/user_line.js' %}"></script>
 {% endblock %}
