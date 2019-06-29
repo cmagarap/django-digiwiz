@@ -167,7 +167,7 @@ def browse_courses(request):
         .order_by('title')
 
     page_number = request.GET.get('page', 1)
-    paginate_result = do_paginate(courses, page_number, 6)
+    paginate_result = do_paginate(courses, page_number, 9)
     course_list = paginate_result[0]
     paginator = paginate_result[1]
     base_url = '/browse-courses/?'
@@ -180,7 +180,7 @@ def browse_courses(request):
                                             Q(description__icontains=query)) \
                 .filter(status__iexact='approved')
 
-            paginate_result = do_paginate(courses, page_number, 6)
+            paginate_result = do_paginate(courses, page_number, 9)
             course_list = paginate_result[0]
             paginator = paginate_result[1]
             base_url = f'/browse-courses/?search={query}&'
@@ -212,7 +212,7 @@ def browse_courses_subject(request, subject_pk):
         .order_by('title')
 
     page_number = request.GET.get('page', 1)
-    paginate_result = do_paginate(courses, page_number, 1)
+    paginate_result = do_paginate(courses, page_number, 9)
     course_list = paginate_result[0]
     paginator = paginate_result[1]
     base_url = f'/browse-courses/{subject_pk}/?'
@@ -228,7 +228,7 @@ def browse_courses_subject(request, subject_pk):
                                             Q(description__icontains=query)) \
                 .filter(status__iexact='approved')
 
-            paginate_result = do_paginate(courses, page_number, 1)
+            paginate_result = do_paginate(courses, page_number, 9)
             course_list = paginate_result[0]
             paginator = paginate_result[1]
             base_url = f'/browse-courses/{subject_pk}/?search={query}&'

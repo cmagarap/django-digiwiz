@@ -137,9 +137,10 @@ class FilesListView(ListView):
         'title': 'My Files'
     }
     template_name = 'classroom/teachers/file_list.html'
+    paginate_by = 10
 
     def get_queryset(self):
-        return self.request.user.my_files.all().order_by('file')
+        return self.request.user.my_files.all().order_by('-id')
 
 
 @method_decorator([login_required, teacher_required], name='dispatch')
@@ -150,11 +151,12 @@ class LessonListView(ListView):
         'title': 'My Lessons'
     }
     template_name = 'classroom/teachers/lesson_list.html'
+    paginate_by = 10
 
     def get_queryset(self):
         """Gets the lesson that the user owns through course FK."""
         return Lesson.objects.filter(course__in=self.request.user.courses.all()) \
-            .order_by('title')
+            .order_by('-id')
 
 
 @method_decorator([login_required, teacher_required], name='dispatch')
@@ -165,6 +167,7 @@ class QuizListView(ListView):
         'title': 'My Quizzes'
     }
     template_name = 'classroom/teachers/quiz_list.html'
+    paginate_by = 10
 
     def get_queryset(self):
         """Gets the quizzes that the logged in teacher owns.
@@ -172,7 +175,7 @@ class QuizListView(ListView):
         queryset = Quiz.objects.filter(course__owner=self.request.user) \
             .annotate(questions_count=Count('questions', distinct=True)) \
             .annotate(taken_count=Count('taken_quizzes', distinct=True)) \
-            .order_by('title')
+            .order_by('-id')
         return queryset
 
 

@@ -42,9 +42,6 @@ class ChangePassword(PasswordChangeView):
 class LessonListView(ListView):
     model = Lesson
     context_object_name = 'lessons'
-    extra_context = {
-        'title': 'Lessons',
-    }
     template_name = 'classroom/students/lessons.html'
     paginate_by = 1
 
@@ -53,6 +50,12 @@ class LessonListView(ListView):
             .select_related('course') \
             .filter(course__id=self.kwargs['pk']) \
             .order_by('number')
+
+    def get_context_data(self, **kwargs):
+        course = Course.objects.values('id', 'title').get(id=self.kwargs['pk'])
+        kwargs['title'] = f"{course['title']} Lessons"
+
+        return super().get_context_data(**kwargs)
 
 
 @method_decorator([login_required, student_required], name='dispatch')

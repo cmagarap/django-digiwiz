@@ -89,14 +89,13 @@
 {#                            </ul>#}
 {#                        </li>#}
                         <li class="nav-item">
-                            <span id="time"></span>
-                        </li>
-                        <li class="nav-item">
-                            <div>{{ user.username }}</div>
+                            <br>
+                            <span id="time"></span>&nbsp;&nbsp;&nbsp;&nbsp;
                         </li>
                         <li class="nav-item dropdown nav-user">
                             <a class="nav-link nav-user-img" href="#" id="navbarDropdownMenuLink2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <img src="{% static 'staff/assets/images/default-user_thumb.png' %}" alt="default-user" class="user-avatar-md rounded-circle">
+                                <img src="{% static 'staff/assets/images/default-user_thumb.png' %}" alt="default-user" class="user-avatar-md rounded-circle">&nbsp;
+                                {{ user.username }}
                             </a>
                             <div class="dropdown-menu dropdown-menu-right nav-user-dropdown" aria-labelledby="navbarDropdownMenuLink2">
                                 <div class="nav-user-info" style="background-color:#f78888">
