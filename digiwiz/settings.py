@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'ckeditor',
     'ckeditor_uploader',
     'crispy_forms',
+    'classroom.templatetags.custom_tags',
     'sorl.thumbnail',
     'star_ratings'
 ]

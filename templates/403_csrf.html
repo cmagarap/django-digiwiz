@@ -13,10 +13,10 @@
     <meta name="keywords" content="HTML5, Template, Design, Development, education, edulab, online cources, training, online education, best education template">
 
     <!--======== Page Title===========-->
-    <title>Internal Server Error</title>
+    <title>403 Forbidden</title>
 
     <!--========== Favicons =========-->
-    <link rel="shortcut icon" href="/static/images/favicon.ico">
+    <link rel="shortcut icon" href="/static/images/DW.png">
 
     <!--======== Font icon Css ============-->
     <link href="/static/css/font-awesome.min.css" rel="stylesheet">
@@ -45,8 +45,9 @@
             <div class="row justify-content-center">
                 <div class="col-lg-6 col-sm-10">
                     <div class="error-page-content">
-                        <div class="not-found">500</div>
-                        <h3>Something went wrong 😭</h3>
+                        <div class="not-found">403</div>
+                        <h3>Access Forbidden</h3>
+                        <p>CSRF verification failed. Request Aborted.</p>
                         <div class="group-btn">
                             <a href="{% url 'home' %}" class="btn btn-default btn-primary">BACK TO HOME</a>
                         </div>

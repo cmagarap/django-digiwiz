@@ -86,9 +86,10 @@
                                                     <li><a href="{% url 'students:profile' %}">My Profile</a></li>
                                                     <li><a href="{% url 'students:mycourses_list' %}">My Courses</a></li>
                                                     <li><a href="{% url 'students:taken_quiz_list' %}">My Quizzes</a></li>
-                                                    <li ><a href="{% url 'browse_courses' %}">Browse Courses</a></li>
+
                                                 </ul>
                                             </li>
+                                            <li><a href="{% url 'browse_courses' %}">Browse Courses</a></li>
 
                                         {% elif user.is_teacher %}
 

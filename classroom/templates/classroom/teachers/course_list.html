@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load custom_tags %}
 {% load thumbnail %}
 {% block content %}
     <section id="courses-section" class="popular-courses-area bg-white s-pd2">
@@ -54,7 +55,13 @@
                                 <p style="white-space: nowrap; width: 300px; overflow: hidden; text-overflow: ellipsis">{{ course.description }}</p>
                                 <small>{{ course.subject.get_html_badge }}</small>
                                 <div class="course-reviews">
-                                    {{ course.ratings.get.average|floatformat:"-2" }}/5
+                                    <div class="star-ratings-css">
+                                        <div class="star-ratings-css-top" style="width: {{ course.ratings.get.average|get_star_percentage|floatformat:"-2" }}%"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                                        </div>
+                                        <div class="star-ratings-css-bottom"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                                        </div>
+                                    </div>
+                                    <b>{{ course.ratings.get.average|floatformat:"-2" }}</b>/5
                                     ({{ course.ratings.get.count }} reviews)
                                 </div><!--/.course-reviews-->
 
