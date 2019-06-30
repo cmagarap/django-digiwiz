@@ -9,8 +9,8 @@ from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, ListView, UpdateView
 from ..decorators import staff_required, superuser_required
 from ..forms import AdminAddForm, SubjectUpdateForm, UserUpdateForm
-from ..models import Course, Subject, User, UserLog
-import datetime
+from ..models import Course, Quiz, Subject, User, UserLog
+
 
 @method_decorator([login_required, superuser_required], name='dispatch')
 class AdminCreateView(CreateView):
@@ -28,6 +28,10 @@ class AdminCreateView(CreateView):
         messages.success(self.request, 'The admin account has been successfully created!')
         return redirect('staff:admin_list')
 
+    def get_context_data(self, **kwargs):
+        kwargs['course_request_count'] = Course.objects.values_list('id', flat=True).filter(status='pending').count()
+        return super().get_context_data(**kwargs)
+
 
 @method_decorator([login_required, superuser_required], name='dispatch')
 class AdminListView(ListView):
@@ -39,6 +43,10 @@ class AdminListView(ListView):
     }
     template_name = 'classroom/staff/admin_list.html'
     paginate_by = 15
+
+    def get_context_data(self, **kwargs):
+        kwargs['course_request_count'] = Course.objects.values_list('id', flat=True).filter(status='pending').count()
+        return super().get_context_data(**kwargs)
 
     def get_queryset(self):
         """Gets all the admin/staff accounts but not the superuser."""
@@ -56,6 +64,10 @@ class ChangePassword(PasswordChangeView):
         messages.success(self.request, 'Your successfully changed your password!')
         return super().form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        kwargs['course_request_count'] = Course.objects.values_list('id', flat=True).filter(status='pending').count()
+        return super().get_context_data(**kwargs)
+
 
 @method_decorator([login_required, staff_required], name='dispatch')
 class CourseListView(ListView):
@@ -67,6 +79,10 @@ class CourseListView(ListView):
     }
     template_name = 'classroom/staff/course_list.html'
     paginate_by = 15
+
+    def get_context_data(self, **kwargs):
+        kwargs['course_request_count'] = Course.objects.values_list('id', flat=True).filter(status='pending').count()
+        return super().get_context_data(**kwargs)
 
     def get_queryset(self):
         """Gets all the approved courses."""
@@ -84,6 +100,10 @@ class CourseRequestsView(ListView):
     }
     template_name = 'classroom/staff/course_requests_list.html'
     paginate_by = 15
+
+    def get_context_data(self, **kwargs):
+        kwargs['course_request_count'] = Course.objects.values_list('id', flat=True).filter(status='pending').count()
+        return super().get_context_data(**kwargs)
 
     def get_queryset(self):
         """Gets all the courses that have pending as their status."""
@@ -107,6 +127,10 @@ class SubjectCreateView(CreateView):
         messages.success(self.request, 'The subject has been successfully created!')
         return redirect('staff:subject_list')
 
+    def get_context_data(self, **kwargs):
+        kwargs['course_request_count'] = Course.objects.values_list('id', flat=True).filter(status='pending').count()
+        return super().get_context_data(**kwargs)
+
 
 @method_decorator([login_required, staff_required], name='dispatch')
 class SubjectListView(ListView):
@@ -118,6 +142,10 @@ class SubjectListView(ListView):
     }
     template_name = 'classroom/staff/subject_list.html'
     paginate_by = 5
+
+    def get_context_data(self, **kwargs):
+        kwargs['course_request_count'] = Course.objects.values_list('id', flat=True).filter(status='pending').count()
+        return super().get_context_data(**kwargs)
 
     def get_queryset(self):
         """Gets all the approved courses."""
@@ -135,6 +163,10 @@ class StudentListView(ListView):
     template_name = 'classroom/staff/students_list.html'
     paginate_by = 15
 
+    def get_context_data(self, **kwargs):
+        kwargs['course_request_count'] = Course.objects.values_list('id', flat=True).filter(status='pending').count()
+        return super().get_context_data(**kwargs)
+
     def get_queryset(self):
         """Gets all the student accounts."""
         return User.objects.filter(is_student=True, is_active=True) \
@@ -151,6 +183,10 @@ class SubjectUpdateView(UpdateView):
         'title': 'Edit Subject',
         'sidebar': 'subject_list'
     }
+
+    def get_context_data(self, **kwargs):
+        kwargs['course_request_count'] = Course.objects.values_list('id', flat=True).filter(status='pending').count()
+        return super().get_context_data(**kwargs)
 
     def get_queryset(self):
         return Subject.objects.all()
@@ -172,6 +208,10 @@ class TeacherListView(ListView):
     template_name = 'classroom/staff/teacher_list.html'
     paginate_by = 15
 
+    def get_context_data(self, **kwargs):
+        kwargs['course_request_count'] = Course.objects.values_list('id', flat=True).filter(status='pending').count()
+        return super().get_context_data(**kwargs)
+
     def get_queryset(self):
         """Gets all the teacher accounts."""
         return User.objects.filter(is_teacher=True, is_active=True) \
@@ -188,6 +228,10 @@ class UserLogListView(ListView):
     }
     template_name = 'classroom/staff/user_log_list.html'
     paginate_by = 15
+
+    def get_context_data(self, **kwargs):
+        kwargs['course_request_count'] = Course.objects.values_list('id', flat=True).filter(status='pending').count()
+        return super().get_context_data(**kwargs)
 
     def get_queryset(self):
         return UserLog.objects.filter(is_active=True).order_by('-id')
@@ -219,7 +263,8 @@ def account(request):
 
     context = {
         'u_form': user_update_form,
-        'title': 'My Profile'
+        'title': 'My Profile',
+        'course_request_count': Course.objects.values_list('id', flat=True).filter(status='pending').count()
     }
 
     return render(request, 'classroom/staff/account.html', context)
@@ -231,12 +276,15 @@ def dashboard(request):
     context = {
         'title': 'Admin',
         'sidebar': 'dashboard',
+        'course_request_count': Course.objects.values_list('id', flat=True).filter(status='pending').count(),
         'courses_count': Course.objects.values_list('id', flat=True)
                                        .filter(status__iexact='approved').count(),
         'students_count': User.objects.values_list('id', flat=True)
                                       .filter(is_student=True).count(),
         'teachers_count': User.objects.values_list('id', flat=True)
                                       .filter(is_teacher=True).count(),
+        'quizzes_count': Quiz.objects.values_list('id', flat=True)
+                                     .all().count()
     }
     return render(request, 'classroom/staff/dashboard.html', context)
 
@@ -299,6 +347,28 @@ def delete_subject(request, pk):
 
 @login_required
 @staff_required
+def get_course_status(request):
+    status_grp_by = tuple(Course.objects.values_list('status')
+                          .annotate(status_count=Count('status'))
+                          .order_by('status'))
+
+    status_list = []
+    status_count_list = []
+
+    for i in status_grp_by:
+        status_list.append(i[0])
+        status_count_list.append(i[1])
+
+    data = {
+        'status_label': status_list,
+        'status_count': status_count_list
+    }
+
+    return JsonResponse(data)
+
+
+@login_required
+@staff_required
 def get_user_activities(request):
     select_data = {"action_date": "strftime('%%m-%%d-%%Y', datetime(created_at, 'localtime'))"}
     action_dates = list(reversed(UserLog.objects.extra(select=select_data)
@@ -309,13 +379,13 @@ def get_user_activities(request):
                             .values_list('action_date')
                             .filter(user_type='student')
                             .exclude(user_type='admin')
-                            .annotate(action_count=Count("id"))
+                            .annotate(action_count=Count('id'))
                             .order_by('-action_date')[:7]))
     teacher = list(reversed(UserLog.objects.extra(select=select_data)
                             .values_list('action_date')
                             .filter(user_type='teacher')
                             .exclude(user_type='admin')
-                            .annotate(action_count=Count("id"))
+                            .annotate(action_count=Count('id'))
                             .order_by('-action_date')[:7]))
 
     student_list = []

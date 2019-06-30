@@ -24,6 +24,7 @@ from ..forms import (BaseAnswerInlineFormSet, CourseAddForm, FileAddForm,
 from ..models import (Answer, Course, MyFile, Lesson, Question, Quiz,
                       StudentAnswer, TakenCourse, TakenQuiz, User, UserLog)
 from ..tokens import account_activation_token
+from star_ratings.models import Rating
 import os
 
 
@@ -54,6 +55,7 @@ class CourseCreateView(CreateView):
         course = form.save(commit=False)
         course.owner = self.request.user
         course.save()
+        Rating.objects.create(count=0, total=0, average=0, object_id=course.pk, content_type_id=15)
 
         UserLog.objects.create(action=f'Created the course: {course.title}',
                                user_type='teacher',

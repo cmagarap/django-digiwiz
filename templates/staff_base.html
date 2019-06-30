@@ -87,7 +87,14 @@
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link {% if sidebar == 'course_requests' %}active{% endif %}" href="{% url 'staff:course_requests' %}">
-                                    <i class="fa fa-fw fa-rocket"></i>Course Requests
+                                    <i class="fas fa-bell"></i>Course Requests
+                                    {% if course_request_count > 0 %}
+                                        <sup>
+                                            <span style="background-color: red; color: white; padding: 2px; border-radius: 3px;">
+                                                &nbsp;<b>{{ course_request_count }}</b>&nbsp;
+                                            </span>
+                                        </sup>
+                                    {% endif %}
                                 </a>
                             </li>
                             <li class="nav-item">
@@ -105,18 +112,18 @@
                             {% if user.is_superuser %}
                                 <li class="nav-item ">
                                     <a class="nav-link {% if sidebar == 'admin_list' %}active{% endif %}" href="{% url 'staff:admin_list' %}">
-                                        <i class="fab fa-black-tie"></i>Admin Accounts
+                                        <i class="fas fa-database"></i>Admin Accounts
                                     </a>
                                 </li>
                             {% endif %}
                             <li class="nav-item">
                                 <a class="nav-link {% if sidebar == 'teacher_list' %}active{% endif %}" href="{% url 'staff:teacher_list' %}">
-                                    <i class="fas fa-fw fa-table"></i>Teachers
+                                    <i class="fab fa-black-tie"></i>Teachers
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link {% if sidebar == 'student_list' %}active{% endif %}" href="{% url 'staff:student_list' %}">
-                                    <i class="fas fa-fw fa-table"></i>Students
+                                    <i class="fas fa-child"></i>Students
                                 </a>
                             </li>
                             <li class="nav-item">

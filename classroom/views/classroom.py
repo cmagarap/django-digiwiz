@@ -1,12 +1,12 @@
 from django.contrib.auth import authenticate, login, logout
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Count, Q
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import DetailView
 from .raw_sql import get_popular_courses
 from ..forms import SearchCourses, UserLoginForm
 from ..models import (Course, Lesson, MyFile, Quiz, Subject,
-                      Student, TakenQuiz, Teacher, UserLog)
+                      TakenQuiz, User, UserLog)
 
 
 def get_user_type(user):
@@ -20,7 +20,6 @@ def get_user_type(user):
 
 class CourseDetailView(DetailView):
     model = Course
-    context_object_name = 'course'
     template_name = 'classroom/course_details.html'
 
     def get_context_data(self, **kwargs):
@@ -62,6 +61,8 @@ class CourseDetailView(DetailView):
         kwargs['files'] = MyFile.objects.filter(course_id=self.kwargs['pk']) \
             .order_by('file')
 
+        kwargs['course'] = get_object_or_404(Course.objects.filter(status='approved'), pk=self.kwargs['pk'])
+
         return super().get_context_data(**kwargs)
 
 
@@ -74,10 +75,14 @@ def about(request):
 
     context = {
         'title': 'About Us',
-        'courses': Course.objects.filter(status__iexact='approved').count(),
-        'students': Student.objects.all().count(),
-        'teachers': Teacher.objects.all().count(),
-        'quizzes': Quiz.objects.all().count()
+        'courses': Course.objects.values_list('id', flat=True)
+                                 .filter(status__iexact='approved').count(),
+        'students': User.objects.values_list('id', flat=True)
+                                .filter(is_student=True).count(),
+        'teachers': User.objects.values_list('id', flat=True)
+                                .filter(is_teacher=True).count(),
+        'quizzes': Quiz.objects.values_list('id', flat=True)
+                               .all().count()
     }
 
     return render(request, 'classroom/about.html', context)

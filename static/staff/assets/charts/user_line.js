@@ -1,11 +1,10 @@
 $(document).ready(function() {
-    var endpoint = '/staff/get-user-activities/';
     var student = [];
     var teacher = [];
     var labels = [];
     $.ajax({
-        method: "GET",
-        url: endpoint,
+        method: 'GET',
+        url: '/staff/get-user-activities/',
         success: function (data) {
             labels = data.date_label;
             student = data.student;

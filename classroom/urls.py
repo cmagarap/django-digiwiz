@@ -17,6 +17,7 @@ urlpatterns = [
         path('courses/', staff.CourseListView.as_view(), name='course_list'),
         path('courses/<int:course_pk>/delete/', staff.delete_course, name='course_delete'),
         path('get-user-activities/', staff.get_user_activities, name='get_user_activities'),
+        path('get-course-status/', staff.get_course_status, name='get_course_status'),
         path('students/', staff.StudentListView.as_view(), name='student_list'),
         path('students/<int:pk>/delete/', staff.deactivate_student, name='teacher_deactivate'),
         path('subjects/', staff.SubjectListView.as_view(), name='subject_list'),
