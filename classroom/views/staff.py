@@ -237,8 +237,6 @@ def dashboard(request):
                                       .filter(is_student=True).count(),
         'teachers_count': User.objects.values_list('id', flat=True)
                                       .filter(is_teacher=True).count(),
-        'actions_today_count': UserLog.objects.values_list('id', flat=True)
-                                      .filter(created_at__lte=datetime.date.today()).count()
     }
     return render(request, 'classroom/staff/dashboard.html', context)
 
@@ -302,12 +300,44 @@ def delete_subject(request, pk):
 @login_required
 @staff_required
 def get_user_activities(request):
-    select_data = {"action_date": """strftime('%%m-%%d-%%Y', datetime(created_at, 'localtime'))"""}
-    user_activities = tuple(UserLog.objects.extra(select=select_data)
-                            .values('action_date')
-                            .annotate(action_count=Count("id")))
+    select_data = {"action_date": "strftime('%%m-%%d-%%Y', datetime(created_at, 'localtime'))"}
+    action_dates = list(reversed(UserLog.objects.extra(select=select_data)
+                                 .values_list('action_date')
+                                 .distinct()
+                                 .order_by('-action_date')[:7]))
+    student = list(reversed(UserLog.objects.extra(select=select_data)
+                            .values_list('action_date')
+                            .filter(user_type='student')
+                            .exclude(user_type='admin')
+                            .annotate(action_count=Count("id"))
+                            .order_by('-action_date')[:7]))
+    teacher = list(reversed(UserLog.objects.extra(select=select_data)
+                            .values_list('action_date')
+                            .filter(user_type='teacher')
+                            .exclude(user_type='admin')
+                            .annotate(action_count=Count("id"))
+                            .order_by('-action_date')[:7]))
 
-    return JsonResponse(user_activities, safe=False)
+    student_list = []
+    teacher_list = []
+    date_list = []
+
+    for tuple_l in student:
+        student_list.append(tuple_l[1])
+
+    for tuple_l in teacher:
+        teacher_list.append(tuple_l[1])
+
+    for tuple_l in action_dates:
+        date_list.append(tuple_l[0])
+
+    data = {
+        'student': student_list,
+        'teacher': teacher_list,
+        'date_label': date_list
+    }
+
+    return JsonResponse(data)
 
 
 @login_required

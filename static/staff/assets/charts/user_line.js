@@ -1,19 +1,15 @@
 $(document).ready(function() {
     var endpoint = '/staff/get-user-activities/';
-    var defaultData = [];
+    var student = [];
+    var teacher = [];
     var labels = [];
     $.ajax({
         method: "GET",
         url: endpoint,
         success: function (data) {
-            // labels = data.labels;
-            // defaultData = data.default;
-
-
-            for(var i in data) {
-                labels.push(data[i].action_date);
-                defaultData.push(data[i].action_count);
-            }
+            labels = data.date_label;
+            student = data.student;
+            teacher = data.teacher;
 
             var ctx = $("#activities-line");
             var lineChart = new Chart(ctx, {
@@ -21,50 +17,67 @@ $(document).ready(function() {
                 data: {
                     labels: labels,
                     datasets: [{
-                        data: defaultData,
-                        backgroundColor: [
-                            'rgba(255, 99, 132, 0.2)',
-                            'rgba(54, 162, 235, 0.2)',
-                            'rgba(255, 206, 86, 0.2)',
-                            'rgba(75, 192, 192, 0.2)',
-                            'rgba(153, 102, 255, 0.2)',
-                            'rgba(255, 159, 64, 0.2)'
-                        ],
-                        borderColor: [
-                            'rgba(255,99,132,1)',
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(255, 206, 86, 1)',
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(153, 102, 255, 1)',
-                            'rgba(255, 159, 64, 1)'
-                        ],
-                        borderWidth: 1
+                        data: teacher,
+                        label: 'Teachers',
+                        showLine: true,
+                        borderColor: '#5DA2D5',
+                        backgroundColor: 'rgba(93, 162, 213, 0.4)',
+                        pointBorderColor: '#5DA2D5',
+                        pointHoverBackgroundColor: 'rgba(255,255,255, 1)',
+                        pointHoverBorderWidth: 2,
+                        pointHoverRadius: 10,
+                        borderWidth: 5,
+                        yAxisID: 'teachers'
+                    }, {
+                        data: student,
+                        label: 'Students',
+                        showLine: true,
+                        borderColor: '#F78888',
+                        backgroundColor: 'rgba(247, 136, 136, 0.4)',
+                        pointBorderColor: '#F78888',
+                        pointHoverBackgroundColor: 'rgba(255,255,255, 1)',
+                        pointHoverBorderWidth: 2,
+                        pointHoverRadius: 10,
+                        borderWidth: 5,
+                        yAxisID: 'students'
                     }]
                 },
                 options: {
                     legend: {
-                        display: false,
+                        display: true,
+                        position: 'bottom'
                     },
                     scales: {
                         yAxes: [{
                             ticks: {
                                 beginAtZero: true
-                            }
+                            },
+                            gridLines: {
+                                color: 'rgba(0, 0, 0, 0)',
+                            },
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            id: 'teachers'
+                        }, {
+                            ticks: {
+                                beginAtZero: true
+                            },
+                            gridLines: {
+                                color: 'rgba(0, 0, 0, 0)',
+                            },
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            id: 'students'
                         }]
-                    },
-                    tooltips: {
-                        callbacks: {
-                            label: function (tooltipItem, chartData) {
-                                return ' Count of Activities: ' + chartData.datasets[0].data[tooltipItem.index];
-                            }
-                        }
-                    },
+                    }
                 }
             });
         },
         error: function (error_data) {
             console.log("error");
-            console.log(error_data)
+            console.log(error_data);
         }
     });
 });
