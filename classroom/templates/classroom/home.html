@@ -35,7 +35,7 @@
                 <div class="col-lg-8">
                     <div class="section-heading-area text-center">
                         <h2 class="section-heading text-capitalize">This is what we offer you</h2>
-                        <p>DigiWiz offers basic education intended for the young</p>
+                        <p>DigiWiz offers basic education intended for the young.</p>
                     </div><!--/.section-heading-area-->
                 </div><!--/.col-lg-8-->
             </div><!--/.row-->
@@ -78,7 +78,7 @@
             <div class="row justify-content-md-center">
                 <div class="col-lg-8">
                     <div class="section-heading-area text-center">
-                        <h2 class="section-heading text-capitalize">Popular Courses</h2>
+                        <h2 class="section-heading text-capitalize">Top Rated Courses</h2>
                     </div><!--/.section-heading-area-->
                 </div><!--/.col-lg-8-->
             </div><!--/.row-->
@@ -106,6 +106,7 @@
                                 <h2><a href="{% url 'course_details' course.object_id %}">{{ course.title }}</a></h2>
                                 {{ course.subject.get_html_badge }}
                                 <p style="white-space: nowrap; width: 310px; overflow: hidden; text-overflow: ellipsis">{{ course.description }}</p>
+                                <hr>
                                 <div class="course-reviews">
                                     {% if user.is_student %}
                                         {% ratings course %}
@@ -116,10 +117,18 @@
                                             <div class="star-ratings-css-bottom"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
                                             </div>
                                         </div>
-                                        <b>{{ course.average|floatformat:"-2" }}</b>/5
-                                        ({{ course.count }} reviews)
+                                        <center>
+                                            <b>{{ course.average|floatformat:"-2" }}</b>/5
+                                            ({{ course.count }}
+                                            {% if course.count == 1 %}
+                                                review)
+                                            {% else %}
+                                                reviews)
+                                            {% endif %}
+                                        </center>
                                     {% endif %}
                                 </div><!--/.course-reviews-->
+                                <hr>
                                 <div class="trainer-profile clearfix">
                                     {% thumbnail course.owner.teacher.image "100x100" crop="center" as im %}
                                         <img class="rounded-circle" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="course-owner">

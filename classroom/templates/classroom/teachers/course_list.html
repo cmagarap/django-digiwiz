@@ -54,8 +54,9 @@
                             </div><!--/.course-thumb-area-->
                             <div class="course-content">
                                 <h2><a href="{% url 'course_details' course.pk %}">{{ course.title }}</a></h2>
-                                <p style="white-space: nowrap; width: 300px; overflow: hidden; text-overflow: ellipsis">{{ course.description }}</p>
                                 <small>{{ course.subject.get_html_badge }}</small>
+                                <p style="white-space: nowrap; width: 300px; overflow: hidden; text-overflow: ellipsis">{{ course.description }}</p>
+                                <hr>
                                 <div class="course-reviews">
                                     <div class="star-ratings-css">
                                         <div class="star-ratings-css-top" style="width: {{ course.ratings.get.average|get_star_percentage|floatformat:"-2" }}%"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
@@ -63,10 +64,17 @@
                                         <div class="star-ratings-css-bottom"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
                                         </div>
                                     </div>
-                                    <b>{{ course.ratings.get.average|floatformat:"-2" }}</b>/5
-                                    ({{ course.ratings.get.count }} reviews)
+                                    <center>
+                                        <b>{{ course.ratings.get.average|floatformat:"-2" }}</b>/5
+                                        ({{ course.ratings.get.count }}
+                                        {% if course.ratings.get.count == 1 %}
+                                            review)
+                                        {% else %}
+                                            reviews)
+                                        {% endif %}
+                                    </center>
                                 </div><!--/.course-reviews-->
-
+                                <hr>
                                 <div class="trainer-profile clearfix">
                                     {% thumbnail course.owner.teacher.image "100x100" crop="center" as im %}
                                         <img class="rounded-circle" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="course-owner">

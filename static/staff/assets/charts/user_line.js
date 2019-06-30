@@ -16,18 +16,6 @@ $(document).ready(function() {
                 data: {
                     labels: labels,
                     datasets: [{
-                        data: teacher,
-                        label: 'Teachers',
-                        showLine: true,
-                        borderColor: '#5DA2D5',
-                        backgroundColor: 'rgba(93, 162, 213, 0.4)',
-                        pointBorderColor: '#5DA2D5',
-                        pointHoverBackgroundColor: 'rgba(255,255,255, 1)',
-                        pointHoverBorderWidth: 2,
-                        pointHoverRadius: 10,
-                        borderWidth: 5,
-                        yAxisID: 'teachers'
-                    }, {
                         data: student,
                         label: 'Students',
                         showLine: true,
@@ -37,8 +25,18 @@ $(document).ready(function() {
                         pointHoverBackgroundColor: 'rgba(255,255,255, 1)',
                         pointHoverBorderWidth: 2,
                         pointHoverRadius: 10,
-                        borderWidth: 5,
-                        yAxisID: 'students'
+                        borderWidth: 5
+                    }, {
+                        data: teacher,
+                        label: 'Teachers',
+                        showLine: true,
+                        borderColor: '#5DA2D5',
+                        backgroundColor: 'rgba(93, 162, 213, 0.4)',
+                        pointBorderColor: '#5DA2D5',
+                        pointHoverBackgroundColor: 'rgba(255,255,255, 1)',
+                        pointHoverBorderWidth: 2,
+                        pointHoverRadius: 10,
+                        borderWidth: 5
                     }]
                 },
                 options: {
@@ -53,22 +51,7 @@ $(document).ready(function() {
                             },
                             gridLines: {
                                 color: 'rgba(0, 0, 0, 0)',
-                            },
-                            type: 'linear',
-                            display: true,
-                            position: 'left',
-                            id: 'teachers'
-                        }, {
-                            ticks: {
-                                beginAtZero: true
-                            },
-                            gridLines: {
-                                color: 'rgba(0, 0, 0, 0)',
-                            },
-                            type: 'linear',
-                            display: true,
-                            position: 'right',
-                            id: 'students'
+                            }
                         }]
                     }
                 }

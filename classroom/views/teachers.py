@@ -28,6 +28,14 @@ from star_ratings.models import Rating
 import os
 
 
+def get_enrollment_requests_count(user):
+    owned_courses = Course.objects.values_list('id', flat=True) \
+        .filter(owner=user)
+    return TakenCourse.objects.values_list('id', flat=True) \
+        .filter(course__in=owned_courses,
+                status='pending').count()
+
+
 @method_decorator([login_required, teacher_required], name='dispatch')
 class ChangePassword(PasswordChangeView):
     success_url = reverse_lazy('teachers:profile')
@@ -40,6 +48,12 @@ class ChangePassword(PasswordChangeView):
 
         messages.success(self.request, 'Your successfully changed your password!')
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        """enrollment_request_count is used for base.html's navbar."""
+        kwargs['enrollment_request_count'] = get_enrollment_requests_count(self.request.user)
+
+        return super().get_context_data(**kwargs)
 
 
 @method_decorator([login_required, teacher_required], name='dispatch')
@@ -64,6 +78,12 @@ class CourseCreateView(CreateView):
         messages.success(self.request, 'The course was successfully created!')
         return redirect('teachers:course_change_list')
 
+    def get_context_data(self, **kwargs):
+        """enrollment_request_count is used for base.html's navbar."""
+        kwargs['enrollment_request_count'] = get_enrollment_requests_count(self.request.user)
+
+        return super().get_context_data(**kwargs)
+
 
 @method_decorator([login_required, teacher_required], name='dispatch')
 class CourseListView(ListView):
@@ -80,9 +100,12 @@ class CourseListView(ListView):
         kwargs['courses'] = self.request.user.courses \
             .exclude(status__iexact='deleted') \
             .annotate(taken_count=Count('taken_courses',
-                                        filter=Q(taken_courses__status__iexact='enrolled'),
+                                        filter=Q(taken_courses__status='enrolled'),
                                         distinct=True)) \
             .order_by('title')
+
+        # enrollment_request_count is used for base.html's navbar.
+        kwargs['enrollment_request_count'] = get_enrollment_requests_count(self.request.user)
 
         return super().get_context_data(**kwargs)
 
@@ -97,12 +120,6 @@ class CourseUpdateView(UpdateView):
         'title': 'Edit Course'
     }
 
-    def get_queryset(self):
-        """This method is an implicit object-level permission management.
-        This view will only match the ids of existing courses that belongs
-        to the logged in user."""
-        return self.request.user.courses.exclude(status__iexact='deleted')
-
     def form_valid(self, form):
         course = form.save(commit=False)
         course.status = 'pending'
@@ -115,6 +132,18 @@ class CourseUpdateView(UpdateView):
         messages.success(self.request, f'{course.title} has been successfully updated.')
         return redirect('teachers:course_change_list')
 
+    def get_context_data(self, **kwargs):
+        """enrollment_request_count is used for base.html's navbar."""
+        kwargs['enrollment_request_count'] = get_enrollment_requests_count(self.request.user)
+
+        return super().get_context_data(**kwargs)
+
+    def get_queryset(self):
+        """This method is an implicit object-level permission management.
+        This view will only match the ids of existing courses that belongs
+        to the logged in user."""
+        return self.request.user.courses.exclude(status='deleted')
+
 
 @method_decorator([login_required, teacher_required], name='dispatch')
 class EnrollmentRequestsListView(ListView):
@@ -125,10 +154,16 @@ class EnrollmentRequestsListView(ListView):
     }
     template_name = 'classroom/teachers/enrollment_requests_list.html'
 
+    def get_context_data(self, **kwargs):
+        """enrollment_request_count is used for base.html's navbar."""
+        kwargs['enrollment_request_count'] = get_enrollment_requests_count(self.request.user)
+
+        return super().get_context_data(**kwargs)
+
     def get_queryset(self):
         """This method gets the enrollment requests of students."""
         return TakenCourse.objects.filter(course__in=self.request.user.courses.all(),
-                                          status__iexact='pending')
+                                          status='pending')
 
 
 @method_decorator([login_required, teacher_required], name='dispatch')
@@ -140,6 +175,12 @@ class FilesListView(ListView):
     }
     template_name = 'classroom/teachers/file_list.html'
     paginate_by = 10
+
+    def get_context_data(self, **kwargs):
+        """enrollment_request_count is used for base.html's navbar."""
+        kwargs['enrollment_request_count'] = get_enrollment_requests_count(self.request.user)
+
+        return super().get_context_data(**kwargs)
 
     def get_queryset(self):
         return self.request.user.my_files.all().order_by('-id')
@@ -154,6 +195,12 @@ class LessonListView(ListView):
     }
     template_name = 'classroom/teachers/lesson_list.html'
     paginate_by = 10
+
+    def get_context_data(self, **kwargs):
+        """enrollment_request_count is used for base.html's navbar."""
+        kwargs['enrollment_request_count'] = get_enrollment_requests_count(self.request.user)
+
+        return super().get_context_data(**kwargs)
 
     def get_queryset(self):
         """Gets the lesson that the user owns through course FK."""
@@ -170,6 +217,12 @@ class QuizListView(ListView):
     }
     template_name = 'classroom/teachers/quiz_list.html'
     paginate_by = 10
+
+    def get_context_data(self, **kwargs):
+        """enrollment_request_count is used for base.html's navbar."""
+        kwargs['enrollment_request_count'] = get_enrollment_requests_count(self.request.user)
+
+        return super().get_context_data(**kwargs)
 
     def get_queryset(self):
         """Gets the quizzes that the logged in teacher owns.
@@ -201,6 +254,9 @@ class QuizResultsView(DetailView):
             'quiz_score': quiz_score
         }
         kwargs.update(extra_context)
+
+        kwargs['enrollment_request_count'] = get_enrollment_requests_count(self.request.user)
+
         return super().get_context_data(**kwargs)
 
     def get_queryset(self):
@@ -303,7 +359,8 @@ def add_files(request):
 
     context = {
         'form': form,
-        'title': 'Add Files'
+        'title': 'Add Files',
+        'enrollment_request_count': get_enrollment_requests_count(request.user)
     }
     return render(request, 'classroom/teachers/file_add_form.html', context)
 
@@ -327,7 +384,8 @@ def add_lesson(request):
 
     context = {
         'form': form,
-        'title': 'Add a Lesson'
+        'title': 'Add a Lesson',
+        'enrollment_request_count': get_enrollment_requests_count(request.user)
     }
     return render(request, 'classroom/teachers/lesson_add_form.html', context)
 
@@ -356,7 +414,8 @@ def add_question(request, course_pk, quiz_pk):
     context = {
         'title': 'Add question',
         'quiz': quiz,
-        'form': form
+        'form': form,
+        'enrollment_request_count': get_enrollment_requests_count(request.user)
     }
     return render(request, 'classroom/teachers/question_add_form.html', context)
 
@@ -380,7 +439,8 @@ def add_quiz(request):
 
     context = {
         'form': form,
-        'title': 'Add a Quiz'
+        'title': 'Add a Quiz',
+        'enrollment_request_count': get_enrollment_requests_count(request.user)
     }
     return render(request, 'classroom/teachers/quiz_add_form.html', context)
 
@@ -523,7 +583,8 @@ def edit_lesson(request, course_pk, lesson_pk):
         'course': course,
         'lesson': lesson,
         'form': form,
-        'title': 'Edit Lesson'
+        'title': 'Edit Lesson',
+        'enrollment_request_count': get_enrollment_requests_count(request.user)
     }
     return render(request, 'classroom/teachers/lesson_change_form.html', context)
 
@@ -569,7 +630,8 @@ def edit_question(request, course_pk, quiz_pk, question_pk):
         'quiz': quiz,
         'question': question,
         'form': form,
-        'formset': formset
+        'formset': formset,
+        'enrollment_request_count': get_enrollment_requests_count(request.user)
     }
 
     return render(request, 'classroom/teachers/question_change_form.html', context)
@@ -598,11 +660,12 @@ def edit_quiz(request, course_pk, quiz_pk):
         form = QuizEditForm(instance=quiz)
 
     context = {
+        'title': 'Edit Quiz',
         'course': course,
         'quiz': quiz,
         'questions': question,
         'form': form,
-        'title': 'Edit Quiz'
+        'enrollment_request_count': get_enrollment_requests_count(request.user)
     }
     return render(request, 'classroom/teachers/quiz_change_form.html', context)
 
@@ -638,9 +701,10 @@ def profile(request):
         profile_form = TeacherProfileForm(instance=request.user.teacher)
 
     context = {
+        'title': 'My Profile',
         'u_form': user_update_form,
         'p_form': profile_form,
-        'title': 'My Profile'
+        'enrollment_request_count': get_enrollment_requests_count(request.user)
     }
 
     return render(request, 'classroom/profile.html', context)
@@ -670,7 +734,8 @@ def quiz_result_detail(request, quiz_pk, student_pk, taken_pk):
         'taken_quiz': taken_quiz,
         'answers': answers,
         'student_name': student_name,
-        'ownership': 'Student\'s'
+        'ownership': 'Student\'s',
+        'enrollment_request_count': get_enrollment_requests_count(request.user)
     }
 
     return render(request, 'classroom/students/taken_quiz_result.html', context)
