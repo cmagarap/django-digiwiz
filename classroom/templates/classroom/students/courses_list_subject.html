@@ -54,7 +54,7 @@
                         <center>
                             <a href="{% url 'browse_courses' %}" class="btn btn-default btn-primary" role="button">All</a>
                             {% for subject in subjects %}
-                                <a href="{% url 'browse_courses_subject' subject.pk %}" class="btn btn-{{ subject.name }} btn-primary-{{ subject.name }}">{{ subject.name }}</a>
+                                <a href="{% url 'browse_courses_subject' subject.pk %}" class="btn btn-{{ subject.name.lower }} btn-primary-{{ subject.name.lower }}">{{ subject.name }}</a>
                             {% endfor %}
                         </center>
                         <br>
@@ -77,7 +77,7 @@
                                                         <img class="img-fluid"  src="{{ course.image.url }}" alt="img">
                                                     </div>
                                                     <span class="course-duration"><b>{{ course.taken_count }}</b>
-                                                        {% if couse.taken_count > 1 %}
+                                                        {% if course.taken_count > 1 %}
                                                             students
                                                         {% else %}
                                                             student

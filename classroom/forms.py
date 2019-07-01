@@ -106,6 +106,8 @@ class LessonEditForm(forms.ModelForm):
 
 
 class QuizAddForm(forms.ModelForm):
+    title = forms.CharField(widget=forms.TextInput(attrs={'autocomplete': 'off'}))
+
     class Meta:
         model = Quiz
         fields = ('title', 'course', 'lesson')
@@ -131,7 +133,8 @@ class QuizAddForm(forms.ModelForm):
 
 
 class QuizEditForm(forms.ModelForm):
-    title = forms.CharField(max_length=255)
+    title = forms.CharField(max_length=255,
+                            widget=forms.TextInput(attrs={'autocomplete': 'off'}))
 
     class Meta:
         model = Quiz
@@ -139,6 +142,8 @@ class QuizEditForm(forms.ModelForm):
 
 
 class QuestionForm(forms.ModelForm):
+    text = forms.CharField(widget=forms.TextInput(attrs={'autocomplete': 'off'}))
+
     class Meta:
         model = Question
         fields = ('text', )

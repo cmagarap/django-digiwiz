@@ -20,7 +20,7 @@
                         <form novalidate>
                             {% csrf_token %}
                             {% for student_answer in student_answers %}
-                                <label for="course" class="col-form-label  requiredField">{{ forloop.counter }}. {{ student_answer.answer.question.text }}</label>
+                                <label for="course" class="col-form-label  requiredField">[{{ forloop.counter }}.] {{ student_answer.answer.question.text }}</label>
                                 {% for answer in answers %}
                                     {% if answer.question.pk == student_answer.answer.question.pk %}
                                         {% if answer.text == student_answer.answer.text %}
