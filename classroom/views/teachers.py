@@ -615,7 +615,7 @@ def edit_question(request, course_pk, quiz_pk, question_pk):
                 form.save()
                 formset.save()
 
-                UserLog.objects.create(action=f'Edited question for the quiz: {quiz.title}',
+                UserLog.objects.create(action=f'Edited question and answers for the quiz: {quiz.title}',
                                        user_type='teacher',
                                        user=request.user)
 

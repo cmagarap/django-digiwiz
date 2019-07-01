@@ -8,13 +8,11 @@
     <meta name="description" content="Online Education template Based on HTML5.">
     <meta name="keywords" content="HTML5, Template, Design, Development, education, edulab, online cources, training, online education, best education template">
 
-    <title>
-        {% if title %}
-            DigiWiz: {{ title }}
-        {% else %}
-            DigiWiz
-        {% endif %}
-    </title>
+    <title>{% if title %}
+        DigiWiz: {{ title }}
+    {% else %}
+        DigiWiz
+    {% endif %}</title>
 
     <link rel="icon" href="{% static 'images/DW.png' %}">
 
@@ -39,9 +37,8 @@
     <script type="text/javascript" src="{% static 'star-ratings/js/dist/star-ratings.min.js' %}"></script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 
-    <style>
-    {% for subject in subjects %}
-        .btn-{{ subject.name }} {
+    <style>{% for subject in subjects %}
+        .btn-{{ subject.name.lower }} {
             background-color: transparent;
             border: 1px solid {{ subject.color }};
             border-radius: 30px;
@@ -52,22 +49,21 @@
             letter-spacing: 1px;
             color: #ffffff;
         }
-        .btn-primary-{{ subject.name }} {
+        .btn-primary-{{ subject.name.lower }} {
             background-color: {{ subject.color }};
             border-color: {{ subject.color }};
         }
-        .btn-{{ subject.name }}:hover {
+        .btn-{{ subject.name.lower }}:hover {
             background-color: {{ subject.color }};
             border-color: {{ subject.color }};
             color: #ffffff;
         }
-        .btn-primary-{{ subject.name }}:hover {
+        .btn-primary-{{ subject.name.lower }}:hover {
             background-color: transparent;
             color: {{ subject.color }};
             border-color: {{ subject.color }};
         }
-    {% endfor %}
-    </style>
+    {% endfor %}</style>
 </head>
 <body>
     <!--====Header Area
@@ -227,7 +223,7 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="copyright text-center">
-                            &copy; Copyrighted by <a href="https://github.com/seeej/digiwiz">DigiWiz</a>
+                            Copyright © 2019 <a href="https://github.com/seeej/digiwiz" target="_blank">DigiWiz</a>. All rights reserved.
                         </div>
                     </div>
                 </div><!--/.row-->
