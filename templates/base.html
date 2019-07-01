@@ -32,12 +32,42 @@
     <link href="{% static 'style.css' %}" rel="stylesheet">
     <link href="{% static 'btn.css' %}" rel="stylesheet">
     <link href="{% static 'stars.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'star-ratings/css/star-ratings.css' %}">
 
     <script src="{% static 'js/vendor/modernizr-2.8.3.min.js' %}"></script>
     <script src="{% static 'js/jquery-3.4.1.js' %}" type="text/javascript"></script>
-    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-    <link rel="stylesheet" href="{% static 'star-ratings/css/star-ratings.css' %}">
     <script type="text/javascript" src="{% static 'star-ratings/js/dist/star-ratings.min.js' %}"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+    <style>
+    {% for subject in subjects %}
+        .btn-{{ subject.name }} {
+            background-color: transparent;
+            border: 1px solid {{ subject.color }};
+            border-radius: 30px;
+            font-size: 12px;
+            padding: 15px 35px;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 1px;
+            color: #ffffff;
+        }
+        .btn-primary-{{ subject.name }} {
+            background-color: {{ subject.color }};
+            border-color: {{ subject.color }};
+        }
+        .btn-{{ subject.name }}:hover {
+            background-color: {{ subject.color }};
+            border-color: {{ subject.color }};
+            color: #ffffff;
+        }
+        .btn-primary-{{ subject.name }}:hover {
+            background-color: transparent;
+            color: {{ subject.color }};
+            border-color: {{ subject.color }};
+        }
+    {% endfor %}
+    </style>
 </head>
 <body>
     <!--====Header Area
@@ -197,7 +227,7 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="copyright text-center">
-                            &copy; Copyrighted by <a href="#">nilArtStudio.</a>
+                            &copy; Copyrighted by <a href="https://github.com/seeej/digiwiz">DigiWiz</a>
                         </div>
                     </div>
                 </div><!--/.row-->

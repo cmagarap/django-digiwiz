@@ -63,7 +63,7 @@ class CourseDetailView(DetailView):
         kwargs['files'] = MyFile.objects.filter(course_id=self.kwargs['pk']) \
             .order_by('file')
 
-        kwargs['course'] = get_object_or_404(Course.objects.filter(status='approved'), pk=self.kwargs['pk'])
+        kwargs['course'] = get_object_or_404(Course.objects.exclude(status='deleted'), pk=self.kwargs['pk'])
 
         return super().get_context_data(**kwargs)
 
@@ -107,12 +107,16 @@ def about(request):
 
 
 def browse_courses(request):
+    if request.user.is_authenticated and request.user.is_teacher:
+        enrollment_requests_count = get_enrollment_requests_count(request.user)
+    else:
+        enrollment_requests_count = None
+
     query = None
-    enrollment_requests_count = None
     subjects = Subject.objects.all()
     courses = Course.objects.filter(status__iexact='approved') \
         .annotate(taken_count=Count('taken_courses',
-                                    filter=Q(taken_courses__status__iexact='enrolled'),
+                                    filter=Q(taken_courses__status='enrolled'),
                                     distinct=True)) \
         .order_by('title')
 
@@ -128,7 +132,10 @@ def browse_courses(request):
             query = form.cleaned_data.get('search')
             courses = Course.objects.filter(Q(title__icontains=query) |
                                             Q(description__icontains=query)) \
-                .filter(status__iexact='approved')
+                .filter(status__iexact='approved') \
+                .annotate(taken_count=Count('taken_courses',
+                                            filter=Q(taken_courses__status='enrolled'),
+                                            distinct=True))
 
             paginate_result = do_paginate(courses, page_number, 9)
             course_list = paginate_result[0]
@@ -157,10 +164,14 @@ def browse_courses(request):
 
 
 def browse_courses_subject(request, subject_pk):
-    enrollment_requests_count = None
+    if request.user.is_authenticated and request.user.is_teacher:
+        enrollment_requests_count = get_enrollment_requests_count(request.user)
+    else:
+        enrollment_requests_count = None
+
     courses = Course.objects.filter(status__iexact='approved', subject_id=subject_pk) \
         .annotate(taken_count=Count('taken_courses',
-                                    filter=Q(taken_courses__status__iexact='enrolled'),
+                                    filter=Q(taken_courses__status='enrolled'),
                                     distinct=True)) \
         .order_by('title')
 
@@ -179,7 +190,10 @@ def browse_courses_subject(request, subject_pk):
             query = form.cleaned_data.get('search')
             courses = Course.objects.filter(Q(title__icontains=query) |
                                             Q(description__icontains=query)) \
-                .filter(status__iexact='approved')
+                .filter(status__iexact='approved') \
+                .annotate(taken_count=Count('taken_courses',
+                                            filter=Q(taken_courses__status='enrolled'),
+                                            distinct=True))
 
             paginate_result = do_paginate(courses, page_number, 9)
             course_list = paginate_result[0]

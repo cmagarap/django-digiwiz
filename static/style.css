@@ -288,7 +288,7 @@ button:focus {
 .btn-primary:hover {
     background-color: transparent;
     color: #f78888;
-	 border-color: #f78888;
+    border-color: #f78888;
 }
 .btn-takequiz:hover {
     background-color: transparent;

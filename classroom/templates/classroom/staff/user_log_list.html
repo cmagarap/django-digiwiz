@@ -69,7 +69,7 @@
                                             <b>{{ log.user.username }}</b>
                                         </td>
                                         <td>{{ log.action }}</td>
-                                        <td>{{ log.user_type }}</td>
+                                        <td>{{ log.user_type.title }}</td>
                                         <td>{{ log.created_at|date:"F d, Y g:i A" }}</td>
                                         <td>
                                             <a href="#" class="btn btn-rounded btn-danger delete" title="Delete" data-id="{{ log.pk }}"><i class="fas fa-trash-alt"></i></a>
@@ -156,4 +156,16 @@
                 });
         });
     </script>
+{% endblock %}
+
+{% block footer %}
+    <div class="footer">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
+                    Copyright © 2019 <a href="https://github.com/seeej/digiwiz">DigiWiz</a>. All rights reserved.
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
