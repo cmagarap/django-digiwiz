@@ -3,69 +3,12 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import DetailView
+from random import sample
 from .raw_sql import get_popular_courses
 from .teachers import get_enrollment_requests_count
 from ..forms import SearchCourses, UserLoginForm
-from ..models import (Course, Lesson, MyFile, Quiz, Subject,
-                      TakenQuiz, User, UserLog)
-
-
-def get_user_type(user):
-    if user.is_student:
-        return 'student'
-    elif user.is_teacher:
-        return 'teacher'
-    elif user.is_staff:
-        return 'admin'
-
-
-class CourseDetailView(DetailView):
-    model = Course
-    template_name = 'classroom/course_details.html'
-
-    def get_context_data(self, **kwargs):
-        student = None
-        teacher = None
-        if self.request.user.is_authenticated:
-            if self.request.user.is_student:
-                # if the logged in user is a student, check if he/she is enrolled in the displayed course
-                student = self.request.user.student.taken_courses.values('id', 'status') \
-                    .filter(course__id=self.kwargs['pk']).first()
-
-                kwargs['taken_quizzes'] = TakenQuiz.objects\
-                    .filter(student=self.request.user.student, course_id=self.kwargs['pk'])
-
-                taken_quiz_count = TakenQuiz.objects.filter(student_id=self.request.user.pk,
-                                                            course_id=self.kwargs['pk']) \
-                    .values_list('id', flat=True).count()
-                quiz_count = Quiz.objects.filter(course_id=self.kwargs['pk']) \
-                    .values_list('id', flat=True).count()
-
-                kwargs['progress'] = (taken_quiz_count / quiz_count) * 100 if quiz_count != 0 else 0
-                teacher = None
-
-            elif self.request.user.is_teacher:
-                # if the logged in user is a teacher, check if he/she owns the displayed course
-                teacher = self.request.user.courses.values_list('id', flat=True) \
-                    .filter(id=self.kwargs['pk']).first()
-                student = None
-                kwargs['enrollment_request_count'] = get_enrollment_requests_count(self.request.user)
-
-        kwargs['enrolled'] = student
-        kwargs['owns'] = teacher
-        kwargs['title'] = self.get_object()
-        kwargs['lessons'] = Lesson.objects.select_related('quizzes') \
-            .select_related('course') \
-            .filter(course__id=self.kwargs['pk']) \
-            .order_by('number')
-        kwargs['quizzes'] = Quiz.objects.filter(course_id=self.kwargs['pk']) \
-            .order_by('title')
-        kwargs['files'] = MyFile.objects.filter(course_id=self.kwargs['pk']) \
-            .order_by('file')
-
-        kwargs['course'] = get_object_or_404(Course.objects.exclude(status='deleted'), pk=self.kwargs['pk'])
-
-        return super().get_context_data(**kwargs)
+from ..models import (Course, Lesson, MyFile, Quiz, Student,
+                      Subject, TakenQuiz, User, UserLog)
 
 
 def do_paginate(data_list, page_number, results_per_page):
@@ -84,6 +27,95 @@ def do_paginate(data_list, page_number, results_per_page):
     return [ret_data_list, paginator]
 
 
+def get_suggested_courses(page_course_id, current_subject_id=None, subject_interests=None):
+    """Gets the suggested courses.
+    If a student is logged in, suggestions are based on his/her interests.
+    Else, suggestions are based on subject."""
+    course_ids = None
+    if current_subject_id is not None:
+        course_ids = tuple(Course.objects.values_list('id', flat=True)
+                           .filter(subject_id=current_subject_id, status='approved')
+                           .exclude(id=page_course_id))[:3]
+
+    if subject_interests is not None:
+        course_ids = tuple(Course.objects.values_list('id', flat=True)
+                           .filter(subject__in=subject_interests, status='approved')
+                           .exclude(id=page_course_id))[:3]
+
+    return Course.objects.filter(id__in=sample(course_ids, len(course_ids)))
+
+
+def get_user_type(user):
+    if user.is_student:
+        return 'student'
+    elif user.is_teacher:
+        return 'teacher'
+    elif user.is_staff:
+        return 'admin'
+
+
+class CourseDetailView(DetailView):
+    model = Course
+    template_name = 'classroom/course_details.html'
+
+    def get_context_data(self, **kwargs):
+        student = None
+        teacher = None
+
+        kwargs['title'] = self.get_object()
+        kwargs['course'] = get_object_or_404(Course.objects.filter(status='approved'),
+                                             pk=self.kwargs['pk'])
+        kwargs['lessons'] = Lesson.objects.select_related('quizzes') \
+            .select_related('course') \
+            .filter(course__id=self.kwargs['pk']) \
+            .order_by('number')
+        kwargs['quizzes'] = Quiz.objects.filter(course_id=self.kwargs['pk']) \
+            .order_by('title')
+        kwargs['files'] = MyFile.objects.filter(course_id=self.kwargs['pk']) \
+            .order_by('file')
+
+        current_subject = kwargs['course'].subject_id
+        kwargs['related_courses'] = get_suggested_courses(self.kwargs['pk'],
+                                                          current_subject_id=current_subject)
+
+        if self.request.user.is_authenticated:
+            if self.request.user.is_student:
+                teacher = None
+                # if the logged in user is a student, check if he/she is enrolled in the displayed course
+                student = self.request.user.student.taken_courses.values('id', 'status') \
+                    .filter(course__id=self.kwargs['pk']).first()
+
+                kwargs['taken_quizzes'] = TakenQuiz.objects\
+                    .filter(student=self.request.user.student, course_id=self.kwargs['pk'])
+
+                taken_quiz_count = TakenQuiz.objects.filter(student_id=self.request.user.pk,
+                                                            course_id=self.kwargs['pk']) \
+                    .values_list('id', flat=True).count()
+                quiz_count = Quiz.objects.filter(course_id=self.kwargs['pk']) \
+                    .values_list('id', flat=True).count()
+
+                kwargs['progress'] = (taken_quiz_count / quiz_count) * 100 if quiz_count != 0 else 0
+
+                subject_interests = Student.objects.values_list('interests').filter(pk=3)
+                kwargs['related_courses'] = get_suggested_courses(self.kwargs['pk'],
+                                                                  subject_interests=subject_interests)
+
+            elif self.request.user.is_teacher:
+                student = None
+                # if the logged in user is a teacher, check if he/she owns the displayed course
+                teacher = self.request.user.courses.values_list('id', flat=True) \
+                    .filter(id=self.kwargs['pk']).first()
+
+                kwargs['enrollment_request_count'] = get_enrollment_requests_count(self.request.user)
+                kwargs['course'] = get_object_or_404(Course.objects.exclude(status='deleted'),
+                                                     pk=self.kwargs['pk'])
+
+        kwargs['enrolled'] = student
+        kwargs['owns'] = teacher
+
+        return super().get_context_data(**kwargs)
+
+
 def about(request):
     if request.user.is_authenticated:
         if request.user.is_teacher:
@@ -96,9 +128,9 @@ def about(request):
         'courses': Course.objects.values_list('id', flat=True)
                                  .filter(status__iexact='approved').count(),
         'students': User.objects.values_list('id', flat=True)
-                                .filter(is_student=True).count(),
+                                .filter(is_student=True, is_active=True).count(),
         'teachers': User.objects.values_list('id', flat=True)
-                                .filter(is_teacher=True).count(),
+                                .filter(is_teacher=True, is_active=True).count(),
         'quizzes': Quiz.objects.values_list('id', flat=True)
                                .all().count()
     }

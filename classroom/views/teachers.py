@@ -183,7 +183,9 @@ class FilesListView(ListView):
         return super().get_context_data(**kwargs)
 
     def get_queryset(self):
-        return self.request.user.my_files.all().order_by('-id')
+        return self.request.user.my_files.all() \
+            .exclude(course__status='deleted') \
+            .order_by('-id')
 
 
 @method_decorator([login_required, teacher_required], name='dispatch')
@@ -205,6 +207,7 @@ class LessonListView(ListView):
     def get_queryset(self):
         """Gets the lesson that the user owns through course FK."""
         return Lesson.objects.filter(course__in=self.request.user.courses.all()) \
+            .exclude(course__status='deleted') \
             .order_by('-id')
 
 
@@ -228,6 +231,7 @@ class QuizListView(ListView):
         """Gets the quizzes that the logged in teacher owns.
         Counts the questions and the number of students who took the quiz."""
         queryset = Quiz.objects.filter(course__owner=self.request.user) \
+            .exclude(course__status='deleted') \
             .annotate(questions_count=Count('questions', distinct=True)) \
             .annotate(taken_count=Count('taken_quizzes', distinct=True)) \
             .order_by('-id')

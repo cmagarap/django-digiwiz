@@ -2788,21 +2788,21 @@ clip-path: polygon(10% 25%, 10% 0, 35% 0%, 65% 0%, 90% 0, 90% 25%, 90% 50%, 91% 
 
 .btn-warning {
     color: #2e2f39;
-    background-color: #ffc108;
-    border-color: #ffc108;
+    background-color: #F3D250;
+    border-color: #F3D250;
 }
 
 .btn-warning:hover {
     color: #2e2f39;
-    background-color: #f3b600;
-    border-color: #f3b600;
+    background-color: #F3D250;
+    border-color: #F3D250;
 }
 
 .btn-warning.focus,
 .btn-warning:focus {
     color: #2e2f39;
-    background-color: #f3b600;
-    border-color: #f3b600;
+    background-color: #F3D250;
+    border-color: #F3D250;
     box-shadow: 0 0 0 1px rgb(238, 182, 0);
 }
 
@@ -2810,8 +2810,8 @@ clip-path: polygon(10% 25%, 10% 0, 35% 0%, 65% 0%, 90% 0, 90% 25%, 90% 50%, 91% 
 .btn-warning:not(:disabled):not(.disabled):active,
 .show>.btn-warning.dropdown-toggle {
     color: #2e2f39;
-    background-color: #f3b600;
-    border-color: #f3b600;
+    background-color: #F3D250;
+    border-color: #F3D250;
 }
 
 

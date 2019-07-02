@@ -280,11 +280,11 @@ def dashboard(request):
         'courses_count': Course.objects.values_list('id', flat=True)
                                        .filter(status__iexact='approved').count(),
         'students_count': User.objects.values_list('id', flat=True)
-                                      .filter(is_student=True).count(),
+                                      .filter(is_student=True, is_active=True).count(),
         'teachers_count': User.objects.values_list('id', flat=True)
-                                      .filter(is_teacher=True).count(),
+                                      .filter(is_teacher=True, is_active=True).count(),
         'quizzes_count': Quiz.objects.values_list('id', flat=True)
-                                     .all().count()
+                                     .exclude(course__status='deleted').count()
     }
     return render(request, 'classroom/staff/dashboard.html', context)
 

@@ -2,6 +2,7 @@
 {% load custom_tags %}
 {% load static %}
 {% load ratings %}
+{% load thumbnail %}
 {% block content %}
     <!--=======Page Heading
     ================================-->
@@ -168,30 +169,6 @@
                                                                     <a href="{% url 'students:take_quiz' lesson.course.pk lesson.quizzes.pk %}" class="btn btn-primary btn-takequiz mb-3" role="button">Take Quiz</a>
                                                                 {% endif %}
                                                             {% endfor %}
-                                                            {#                                                            {% for taken in taken_quizzes %}#}
-                                                            {#                                                                {% if lesson.quizzes.pk == taken.quiz.pk %}#}
-                                                            {#                                                                    <a class="btn btn-primary mb-3 disabled" style="background-color: buttonface;border-color: buttonface; color: graytext;"role="button">Quiz Already Taken</a><br>#}
-                                                            {#                                                                    <a href="{% url 'students:taken_quiz_detail' taken.pk lesson.quizzes.pk %}">See Results</a>#}
-                                                            {#                                                                    {{ forloop|break }}#}
-                                                            {#                                                                {% else %}#}
-                                                            {#                                                                    {% if lesson.quizzes.pk %}#}
-                                                            {#                                                                        <a href="{% url 'students:take_quiz' lesson.course.pk lesson.quizzes.pk %}" class="btn btn-primary btn-takequiz mb-3" role="button">Take Quiz</a>#}
-                                                            {#                                                                    {% else %}#}
-                                                            {#                                                                        <br>There's no quiz for this lesson#}
-                                                            {#                                                                    {% endif %}#}
-                                                            {#                                                                    {{ forloop|break }}#}
-                                                            {#                                                                {% endif %}#}
-                                                            {#                                                            {% endfor %}#}
-
-
-                                                            {#                                                            {% if lesson.quizzes.taken_quizzes.values.count > 0 %}#}
-                                                            {#                                                                <a class="btn btn-primary mb-3 disabled" style="background-color: buttonface;border-color: buttonface; color: graytext;"role="button">Quiz Already Taken</a>#}
-                                                            {#                                                                <br><a href="{% url 'students:taken_quiz_detail' lesson.quizzes.taken_quizzes.values.0.id lesson.quizzes.pk %}">See Results</a>#}
-                                                            {#                                                            {% elif lesson.quizzes.taken_quizzes.values.count == 0 %}#}
-                                                            {#                                                                <a href="{% url 'students:take_quiz' lesson.course.pk  lesson.quizzes.pk %}" class="btn btn-primary btn-takequiz mb-3"  role="button">Take Quiz</a>#}
-                                                            {#                                                            {% elif not lesson.quizzes %}#}
-                                                            {#                                                                <i>There is no quiz for this lesson.</i>#}
-                                                            {#                                                            {% endif %}#}
                                                         {% else %}
                                                             <i>Enroll in this course to see more.</i>
                                                         {% endif %}
@@ -209,6 +186,84 @@
             </div><!--/.container-->
         </div><!--/.courses-page-content-->
     </div><!--/.courses-page-->
+    {% if related_courses %}
+        <div class="related-courses bg-gray">
+            <div class="container">
+                <div class="row justify-content-md-center">
+                    <div class="col-lg-8">
+                        <div class="section-heading-area text-center">
+                            {% if user.is_student %}
+                                <h2 class="section-heading text-capitalize">Suggested Courses</h2>
+                            {% else %}
+                                <h2 class="section-heading text-capitalize">Related Courses</h2>
+                            {% endif %}
+                        </div><!--/.section-heading-area-->
+                    </div><!--/.col-lg-8-->
+                </div>
+                <div class="row">
+                    {% for related_course in related_courses %}
+                        <div class="col-lg-4 col-md-4 col-sm-12">
+                            <div class="single-course-item border-radius">
+                                <div class="course-thumb-area">
+                                    <div style="width: 350px; height: 200px; overflow: hidden">
+                                        <img class="img-fluid"  src="{{ related_course.image.url }}" alt="img">
+                                    </div>
+                                </div>
+                                <div class="course-content">
+                                    <h2><a href="{% url 'course_details' related_course.pk %}">{{ related_course.title }}</a></h2>
+                                    {{ related_course.subject.get_html_badge }}
+                                    <p style="white-space: nowrap; width: 310px; overflow: hidden; text-overflow: ellipsis">{{ related_course.description }}</p>
+                                    <hr>
+                                    <div class="course-reviews">
+                                        {% if user.is_student %}
+                                            <center>
+                                                {% ratings course %}
+                                            </center>
+                                        {% else %}
+                                            <div class="star-ratings-css">
+                                                <div class="star-ratings-css-top" style="width: {{ course.ratings.get.average|get_star_percentage|floatformat:"-2" }}%"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                                                </div>
+                                                <div class="star-ratings-css-bottom"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                                                </div>
+                                            </div>
+                                            <center>
+                                                <b>{{ related_course.ratings.get.average|floatformat:"-2" }}</b>/5
+                                                ({{ related_course.ratings.get.count }}
+                                                {% if related_course.ratings.get.count == 1 %}
+                                                    review)
+                                                {% else %}
+                                                    reviews)
+                                                {% endif %}
+                                            </center>
+                                        {% endif %}
+                                    </div><!--/.course-reviews-->
+                                    <hr>
+                                    <div class="trainer-profile clearfix">
+                                        {% thumbnail related_course.owner.teacher.image "100x100" crop="center" as im %}
+                                            <img class="rounded-circle" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="course-owner">
+                                        {% endthumbnail %}
+                                        <div class="trainer-info">
+                                            <h3>{{ related_course.owner.first_name }} {{ related_course.owner.last_name }}</h3>
+                                            <p>{{ related_course.created_at|date:"F d, Y" }}</p>
+                                        </div>
+                                    </div><!--/.trainer-profile-->
+                                </div><!--/.course-content-->
+                            </div><!--/.single-course-item-end-->
+                        </div><!--/.col-lg-6-->
+                    {% endfor %}
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="group-btn text-center">
+                            <a href="{% url 'browse_courses' %}" class="btn btn-default">Browse More Courses</a>
+                        </div><!--/.form-group-btn-->
+                    </div><!--/.col-lg-12-->
+                </div><!--/.row-->
+                <br>
+            </div>
+        </div>
+    {% endif %}
 
     <script>
         $(".delete").click(function () {

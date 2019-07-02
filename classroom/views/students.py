@@ -72,6 +72,7 @@ class MyCoursesListView(ListView):
         queryset = self.request.user.student.taken_courses \
             .select_related('course', 'course__subject') \
             .filter(status__in=['enrolled', 'pending', 'finished']) \
+            .filter(course__status='approved') \
             .order_by('course__title')
 
         return queryset
@@ -330,7 +331,7 @@ def take_quiz(request, course_pk, quiz_pk):
 
                     # Check if the taken quizzes and quizzes have equal count:
                     if taken_quiz_count == quiz_count:
-                        TakenCourse.objects.filter(course_id=course_pk).update(status='finished')
+                        TakenCourse.objects.filter(course_id=course_pk, student_id=request.user.pk).update(status='finished')
 
                     return redirect('course_details', course_pk)
     else:
