@@ -1,8 +1,9 @@
 {% extends 'base.html' %}
 {% load ratings %}
 {% load thumbnail %}
+{% load static %}
 {% block content %}
-    <section id="courses-section" class="popular-courses-area bg-white s-pd2">
+    <section id="courses-section" class="popular-courses-area s-pd2">
         <div class="container">
             {% if messages %}
                 {% for message in messages %}
@@ -23,32 +24,44 @@
                             Subjects:{% for subject in user.student.interests.all %} {{ subject.get_html_badge }}{% endfor %}
                             <a href="{% url 'students:student_interests' %}"><small>(update interests)</small></a>
                         </p>
+                        <br>
+                        <ul class="list-unstyled popular-filter-nav text-center">
+                            <li><a class="filter" href="#" data-filter="*">All</a></li>
+                            <li><a href="#" class="filter" data-filter=".enrolled">Enrolled</a></li>
+                            <li><a href="#" class="filter" data-filter=".finished">Finished</a></li>
+                            <li><a href="#" class="filter" data-filter=".pending">Pending</a></li>
+                            <br>
+                            <li><a class="filter" href="#" data-filter=".English">English</a></li>
+                            <li><a href="#" class="filter" data-filter=".Mathematics">Mathematics</a></li>
+                            <li><a href="#" class="filter" data-filter=".Science">Science</a></li>
+                        </ul><!--/.popular-filter-nav-->
                     </div><!--/.section-heading-area-->
                 </div><!--/.col-lg-8-->
             </div><!--/.row-->
-
+            {% if not taken_courses %}
+                <center>You are not yet enrolled in any course.</center>
+            {% endif %}
             <div class="row courses-item-content">
                 {% for taken_course in taken_courses %}
-                    <div class="col-lg-4 col-sm-6 design photography">
+                    <div class="col-lg-4 col-sm-6 {{ taken_course.status }} {{ taken_course.course.subject }}">
                         <!--Single Course Item Start-->
                         <div class="single-course-item border-radius">
                             <div class="course-thumb-area">
                                 <div style="width: 350px; height: 200px; overflow: hidden">
                                     <img class="img-fluid" src="{{ taken_course.course.image.url }}" alt="img">
                                 </div>
-                                <div class="course-meta">
-                                    <a href="#"><i class="fa fa-heart-o"></i></a>
-                                    <a href="#"><i class="fa fa-share-alt"></i></a>
-                                </div>
                             </div><!--/.course-thumb-area-->
                             <div class="course-content">
                                 <h2><a href="{% url 'course_details' taken_course.course.pk %}">{{ taken_course.course.title }}</a></h2>
                                 <small>{{ taken_course.course.subject.get_html_badge }}</small>
                                 <p style="white-space: nowrap; width: 300px; overflow: hidden; text-overflow: ellipsis">{{ taken_course.course.description }}</p>
+                                <hr>
                                 <div class="course-reviews">
-                                    {% ratings taken_course.course %}
+                                    <center>
+                                        {% ratings taken_course.course %}
+                                    </center>
                                 </div><!--/.course-reviews-->
-                                <br>
+                                <hr>
                                 <div class="trainer-profile clearfix">
                                     {% thumbnail taken_course.course.owner.teacher.image "100x100" crop="center" as im %}
                                         <img class="rounded-circle" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="course-owner">
@@ -64,8 +77,6 @@
                             </div><!--/.course-content-->
                         </div><!--/.single-course-item-end-->
                     </div><!--/.col-lg-4-->
-                {% empty %}
-                    You are not yet enrolled in any subjects.
                 {% endfor %}
             </div>
         </div>

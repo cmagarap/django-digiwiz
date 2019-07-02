@@ -9,13 +9,11 @@
                 <div class="col-md-12 col-sm-12 col-xs-12">
                     <div class="page-heading">
                         <h2 class="page-name text-capitalize"><font color = "white">About us</h2>
-
-                    </div><!--/.page-heading-->
-                </div><!--/.col-md-12-->
-            </div><!--/.row-->
-        </div><!--/.container-->
-    </section><!--/.page-heading-area-->
-
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
     <!--=======About Page
     ================================-->
     <div class="about-page page-wrapper">
@@ -23,10 +21,10 @@
             <div class="container">
                 <div class="row justify-content-md-center">
                     <div class="section-heading-area text-center">
-                        <h2 class="section-heading text-capitalize">DigiWiz</h2>
+                        <h2 class="section-heading text-capitalize">DigiWiz: The Open-source Learning Platform</h2>
                     </div>
-                </div><!--/.col-lg-8-->
-            </div><!--/.row-->
+                </div>
+            </div>
             <div class="row">
                 <div class="col-lg-6 col-md-12">
                     <a href="https://www.youtube.com/watch?v=Ey1lkwYGSC0" class="video-btn before-bg">
@@ -89,28 +87,28 @@
                     <div class="row">
                         <div class="col-lg-3 col-sm-3 col-6">
                             <div class="single-counter">
-                                <h2><span class="counter">874</span></h2>
+                                <h2><span class="counter">{{ courses }}</span></h2>
                                 <p>courses</p>
-                            </div><!--/.single-counter-->
-                        </div><!--/.col-lg-3-->
+                            </div>
+                        </div>
                         <div class="col-lg-3 col-sm-3 col-6">
                             <div class="single-counter">
-                                <h2><span class="counter">600</span></h2>
+                                <h2><span class="counter">{{ students }}</span></h2>
                                 <p>students</p>
-                            </div><!--/.single-counter-->
-                        </div><!--/.col-lg-3-->
+                            </div>
+                        </div>
                         <div class="col-lg-3 col-sm-3 col-6">
                             <div class="single-counter">
-                                <h2><span class="counter">472</span></h2>
-                                <p>E-Book</p>
-                            </div><!--/.single-counter-->
-                        </div><!--/.col-lg-3-->
-                        <div class="col-lg-3 col-sm-3 col-6">
-                            <div class="single-counter">
-                                <h2><span class="counter">243</span></h2>
+                                <h2><span class="counter">{{ teachers }}</span></h2>
                                 <p>Teachers</p>
-                            </div><!--/.single-counter-->
-                        </div><!--/.col-lg-3-->
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-3 col-6">
+                            <div class="single-counter">
+                                <h2><span class="counter">{{ quizzes }}</span></h2>
+                                <p>Quizzes</p>
+                            </div>
+                        </div>
                     </div><!--/.row-->
                 </div><!--/.col-lg-10-->
             </div><!--/.row-->
@@ -125,39 +123,50 @@
                 <div class="col-lg-8">
                     <div class="section-heading-area text-center">
                         <h2 class="section-heading text-capitalize">Subjects Offered</h2>
-
-                    </div><!--/.section-heading-area-->
-                </div><!--/.col-lg-8-->
-            </div><!--/.row-->
+                    </div>
+                </div>
+            </div>
             <div class="row">
                 <div class="col-lg-4 col-md-4">
                     <div class="single-service text-center">
                         <div class="icon">
-                            <img src="{% static 'images/icon/mathicon.png' %}" alt="icon">
+                            <img src="{% static 'images/icon/englishicon.png' %}" alt="english-icon">
                         </div>
-                        <h3><font >Math</font></h3>
-
-                    </div><!--/.single-service-->
-                </div><!--/.col-lg-4-->
+                        <h3>English</h3>
+                    </div>
+                </div>
                 <div class="col-lg-4 col-md-4">
                     <div class="single-service text-center">
                         <div class="icon">
-                            <img src="{% static 'images/icon/englishicon.png' %}" alt="icon">
-                        </div><!--/.row-->
-                        <h3><font >English</font></h3>
-
-                    </div><!--/.single-service-->
-                </div><!--/.col-lg-4-->
+                            <img src="{% static 'images/icon/mathicon.png' %}" alt="math-icon">
+                        </div>
+                        <h3>Mathematics</h3>
+                    </div>
+                </div>
                 <div class="col-lg-4 col-md-4">
                     <div class="single-service text-center">
                         <div class="icon">
-                            <img src="{% static 'images/icon/scienceicon.png' %}" alt="icon">
-                        </div><!--/.row-->
-                        <h3><font >Science</font></h3>
-
-                    </div><!--/.single-service-->
-                </div><!--/.col-lg-4-->
+                            <img src="{% static 'images/icon/scienceicon.png' %}" alt="science-icon">
+                        </div>
+                        <h3>Science</h3>
+                    </div>
+                </div>
             </div><!--/.row-->
         </div><!--/.container-->
     </section><!--/#services-section-->
+{% endblock %}
+
+{% block join_us %}
+    <div class="footer-top-area">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-9">
+                        <h2>Become A Part of DigiWiz Community Today</h2>
+                    </div><!--/.col-lg-9-->
+                    <div class="col-lg-3 text-right">
+                        <a href="{% url 'register' %}" class="btn btn-default">get started</a>
+                    </div><!--/.col-lg-3-->
+                </div><!--/.row-->
+            </div><!--/.container-->
+        </div><!--/.footer-top-area-->
 {% endblock %}

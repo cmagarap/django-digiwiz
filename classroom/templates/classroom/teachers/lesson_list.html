@@ -1,11 +1,10 @@
 {% extends 'base.html' %}
-
 {% block content %}
     <section id="courses-section" class="popular-courses-area bg-white s-pd2">
         <div class="container">
             {% if messages %}
                 {% for message in messages %}
-                    <div class="alert alert-info alert-dismissible fade show" role="alert">
+                    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
                         <p{% if forloop.last %} class="mb-0"{% endif %}>{{ message }}</p>
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
@@ -50,7 +49,7 @@
                                     {{ lesson.number }}
                                 </div>
                                 <div class="col-2">
-                                    {{ lesson.course.title }}
+                                    <a href="{% url 'course_details' lesson.course.pk %}" target="_blank">{{ lesson.course.title }}</a>
                                 </div>
                                 <div class="col-2">
                                     <a href="{% url 'teachers:lesson_edit' lesson.course_id lesson.pk %}" class="btn btn-rounded btn-info">Edit</a>
@@ -61,10 +60,43 @@
                         </div>
                     {% empty %}
                         <div class="list-group-item text-center">
-                            <p class="text-muted font-italic mb-0">You haven't created any lessons yet. Go ahead and <a href="">add the first lesson</a>.</p>
+                            <p class="text-muted font-italic mb-0">You haven't created any lessons yet.</p>
                         </div>
                     {% endfor %}
                 </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <nav class="courses-navigation default-pager text-center">
+                    {% if is_paginated %}
+                        {% if page_obj.has_previous %}
+                            <a href="?page=1" title="First Lesson">
+                                <i class="fa fa-angle-double-left"></i>
+                            </a>
+                            <a href="?page={{ page_obj.previous_page_number }}" title="Previous Lesson">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        {% endif %}
+
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <a href="?page={{ num }}" title="Lesson {{ num }}" style="background-color: #f78888; color: #fff">{{ num }}</a>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <a href="?page={{ num }}" title="Lesson {{ num }}">{{ num }}</a>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}" title="Next Lesson">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                            <a href="?page={{ page_obj.paginator.num_pages }}" title="Last Lesson">
+                                <i class="fa fa-angle-double-right"></i>
+                            </a>
+                        {% endif %}
+                    {% endif %}
+                </nav>
             </div>
         </div>
     </section>

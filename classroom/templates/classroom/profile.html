@@ -1,18 +1,9 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
+{% load static %}
 {% block content %}
-    <div class="container">
-        {% if messages %}
-            {% for message in messages %}
-                <br>
-                <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
-                    <p{% if forloop.last %} class="mb-0"{% endif %}>{{ message }}</p>
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-            {% endfor %}
-        {% endif %}
+    <div class="container col-lg-12" style="background-image:url({% static 'images/bgprofile.png' %}) ;background-repeat: no-repeat; background-attachment: fixed;
+            background-position: center;  ">
         <div class="row">
             <div class="col-lg-4">
                 <div class="login-page page-wrapper s-pd100">
@@ -20,9 +11,9 @@
                         <div class="content-section">
                             <div class="media-body" align="middle">
                                 {% if user.is_teacher %}
-                                    <img style="border-radius: 50%; width:350px; height:350px"  src="{{ user.teacher.image.url }}">
+                                    <img style="border-radius: 50%; width: 350px; height: 350px;"  src="{{ user.teacher.image.url }}" alt="{{ user.username }}">
                                 {% elif user.is_student %}
-                                    <img style="border-radius: 50%; width:350px; height:350px"  src="{{ user.student.image.url }}">
+                                    <img style="border-radius: 50%; width: 350px; height: 350px;"  src="{{ user.student.image.url }}" alt="{{ user.username }}">
                                 {% endif %}
                             </div>
                             <br>
@@ -44,11 +35,22 @@
                     <div class="container">
                         <div class="row justify-content-center">
                             <div class="col-lg-10">
+                                {% if messages %}
+                                    {% for message in messages %}
+                                        <br>
+                                        <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+                                            <p{% if forloop.last %} class="mb-0"{% endif %}>{{ message }}</p>
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
                                 <div class="login-form-area">
-                                    <form method="POST" enctype="multipart/form-data">
+                                    <form method="POST" enctype="multipart/form-data" novalidate>
                                         {% csrf_token %}
-                                        <fieldset class="form-group">
-                                            <legend class="border-bottom mb-4">Profile Info</legend>
+                                        <fieldset class="form-group"  style="color: #f78888;"  >
+                                            <legend class="border-bottom mb-4" style="color: #5da2d5;">Profile Info</legend>
                                             {{ u_form|crispy }}
                                             {{ p_form|crispy }}
                                         </fieldset>

@@ -16,6 +16,8 @@ urlpatterns = [
         path('course-requests/reject/<int:course_pk>/', staff.reject_course, name='reject_course'),
         path('courses/', staff.CourseListView.as_view(), name='course_list'),
         path('courses/<int:course_pk>/delete/', staff.delete_course, name='course_delete'),
+        path('get-user-activities/', staff.get_user_activities, name='get_user_activities'),
+        path('get-course-status/', staff.get_course_status, name='get_course_status'),
         path('students/', staff.StudentListView.as_view(), name='student_list'),
         path('students/<int:pk>/delete/', staff.deactivate_student, name='teacher_deactivate'),
         path('subjects/', staff.SubjectListView.as_view(), name='subject_list'),
@@ -24,6 +26,8 @@ urlpatterns = [
         path('subjects/<int:pk>/delete/', staff.delete_subject, name='subject_delete'),
         path('teachers/', staff.TeacherListView.as_view(), name='teacher_list'),
         path('teachers/<int:pk>/delete/', staff.deactivate_teacher, name='teacher_deactivate'),
+        path('user-log/', staff.UserLogListView.as_view(), name='user_log_list'),
+        path('user-log/<int:pk>/delete/', staff.delete_log, name='user_log_delete')
     ], 'classroom'), namespace='staff')),
 
     path('student/', include(([
@@ -34,8 +38,9 @@ urlpatterns = [
         path('interests/', students.StudentInterestsView.as_view(), name='student_interests'),
         path('profile/', students.profile, name='profile'),
         path('taken/', students.TakenQuizListView.as_view(), name='taken_quiz_list'),
-        path('taken/<int:pk>/', students.TakenQuizDetailView.as_view(), name='taken_quiz_detail'),
+        path('taken/<int:taken_pk>/quiz/<int:quiz_pk>/', students.taken_quiz_result, name='taken_quiz_detail'),
         path('unenroll/<int:pk>/', students.unenroll, name='unenroll'),
+        path('view-file/<int:pk>/', students.file_view, name='view_file')
     ], 'classroom'), namespace='students')),
 
     path('teacher/', include(([
@@ -63,6 +68,10 @@ urlpatterns = [
              name='enrollment_accept'),
         path('enrollment-requests/reject/<int:taken_course_pk>', teachers.reject_enrollment,
              name='enrollment_reject'),
+        path('files/', teachers.FilesListView.as_view(), name='file_list'),
+        path('files/add/', teachers.add_files, name='file_add'),
+        path('files/<int:file_pk>/delete/', teachers.delete_file,
+             name='delete_file'),
         path('lesson/', teachers.LessonListView.as_view(), name='lesson_list'),
         path('lesson/add/', teachers.add_lesson, name='lesson_add'),
         path('lesson/<int:lesson_pk>/delete/', teachers.delete_lesson_from_list,

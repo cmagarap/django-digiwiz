@@ -48,7 +48,7 @@
                                     {{ taken_course.student.user.first_name }} {{ taken_course.student.user.last_name }}
                                 </div>
                                 <div class="col-4">
-                                    {{ taken_course.course.title }}
+                                    <a href="{% url 'course_details' taken_course.course.pk %}">{{ taken_course.course.title }}</a>
                                 </div>
                                 <div class="col-2">
                                     {{ taken_course.course.code }}

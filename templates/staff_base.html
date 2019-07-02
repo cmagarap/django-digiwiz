@@ -13,15 +13,15 @@
     <link rel="stylesheet" href="{% static 'staff/assets/vendor/charts/c3charts/c3.css' %}">
     <link rel="stylesheet" href="{% static 'staff/assets/vendor/fonts/flag-icon-css/flag-icon.min.css' %}">
     <link rel="icon" href="{% static 'images/DW.png' %}">
-    <title>
-        {% if title %}
-            DigiWiz: {{ title }}
-        {% else %}
+
+    <title>{% if title %}
+        DigiWiz: {{ title }}
+    {% else %}
             DigiWiz
-        {% endif %}
-    </title>
+    {% endif %}</title>
+
     <script src="{% static 'js/jquery-3.4.1.js' %}" type="text/javascript"></script>
-        <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     </head>
 <body>
     <!-- ============================================================== -->
@@ -41,59 +41,17 @@
                 </button>
                 <div class="collapse navbar-collapse " id="navbarSupportedContent">
                     <ul class="navbar-nav ml-auto navbar-right-top">
-                        <li class="nav-item dropdown notification">
-                            <a class="nav-link nav-icons" href="#" id="navbarDropdownMenuLink1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-fw fa-bell"></i> <span class="indicator"></span></a>
-                            <ul class="dropdown-menu dropdown-menu-right notification-dropdown">
-                                <li>
-                                    <div class="notification-title"> Notification</div>
-                                    <div class="notification-list">
-                                        <div class="list-group">
-                                            <a href="#" class="list-group-item list-group-item-action active">
-                                                <div class="notification-info">
-                                                    <div class="notification-list-user-img"><img src="assets/images/avatar-2.jpg" alt="" class="user-avatar-md rounded-circle"></div>
-                                                    <div class="notification-list-user-block"><span class="notification-list-user-name">Jeremy Rakestraw</span>accepted your invitation to join the team.
-                                                        <div class="notification-date">2 min ago</div>
-                                                    </div>
-                                                </div>
-                                            </a>
-                                            <a href="#" class="list-group-item list-group-item-action">
-                                                <div class="notification-info">
-                                                    <div class="notification-list-user-img"><img src="assets/images/avatar-3.jpg" alt="" class="user-avatar-md rounded-circle"></div>
-                                                    <div class="notification-list-user-block"><span class="notification-list-user-name">John Abraham </span>is now following you
-                                                        <div class="notification-date">2 days ago</div>
-                                                    </div>
-                                                </div>
-                                            </a>
-                                            <a href="#" class="list-group-item list-group-item-action">
-                                                <div class="notification-info">
-                                                    <div class="notification-list-user-img"><img src="assets/images/avatar-4.jpg" alt="" class="user-avatar-md rounded-circle"></div>
-                                                    <div class="notification-list-user-block"><span class="notification-list-user-name">Monaan Pechi</span> is watching your main repository
-                                                        <div class="notification-date">2 min ago</div>
-                                                    </div>
-                                                </div>
-                                            </a>
-                                            <a href="#" class="list-group-item list-group-item-action">
-                                                <div class="notification-info">
-                                                    <div class="notification-list-user-img"><img src="assets/images/avatar-5.jpg" alt="" class="user-avatar-md rounded-circle"></div>
-                                                    <div class="notification-list-user-block"><span class="notification-list-user-name">Jessica Caruso</span>accepted your invitation to join the team.
-                                                        <div class="notification-date">2 min ago</div>
-                                                    </div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li>
-                                    <div class="list-footer"> <a href="#">View all notifications</a></div>
-                                </li>
-                            </ul>
+                        <li class="nav-item">
+                            <br>
+                            <span id="time"></span>&nbsp;&nbsp;&nbsp;&nbsp;
                         </li>
                         <li class="nav-item dropdown nav-user">
                             <a class="nav-link nav-user-img" href="#" id="navbarDropdownMenuLink2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <img src="{% static 'staff/assets/images/default-user_thumb.png' %}" alt="default-user" class="user-avatar-md rounded-circle">
+                                <img src="{% static 'staff/assets/images/default-user_thumb.png' %}" alt="default-user" class="user-avatar-md rounded-circle">&nbsp;
+                                {{ user.username }}
                             </a>
                             <div class="dropdown-menu dropdown-menu-right nav-user-dropdown" aria-labelledby="navbarDropdownMenuLink2">
-                                <div class="nav-user-info">
+                                <div class="nav-user-info" style="background-color:#f78888">
                                     <h5 class="mb-0 text-white nav-user-name">{{ user.first_name }} {{ user.last_name }}</h5>
                                     <span class="status"></span><span class="ml-2">Available</span>
                                 </div>
@@ -110,7 +68,7 @@
         <!-- ============================================================== -->
         <!-- left sidebar -->
         <!-- ============================================================== -->
-        <div class="nav-left-sidebar sidebar-dark" style="background-color: black">
+        <div class="nav-left-sidebar sidebar-dark" >
             <div class="menu-list">
                 <nav class="navbar navbar-expand-lg navbar-light">
                     <a class="d-xl-none d-lg-none" href="#">Dashboard</a>
@@ -124,12 +82,19 @@
                             </li>
                             <li class="nav-item ">
                                 <a class="nav-link {% if sidebar == 'dashboard' %}active{% endif %}" href="{% url 'staff:dashboard' %}">
-                                    <i class="fas fa-fw fa-chart-pie"></i>Dashboard
+                                    <i class="fas fa-chart-line"></i>Dashboard
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link {% if sidebar == 'course_requests' %}active{% endif %}" href="{% url 'staff:course_requests' %}">
-                                    <i class="fa fa-fw fa-rocket"></i>Course Requests
+                                    <i class="fas fa-bell"></i>Course Requests
+                                    {% if course_request_count > 0 %}
+                                        <sup>
+                                            <span style="background-color: red; color: white; padding: 2px; border-radius: 3px;">
+                                                &nbsp;<b>{{ course_request_count }}</b>&nbsp;
+                                            </span>
+                                        </sup>
+                                    {% endif %}
                                 </a>
                             </li>
                             <li class="nav-item">
@@ -137,26 +102,33 @@
                                     <i class="fas fa-fw fa-book"></i>Courses
                                 </a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link {% if sidebar == 'subject_list' %}active{% endif %}" href="{% url 'staff:subject_list' %}">
-                                    <i class="fas fa-fw fa-chart-pie"></i>Subjects
-                                </a>
-                            </li>
+                            {% if user.is_superuser %}
+                                <li class="nav-item">
+                                    <a class="nav-link {% if sidebar == 'subject_list' %}active{% endif %}" href="{% url 'staff:subject_list' %}">
+                                        <i class="fas fa-puzzle-piece"></i>Subjects
+                                    </a>
+                                </li>
+                            {% endif %}
                             {% if user.is_superuser %}
                                 <li class="nav-item ">
                                     <a class="nav-link {% if sidebar == 'admin_list' %}active{% endif %}" href="{% url 'staff:admin_list' %}">
-                                        <i class="fab fa-fw fa-wpforms"></i>Admin Accounts
+                                        <i class="fas fa-database"></i>Admin Accounts
                                     </a>
                                 </li>
                             {% endif %}
                             <li class="nav-item">
                                 <a class="nav-link {% if sidebar == 'teacher_list' %}active{% endif %}" href="{% url 'staff:teacher_list' %}">
-                                    <i class="fas fa-fw fa-table"></i>Teachers
+                                    <i class="fab fa-black-tie"></i>Teachers
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link {% if sidebar == 'student_list' %}active{% endif %}" href="{% url 'staff:student_list' %}">
-                                    <i class="fas fa-fw fa-table"></i>Students
+                                    <i class="fas fa-child"></i>Students
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {% if sidebar == 'user_log' %}active{% endif %}" href="{% url 'staff:user_log_list' %}">
+                                    <i class="fas fa-address-book"></i>User Log
                                 </a>
                             </li>
                         </ul>
@@ -172,34 +144,19 @@
                 {% block content %}
                 {% endblock %}
             </div>
-{#            <!-- ============================================================== -->#}
-{#            <!-- footer -->#}
-{#            <!-- ============================================================== -->#}
-{#            <div class="footer">#}
-{#                <div class="container-fluid">#}
-{#                    <div class="row">#}
-{#                        <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">#}
-{#                            Copyright © 2018 Concept. All rights reserved.#}
-{#                        </div>#}
-{#                        <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">#}
-{#                            <div class="text-md-right footer-links d-none d-sm-block">#}
-{#                                <a href="javascript: void(0);">About</a>#}
-{#                                <a href="javascript: void(0);">Support</a>#}
-{#                                <a href="javascript: void(0);">Contact Us</a>#}
-{#                            </div>#}
-{#                        </div>#}
-{#                    </div>#}
-{#                </div>#}
-{#            </div>#}
-{#            <!-- ============================================================== -->#}
-{#            <!-- end footer -->#}
-{#            <!-- ============================================================== -->#}
+            {% block footer %}
+            {% endblock %}
         </div>
     </div>
     <!-- ============================================================== -->
     <!-- end main wrapper  -->
     <!-- ============================================================== -->
+    <script>
+        var today = new Date();
+        document.getElementById('time').innerHTML=today;
+    </script>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
     <!-- Optional JavaScript -->
     <!-- jquery 3.3.1 -->
     <script src="{% static 'staff/assets/vendor/jquery/jquery-3.3.1.min.js' %}" type="44c04729fd72133bc12c335c-text/javascript"></script>
@@ -209,27 +166,6 @@
     <script src="{% static 'staff/assets/vendor/slimscroll/jquery.slimscroll.js' %}" type="44c04729fd72133bc12c335c-text/javascript"></script>
     <!-- main js -->
     <script src="{% static 'staff/assets/libs/js/main-js.js' %}" type="44c04729fd72133bc12c335c-text/javascript"></script>
-    <!-- chart chartist js -->
-    <script src="{% static 'staff/assets/vendor/charts/chartist-bundle/chartist.min.js' %}" type="44c04729fd72133bc12c335c-text/javascript"></script>
-    <!-- sparkline js -->
-    <script src="{% static 'staff/assets/vendor/charts/sparkline/jquery.sparkline.js' %}" type="44c04729fd72133bc12c335c-text/javascript"></script>
-    <!-- morris js -->
-    <script src="{% static 'staff/assets/vendor/charts/morris-bundle/raphael.min.js' %}" type="44c04729fd72133bc12c335c-text/javascript"></script>
-    <script src="{% static 'staff/assets/vendor/charts/morris-bundle/morris.js' %}" type="44c04729fd72133bc12c335c-text/javascript"></script>
-    <!-- chart c3 js -->
-    <script src="{% static 'staff/assets/vendor/charts/c3charts/c3.min.js' %}" type="44c04729fd72133bc12c335c-text/javascript"></script>
-    <script src="{% static 'staff/assets/vendor/charts/c3charts/d3-5.4.0.min.js' %}" type="44c04729fd72133bc12c335c-text/javascript"></script>
-    <script src="{% static 'staff/assets/vendor/charts/c3charts/C3chartjs.js' %}" type="44c04729fd72133bc12c335c-text/javascript"></script>
-    <script src="{% static 'staff/assets/libs/js/dashboard-ecommerce.js' %}" type="44c04729fd72133bc12c335c-text/javascript"></script>
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-23581568-13" type="44c04729fd72133bc12c335c-text/javascript"></script>
-    <script type="44c04729fd72133bc12c335c-text/javascript">
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'UA-23581568-13');
-    </script>
     <script src="https://ajax.cloudflare.com/cdn-cgi/scripts/a2bd7673/cloudflare-static/rocket-loader.min.js" data-cf-settings="44c04729fd72133bc12c335c-|49" defer=""></script>
 </body>
 

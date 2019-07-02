@@ -12,28 +12,40 @@
                             <h2 class="mb-3">Quiz Result</h2>
                             <p>Student: <b><u>{{ student_name.first_name }} {{ student_name.last_name }}</u></b></p>
                         {% endif %}
-                        <p>Grade: <b>{{ taken_quiz.score|floatformat:'-2' }}</b>/100
+                        <p>Quiz title: <b><u>{{ taken_quiz.quiz.title }}</u></b><br>
+                        Grade: <b>{{ taken_quiz.score|floatformat:'-2' }}</b>/100
                             <br>
                         Took on: {{ taken_quiz.date|date:"F d, Y g:i A" }}</p>
                         <hr>
                         <form novalidate>
                             {% csrf_token %}
-                            {% for answer in student_answer %}
-                                <label for="course" class="col-form-label  requiredField">{{ forloop.counter }}. {{ answer.answer.question.text }}</label>
-                                {% if answer.answer.is_correct %}
-                                    <input class="textinput textInput form-control" style="border-color: limegreen" type="text" value="{{ answer.answer.text }}" readonly>
-                                    <small style="color: green">Correct Answer</small>
-                                    <hr>
-                                {% else %}
-                                    <input class="textinput textInput form-control" style="border-color: red" type="text" value="{{ answer.answer.text }}" readonly>
-                                    <small style="color: red">Wrong Answer</small>
-                                    <hr>
-                                {% endif %}
+                            {% for student_answer in student_answers %}
+                                [{{ forloop.counter }}.] <b style="font-size: 20px">{{ student_answer.answer.question.text }}</b>
+                                <br><br>
+                                {% for answer in answers %}
+                                    {% if answer.question.pk == student_answer.answer.question.pk %}
+                                        {% if answer.text == student_answer.answer.text %}
+                                            {% if student_answer.answer.is_correct %}
+                                                <input class="textinput textInput form-control" style="border-color: limegreen" type="text" value="{{ answer.text }}" readonly><small style="color: green"><b>{{ ownership }} answer is correct!</b></small>
+                                            {% else %}
+                                                <input class="textinput textInput form-control" style="border-color: red" type="text" value="{{ answer.text }}" readonly><small style="color: red"><b>{{ ownership }} Answer</b></small>
+                                            {% endif %}
+
+                                        {% else %}
+                                            {% if answer.is_correct %}
+                                                <input class="textinput textInput form-control" style="border-color: limegreen" type="text" value="{{ answer.text }}" readonly><small style="color: green">Correct Answer</small>
+                                            {% else %}
+                                                <input class="textinput textInput form-control" type="text" value="{{ answer.text }}" readonly>
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                                <hr>
                             {% endfor %}
 
                             <center>
                                 {% if user.is_student %}
-                                    <a href="{% url 'students:taken_quiz_list' %}" class="btn btn-danger" role="button">Go Back</a>
+                                    <a href="javascript:history.back();" class="btn btn-danger" role="button">Go Back</a>
                                 {% elif user.is_teacher %}
                                     <a href="{% url 'teachers:quiz_results' taken_quiz.quiz.pk %}" class="btn btn-danger" role="button">Go Back</a>
                                 {% endif %}

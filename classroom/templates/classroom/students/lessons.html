@@ -10,7 +10,6 @@
                     <div class="col-md-12 col-sm-12">
                         <div class="page-heading">
                             <h2 class="page-name text-capitalize">{{ lesson.course.title }}</h2>
-                            <h3></h3>
                             {% if user.is_student %}
                                 <a href="{% url 'course_details' lesson.course.pk %}" class="btn btn-default btn-primary">go back</a>
                             {% elif user.is_teacher %}
@@ -32,18 +31,23 @@
                             <div class="course-details">
                                 <div class="course-title">
                                     <h2>Lesson {{ lesson.number }}: {{ lesson.title }}</h2>
+                                    {% if user.is_teacher %}
+                                        <a href="{% url 'teachers:lesson_edit' lesson.course.pk  lesson.pk %}" class="btn btn-primary mb-3" role="button" target="_blank">Edit Lesson</a>
+                                    {% endif %}
                                 </div>
                                 <div class="course-desc">
                                     <p>{{ lesson.content|safe }}</p>
                                     <br>
+                                {% if user.is_student %}
                                     {% if lesson.quizzes.taken_quizzes.values.count > 0 %}
                                         <button class="btn" disabled>Quiz Already Taken</button>
-                                        <br><a href="#">See Results</a>
+                                        <br><a href="{% url 'students:taken_quiz_detail' lesson.quizzes.taken_quizzes.values.0.id lesson.quizzes.pk %}">See Results</a>
                                     {% elif lesson.quizzes.taken_quizzes.values.count == 0 %}
                                         <a href="{% url 'students:take_quiz' lesson.course.pk  lesson.quizzes.pk %}" class="btn btn-primary mb-3" role="button">Take Quiz</a>
                                     {% elif not lesson.quizzes %}
-                                        <i>There is no quiz for this lesson.</i>
+                                        <i>There's no quiz for this lesson.</i>
                                     {% endif %}
+                                {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -54,8 +58,6 @@
         </div><!--/.courses-page-->
     {% empty %} No Lessons Available
     {% endfor %}
-
-
 
     <div class="row">
         <div class="col-md-12">

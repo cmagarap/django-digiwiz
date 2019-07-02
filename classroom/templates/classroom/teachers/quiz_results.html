@@ -32,31 +32,37 @@
             <div class="card">
                 <div class="card-header">
                     <strong>Taken Quizzes</strong>
-                    <span class="badge badge-pill badge-primary float-right">Average Grade: {{ quiz_score.average_score|default_if_none:0.0 }}</span>
+                    <span class="badge badge-pill badge-primary float-right" style="background-color: #5DA2D5">Average Grade: {{ quiz_score.average_score|default_if_none:0.0 }}</span>
                 </div>
                 <table class="table mb-0">
-                    <thead>
-                    <tr>
-                        <th>Student</th>
-                        <th>Date</th>
-                        <th>Grade</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for taken_quiz in taken_quizzes %}
+                    {% if taken_quizzes %}
+                        <thead>
                         <tr>
-                            <td>
-                                {% thumbnail taken_quiz.student.image "40x40" crop="center" as im %}
-                                    <a href="{% url 'teachers:quiz_result_detail' taken_quiz.quiz.pk taken_quiz.student.pk taken_quiz.pk %}">
-                                        <img class="rounded-circle" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="course-owner">&nbsp;&nbsp;{{ taken_quiz.student.user.username }}
-                                    </a>
-                                {% endthumbnail %}
-                            </td>
-                            <td>{{ taken_quiz.date|naturaltime }}</td>
-                            <td><b>{{ taken_quiz.score|floatformat:'-2' }}</b>/100</td>
+                            <th>Student</th>
+                            <th>Date</th>
+                            <th>Grade</th>
                         </tr>
-                    {% endfor %}
-                    </tbody>
+                        </thead>
+                        <tbody>
+                        {% for taken_quiz in taken_quizzes %}
+                            <tr>
+                                <td>
+                                    {% thumbnail taken_quiz.student.image "40x40" crop="center" as im %}
+                                        <a href="{% url 'teachers:quiz_result_detail' taken_quiz.quiz.pk taken_quiz.student.pk taken_quiz.pk %}">
+                                            <img class="rounded-circle" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="course-owner">&nbsp;&nbsp;{{ taken_quiz.student.user.username }}
+                                        </a>
+                                    {% endthumbnail %}
+                                </td>
+                                <td>{{ taken_quiz.date|naturaltime }}</td>
+                                <td><b>{{ taken_quiz.score|floatformat:'-2' }}</b>/100</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    {% else %}
+                        <div class="list-group-item text-center">
+                            <p class="text-muted font-italic mb-0">There are no students who took this quiz.</p>
+                        </div>
+                    {% endif %}
                 </table>
                 <div class="card-footer text-muted">
                     Total respondents: <strong>{{ total_taken_quizzes }}</strong>

@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'classroom.apps.ClassroomConfig',
     'ckeditor',
     'ckeditor_uploader',
+    'classroom.templatetags.custom_tags',
     'crispy_forms',
     'sorl.thumbnail',
     'star_ratings'
@@ -51,14 +52,15 @@ INSTALLED_APPS = [
 CKEDITOR_CONFIGS = {
     'default': {
         'toolbar': 'Custom',
-        'width': 728,
+        'width': 1110,
         'toolbar_Custom': [
             ['Font', 'FontSize', 'TextColor', 'BGColor'],
             ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript'],
             ['Undo', 'Redo', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
+            ['Link', 'Unlink', 'Image', 'Table', 'HorizontalRule', 'NumberedList',
+             'BulletedList', '-', 'Outdent', 'Indent', 'Blockquote',
+             'BidiLtr', 'BidiRtl'],
             ['RemoveFormat', 'Smiley', 'SpecialChar'],
-            ['Link', 'Unlink', 'Image', 'Table', 'HorizontalRule', 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', 'Blockquote',
-            'BidiLtr', 'BidiRtl'],
             ['Styles', 'Format'],
             ['Source']
         ],

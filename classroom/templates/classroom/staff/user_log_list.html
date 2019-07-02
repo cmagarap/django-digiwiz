@@ -1,0 +1,171 @@
+{% extends 'staff_base.html' %}
+{% load thumbnail %}
+{% block content %}
+    <!-- ============================================================== -->
+    <!-- pageheader -->
+    <!-- ============================================================== -->
+    <div class="row">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+            <div class="page-header">
+                <h2 class="pageheader-title">User Log</h2>
+                <div class="page-breadcrumb">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'staff:dashboard' %}" class="breadcrumb-link">Admin</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">User Log</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ============================================================== -->
+    <!-- end pageheader -->
+    <!-- ============================================================== -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+                <p{% if forloop.last %} class="mb-0"{% endif %}>{{ message }}</p>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row">
+        <!-- ============================================================== -->
+        <!-- basic table  -->
+        <!-- ============================================================== -->
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+            <div class="card">
+                <h5 class="card-header">User Log Table</h5>
+                <div class="card-body">
+                    {% if logs %}
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered first">
+                                <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Action</th>
+                                    <th>User Type</th>
+                                    <th>Date</th>
+                                    <th>Delete</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for log in logs %}
+                                    <tr>
+                                        <td>
+                                            {% if log.user_type == 'teacher' %}
+                                                {% thumbnail log.user.teacher.image "40x40" crop="center" as im %}
+                                                    <img class="rounded-circle" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="user">&nbsp;&nbsp;
+                                                {% endthumbnail %}
+                                            {% elif log.user_type == 'student' %}
+                                                {% thumbnail log.user.student.image "40x40" crop="center" as im %}
+                                                    <img class="rounded-circle" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="user">&nbsp;&nbsp;
+                                                {% endthumbnail %}
+                                            {% endif %}
+                                            <b>{{ log.user.username }}</b>
+                                        </td>
+                                        <td>{{ log.action }}</td>
+                                        <td>{{ log.user_type.title }}</td>
+                                        <td>{{ log.created_at|date:"F j, Y g:i A" }}</td>
+                                        <td>
+                                            <a href="#" class="btn btn-rounded btn-danger delete" title="Delete" data-id="{{ log.pk }}"><i class="fas fa-trash-alt"></i></a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <center>
+                            <i>There are no user log records found in the database.</i>
+                        </center>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <nav>
+                {% if is_paginated %}
+                    <ul class="pagination">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1" title="First Page">
+                                    <i class="fas fa-angle-double-left"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}" title="Previous Page">
+                                    <i class="fas fa-angle-left"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active">
+                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                </li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}" title="Next Page">
+                                    <i class="fas fa-angle-right"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" title="Last Page">
+                                    <i class="fas fa-angle-double-right"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                {% endif %}
+            </nav>
+        </div>
+    </div>
+
+    <script>
+        $(".delete").click(function () {
+            var url = "{% url 'staff:user_log_list'  %}";
+            var id = $(this).data('id');
+            swal({
+                title: "Are you sure you want to delete this log?",
+                text: "Once you delete this, you will never recover it.",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            })
+                .then((willDelete) => {
+                    if (willDelete) {
+                        {# This will follow the url pattern of 'staff:user_log_delete' #}
+                        window.location = url + id + "/delete/";
+                    }
+                });
+        });
+    </script>
+{% endblock %}
+
+{% block footer %}
+    <div class="footer">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
+                    Copyright © 2019 <a href="https://github.com/seeej/digiwiz" target="_blank">DigiWiz</a>. All rights reserved.
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
