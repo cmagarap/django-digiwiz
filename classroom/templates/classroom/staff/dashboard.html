@@ -1,9 +1,7 @@
 {% extends 'staff_base.html' %}
 {% load static %}
+{% load thumbnail %}
 {% block content %}
-    <!-- ============================================================== -->
-    <!-- pageheader -->
-    <!-- ============================================================== -->
     <div class="row">
         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
             <div class="page-header">
@@ -18,9 +16,7 @@
             </div>
         </div>
     </div>
-    <!-- ============================================================== -->
-    <!-- end pageheader -->
-    <!-- ============================================================== -->
+
     {% if messages %}
         {% for message in messages %}
             <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
@@ -33,7 +29,6 @@
     {% endif %}
 
     <div class="row">
-        <!-- metric -->
         <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12">
             <div class="card">
                 <div class="card-body">
@@ -45,11 +40,8 @@
                         <h1 class="mb-1 text-primary"><i class="fas fa-book"></i></h1>
                     </div>
                 </div>
-                <div id="sparkline-1"></div>
             </div>
         </div>
-        <!-- /. metric -->
-        <!-- metric -->
         <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12">
             <div class="card">
                 <div class="card-body">
@@ -61,11 +53,8 @@
                         <h1 class="mb-1 text-primary"><i class="fas fa-child"></i></h1>
                     </div>
                 </div>
-                <div id="sparkline-2"></div>
             </div>
         </div>
-        <!-- /. metric -->
-        <!-- metric -->
         <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12">
             <div class="card">
                 <div class="card-body">
@@ -77,12 +66,8 @@
                         <h1 class="mb-1 text-primary"><i class="fab fa-black-tie"></i></h1>
                     </div>
                 </div>
-                <div id="sparkline-3">
-                </div>
             </div>
         </div>
-        <!-- /. metric -->
-        <!-- metric -->
         <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12">
             <div class="card">
                 <div class="card-body">
@@ -94,37 +79,114 @@
                         <h1 class="mb-1 text-primary"><i class="fas fa-pencil-alt"></i></h1>
                     </div>
                 </div>
-                <div id="sparkline-4"></div>
             </div>
         </div>
-        <!-- /. metric -->
     </div>
     <div class="row">
         <div class="col-xl-8 col-lg-12 col-md-8 col-sm-12 col-12">
             <div class="card">
-                <h5 class="card-header">Daily User Activities</h5>
+                <h5 class="card-header"><i class="fas fa-chart-line" style="color: #F78888"></i> Daily User Activities</h5>
                 <div class="card-body">
                     <canvas id="activities-line" width="500" height="200"></canvas>
                 </div>
             </div>
         </div>
-        <!-- ============================================================== -->
-        <!-- end reveune  -->
-        <!-- ============================================================== -->
-        <!-- ============================================================== -->
-        <!-- total sale  -->
-        <!-- ============================================================== -->
         <div class="col-xl-4 col-lg-12 col-md-4 col-sm-12 col-12">
             <div class="card">
-                <h5 class="card-header">Course Status</h5>
+                <h5 class="card-header"><i class="fas fa-chart-pie" style="color: #F78888"></i> Course Status</h5>
                 <div class="card-body">
                     <canvas id="course-status-donut" width="220" height="188"></canvas>
                 </div>
             </div>
         </div>
-        <!-- ============================================================== -->
-        <!-- end total sale  -->
-        <!-- ============================================================== -->
+    </div>
+    <div class="row">
+        <div class="col-xl-7 col-lg-12 col-md-12 col-sm-12 col-12">
+            <div class="card">
+                <h5 class="card-header"><i class="fas fa-address-book" style="color: #F3D250"></i> Latest User Log</h5>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead class="bg-light">
+                            <tr class="border-0">
+                                <th class="border-0">User</th>
+                                <th class="border-0">Action</th>
+                                <th class="border-0">User Type</th>
+                                <th class="border-0">Date</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for user_log in latest_user_log %}
+                                <tr>
+                                    <td>
+                                        {% if user_log.user_type == 'teacher' %}
+                                            {% thumbnail user_log.user.teacher.image "40x40" crop="center" as im %}
+                                                <img class="rounded-circle" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="user">&nbsp;&nbsp;
+                                            {% endthumbnail %}
+                                        {% elif user_log.user_type == 'student' %}
+                                            {% thumbnail user_log.user.student.image "40x40" crop="center" as im %}
+                                                <img class="rounded-circle" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="user">&nbsp;&nbsp;
+                                            {% endthumbnail %}
+                                        {% endif %}
+                                        <b>{{ user_log.user }}</b>
+                                    </td>
+                                    <td>{{ user_log.action }}</td>
+                                    <td>{{ user_log.user_type.title }}</td>
+                                    <td>{{ user_log.created_at|date:"F j, Y g:i A" }}</td>
+                                </tr>
+                            {% endfor %}
+                            <tr>
+                                <td colspan="8"><a href="{% url 'staff:user_log_list' %}" class="btn btn-outline-light float-right">Go To User Log</a></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-5 col-lg-12 col-md-12 col-sm-12 col-12">
+            <div class="card">
+                <h5 class="card-header"><i class="fas fa-fw fa-book" style="color: #F3D250"></i> Top Rated Courses</h5>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead class="bg-light">
+                            <tr class="border-0">
+                                <th class="border-0">Course</th>
+                                <th class="border-0">Course Code</th>
+                                <th class="border-0">Owner</th>
+                                <th class="border-0">Rating</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for course in popular_courses %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'course_details' course.pk %}" target="_blank">
+                                            <b><u>{{ course.title }}</u></b>
+                                        </a>
+                                    </td>
+                                    <td>{{ course.code }}</td>
+                                    <td>
+                                        {% thumbnail course.owner.teacher.image "40x40" crop="center" as im %}
+                                            <img class="rounded-circle" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="user">&nbsp;&nbsp;
+                                        {% endthumbnail %}
+                                        {{ course.owner.first_name }} {{ course.owner.last_name }}
+                                    </td>
+                                    <td>
+                                        <span style="color: #ffc107"><b>★</b></span> {{ course.average|floatformat:"-2" }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            <tr>
+                                <td colspan="8"><a href="{% url 'staff:course_list' %}" class="btn btn-outline-light float-right">Go To Courses</a></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script type="text/javascript" src="{% static 'staff/assets/charts/course_status_donut.js' %}"></script>

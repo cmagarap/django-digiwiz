@@ -68,8 +68,8 @@
                                             {% endthumbnail %}
                                             {{ course.owner.first_name }} {{ course.owner.last_name }}
                                         </td>
-                                        <td>{{ course.created_at|date:"F d, Y g:i A" }}</td>
-                                        <td>{{ course.updated_at|date:"F d, Y g:i A" }}</td>
+                                        <td>{{ course.created_at|date:"F j, Y g:i A" }}</td>
+                                        <td>{{ course.updated_at|date:"F j, Y g:i A" }}</td>
                                         <td>
                                             <a href="{% url 'staff:accept_course' course.pk %}" class="btn btn-rounded btn-success">Approve</a>
                                             <a href="#" class="btn btn-rounded btn-danger reject" data-id="{{ course.pk }}">Reject</a>

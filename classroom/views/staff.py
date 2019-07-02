@@ -7,6 +7,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, ListView, UpdateView
+from .raw_sql import get_popular_courses
 from ..decorators import staff_required, superuser_required
 from ..forms import AdminAddForm, SubjectUpdateForm, UserUpdateForm
 from ..models import Course, Quiz, Subject, User, UserLog
@@ -284,7 +285,9 @@ def dashboard(request):
         'teachers_count': User.objects.values_list('id', flat=True)
                                       .filter(is_teacher=True, is_active=True).count(),
         'quizzes_count': Quiz.objects.values_list('id', flat=True)
-                                     .exclude(course__status='deleted').count()
+                                     .exclude(course__status='deleted').count(),
+        'latest_user_log': UserLog.objects.all().order_by('-id')[:6],
+        'popular_courses': Course.objects.raw(get_popular_courses()),
     }
     return render(request, 'classroom/staff/dashboard.html', context)
 
