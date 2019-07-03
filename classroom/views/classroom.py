@@ -96,7 +96,7 @@ class CourseDetailView(DetailView):
 
                 kwargs['progress'] = (taken_quiz_count / quiz_count) * 100 if quiz_count != 0 else 0
 
-                subject_interests = Student.objects.values_list('interests').filter(pk=3)
+                subject_interests = Student.objects.values_list('interests').filter(pk=self.request.user)
                 kwargs['related_courses'] = get_suggested_courses(self.kwargs['pk'],
                                                                   subject_interests=subject_interests)
 

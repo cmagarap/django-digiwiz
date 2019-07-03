@@ -157,7 +157,6 @@ class TakenQuiz(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='taken_quizzes')
     score = models.FloatField()
     date = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=12, default='incomplete')
 
     def __str__(self):
         return f'{self.student.user.username}: {self.quiz.title}'

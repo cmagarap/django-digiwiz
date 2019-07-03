@@ -310,18 +310,14 @@ def take_quiz(request, course_pk, quiz_pk):
                                                                   answer__is_correct=True).count()
                     score = round((correct_answers / total_questions) * 100.0, 2)
                     TakenQuiz.objects.create(student=student, quiz=quiz, course=course,
-                                             score=score, status='Finished')
+                                             score=score)
 
                     UserLog.objects.create(action=f'Took the quiz: {quiz.title}',
                                            user_type='student',
                                            user=request.user)
 
-                    if score < 50.0:
-                        messages.warning(request, f'Better luck next time! Your score for the '
-                                                  f'quiz { quiz.title } was { score }.')
-                    else:
-                        messages.success(request, f'Congratulations! You completed the '
-                                                  f'quiz { quiz.title } with success! You scored { score } points.')
+                    messages.success(request, f'Congratulations! You completed the '
+                                              f'quiz { quiz.title }! Your grade is { score }%.')
 
                     # Count the taken quizzes and quizzes:
                     taken_quiz_count = TakenQuiz.objects.filter(student_id=request.user.pk, course=course) \

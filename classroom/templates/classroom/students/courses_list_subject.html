@@ -123,6 +123,22 @@
                                                             <h3>{{ course.owner.first_name }} {{ course.owner.last_name }}</h3>
                                                             <p>{{ course.created_at|date:"F d, Y" }}</p>
                                                         </div>
+
+                                                        {% if user.is_student %}
+                                                            <div class="course-cat text-capitalize text-right">
+                                                                {% for taken in user.student.taken_courses.values %}
+                                                                    {% if taken.course_id == course.pk %}
+                                                                        {% if taken.status == 'finished' %}
+                                                                            <a style="background-color: #5DA2D5; color: white;"><b>{{ taken.status }}</b></a>
+                                                                        {% elif taken.status == 'pending' %}
+                                                                            <a style="background-color: #F3D250; color: white;"><b>{{ taken.status }}</b></a>
+                                                                        {% elif taken.status == 'enrolled' %}
+                                                                            <a style="background-color: #F78888; color: white;"><b>{{ taken.status }}</b></a>
+                                                                        {% endif %}
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            </div>
+                                                        {% endif %}
                                                     </div><!--/.trainer-profile-->
                                                 </div><!--/.course-content-->
                                             </div><!--/.single-course-item-end-->

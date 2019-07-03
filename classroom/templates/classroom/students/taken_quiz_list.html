@@ -52,7 +52,7 @@
                                     {{ taken_quiz.quiz.lesson.title }}
                                 </div>
                                 <div class="col-2">
-                                    <strong>{{ taken_quiz.score }}</strong>
+                                    <strong>{{ taken_quiz.score|floatformat:"-2" }}</strong>
                                 </div>
                             </div>
                         </div>

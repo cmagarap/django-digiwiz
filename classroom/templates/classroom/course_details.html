@@ -31,7 +31,11 @@
                                 <h2>Quizzes</h2>
                                 <ul class="list-unstyled">
                                     {% for quiz in quizzes %}
-                                        <li><a href="{% url 'students:take_quiz' course.pk quiz.pk %}">{{ quiz.title }}</a></li>
+                                        {% if enrolled.status == 'enrolled' %}
+                                            <li><a href="{% url 'students:take_quiz' course.pk quiz.pk %}">{{ quiz.title }}</a></li>
+                                        {% else %}
+                                            <li>{{ quiz.title }}</li>
+                                        {% endif %}
                                     {% empty %}
                                         There are no quizzes for this course.
                                     {% endfor %}
@@ -41,7 +45,11 @@
                                 <h2>Files</h2>
                                 <ul class="list-unstyled">
                                     {% for file in files %}
-                                        <li><a href="{% url 'students:view_file' file.pk %}">{{ file.file|cut:'class_resources/' }}</a></li>
+                                        {% if enrolled.status == 'enrolled' %}
+                                            <li><a href="{% url 'students:view_file' file.pk %}">{{ file.file|cut:'class_resources/' }}</a></li>
+                                        {% else %}
+                                            <li>{{ file.file|cut:'class_resources/' }}</li>
+                                        {% endif %}
                                     {% empty %}
                                         There are no files for this course.
                                     {% endfor %}
@@ -83,7 +91,7 @@
                                                             <a href="{% url 'students:unenroll' course.pk %}"><span>{{ enrolled.status.upper }}</span></a>
                                                         </button>
                                                     {% elif enrolled.status == 'pending' %}
-                                                        <button href="{% url 'students:unenroll' course.pk %}" class="button" type="button" data-hover="CANCEL" data-active="I'M ACTIVE">
+                                                        <button href="{% url 'students:unenroll' course.pk %}" class="button" type="button" data-hover="CANCEL" data-active="I'M ACTIVE" style="background-color: #F3D250; border-color: #F3D250; color: white;">
                                                             <a href="{% url 'students:unenroll' course.pk %}"><span>{{ enrolled.status.upper }}</span></a>
                                                         </button>
                                                     {% elif enrolled.status == 'finished' %}
@@ -163,17 +171,23 @@
                                                         {% if enrolled.status == 'enrolled' or enrolled.status == 'finished' %}
                                                             <a href="{% url 'course_details' course.pk %}lesson?page={{ forloop.counter }}" class="btn btn-primary mb-3" style=" border-color:#f78888;" role="button">See Lesson</a>
 
-                                                            {% for taken in lesson.quizzes.taken_quizzes.values %}
-                                                                {% if taken.student_id == user.pk %}
-                                                                    <a class="btn btn-primary mb-3 disabled" style="background-color: buttonface;border-color: buttonface; color: graytext;"role="button">Quiz Already Taken</a><br>
-                                                                    <a href="{% url 'students:taken_quiz_detail' taken.id lesson.quizzes.pk %}">See Results</a>
-                                                                {% else %}
-                                                                    <a href="{% url 'students:take_quiz' lesson.course.pk lesson.quizzes.pk %}" class="btn btn-primary btn-takequiz mb-3" role="button">Take Quiz</a>
-                                                                {% endif %}
+                                                            {#                                                            {{ lesson.quizzes.pk }}#}
+
+                                                            {% for taken in taken_quizzes %}
+                                                                {{ taken.quiz_id }}
+                                                                {#                                                                {% if taken.quiz_id == lesson.quizzes.pk %}#}
+                                                                {#                                                                    <a class="btn btn-primary mb-3 disabled" style="background-color: buttonface;border-color: buttonface; color: graytext;"role="button">Quiz Already Taken</a><br>#}
+                                                                {#                                                                    <a href="{% url 'students:taken_quiz_detail' taken.id lesson.quizzes.pk %}">See Results</a>#}
+                                                                {#                                                                {% else %}#}
+                                                                {#                                                                    <a href="{% url 'students:take_quiz' lesson.course.pk lesson.quizzes.pk %}" class="btn btn-primary btn-takequiz mb-3" role="button">Take Quiz</a>#}
+                                                                {#                                                                {% endif %}#}
                                                             {% endfor %}
                                                         {% else %}
                                                             <i>Enroll in this course to see more.</i>
                                                         {% endif %}
+
+                                                    {% else %}
+                                                        <i>Log in and enroll in this course to see more.</i>
                                                     {% endif %}
                                                 </div>
                                             </div>
@@ -248,6 +262,22 @@
                                             <h3>{{ related_course.owner.first_name }} {{ related_course.owner.last_name }}</h3>
                                             <p>{{ related_course.created_at|date:"F d, Y" }}</p>
                                         </div>
+
+                                        {% if user.is_student %}
+                                            <div class="course-cat text-capitalize text-right">
+                                                {% for taken in user.student.taken_courses.values %}
+                                                    {% if taken.course_id == related_course.pk %}
+                                                        {% if taken.status == 'finished' %}
+                                                            <a style="background-color: #5DA2D5; color: white;"><b>{{ taken.status }}</b></a>
+                                                        {% elif taken.status == 'pending' %}
+                                                            <a style="background-color: #F3D250; color: white;"><b>{{ taken.status }}</b></a>
+                                                        {% elif taken.status == 'enrolled' %}
+                                                            <a style="background-color: #F78888; color: white;"><b>{{ taken.status }}</b></a>
+                                                        {% endif %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
                                     </div><!--/.trainer-profile-->
                                 </div><!--/.course-content-->
                             </div><!--/.single-course-item-end-->
