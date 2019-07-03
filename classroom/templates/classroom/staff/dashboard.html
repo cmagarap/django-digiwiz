@@ -152,17 +152,20 @@
                         <table class="table">
                             <thead class="bg-light">
                             <tr class="border-0">
+                                <th class="border-0">Rating</th>
                                 <th class="border-0">Course</th>
                                 <th class="border-0">Course Code</th>
                                 <th class="border-0">Owner</th>
-                                <th class="border-0">Rating</th>
                             </tr>
                             </thead>
                             <tbody>
                             {% for course in popular_courses %}
                                 <tr>
                                     <td>
-                                        <a href="{% url 'course_details' course.pk %}" target="_blank">
+                                        <span style="color: #ffc107"><b>★</b></span> {{ course.average|floatformat:"-2" }}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'course_details' course.object_id %}" target="_blank">
                                             <b><u>{{ course.title }}</u></b>
                                         </a>
                                     </td>
@@ -172,9 +175,6 @@
                                             <img class="rounded-circle" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="user">&nbsp;&nbsp;
                                         {% endthumbnail %}
                                         {{ course.owner.first_name }} {{ course.owner.last_name }}
-                                    </td>
-                                    <td>
-                                        <span style="color: #ffc107"><b>★</b></span> {{ course.average|floatformat:"-2" }}
                                     </td>
                                 </tr>
                             {% endfor %}

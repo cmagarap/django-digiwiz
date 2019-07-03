@@ -70,7 +70,7 @@ class CourseDetailView(DetailView):
             .filter(course__id=self.kwargs['pk']) \
             .order_by('number')
         kwargs['quizzes'] = Quiz.objects.filter(course_id=self.kwargs['pk']) \
-            .order_by('title')
+            .order_by('lesson__number')
         kwargs['files'] = MyFile.objects.filter(course_id=self.kwargs['pk']) \
             .order_by('file')
 
@@ -163,6 +163,7 @@ def browse_courses(request):
         if form.is_valid():
             query = form.cleaned_data.get('search')
             courses = Course.objects.filter(Q(title__icontains=query) |
+                                            Q(code__icontains=query) |
                                             Q(description__icontains=query)) \
                 .filter(status__iexact='approved') \
                 .annotate(taken_count=Count('taken_courses',
@@ -221,6 +222,7 @@ def browse_courses_subject(request, subject_pk):
         if form.is_valid():
             query = form.cleaned_data.get('search')
             courses = Course.objects.filter(Q(title__icontains=query) |
+                                            Q(code__icontains=query) |
                                             Q(description__icontains=query)) \
                 .filter(status__iexact='approved') \
                 .annotate(taken_count=Count('taken_courses',

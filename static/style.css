@@ -277,6 +277,11 @@ button:focus {
     border-color: #5da2d5;
     color: #fff;
 }
+.btn-view {
+    background-color: #F3D250;
+    border-color: #F3D250;
+    color: #fff;
+}
 .btn:focus {
     box-shadow: 0 0 0 0rem rgba(0, 123, 255, 0.5);
 }
@@ -294,6 +299,11 @@ button:focus {
     background-color: transparent;
     color: #5da2d5;
 	    border-color: #5da2d5;
+}
+.btn-view:hover {
+    background-color: transparent;
+    color: #F3D250;
+    border-color: #F3D250;
 }
 
 

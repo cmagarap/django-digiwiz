@@ -71,6 +71,8 @@
                                         <small>{{ course.created_at|date:"F d, Y" }}</small>
                                         <br>
                                         <small>Subject: {{ course.subject.get_html_badge }}</small>
+                                        <br>
+                                        <small>Course Code: {{ course.code }}</small>
                                     </div>
                                     <div class="col-sm-2">
                                         {% if user.is_student %}
