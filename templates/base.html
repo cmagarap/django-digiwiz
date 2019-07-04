@@ -135,6 +135,8 @@
                                                     {% endif %}
                                                 </a>
                                             </li>
+                                        {% elif user.is_staff %}
+                                            <li><a>{{ user.first_name }}</a></li>
                                         {% endif %}
                                         <li class="login"><a href="{% url 'logout' %}">Logout</a></li>
                                         </ul>

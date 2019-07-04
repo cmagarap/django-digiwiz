@@ -5,6 +5,7 @@ from django.contrib.auth.views import PasswordChangeView
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
 from django.db import transaction
+from django.db.models import Avg
 from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
@@ -107,10 +108,15 @@ class TakenQuizListView(ListView):
     template_name = 'classroom/students/taken_quiz_list.html'
     paginate_by = 10
 
+    def get_context_data(self, **kwargs):
+        kwargs['grade'] = TakenQuiz.objects.filter(student_id=self.request.user.pk).aggregate(average=Avg('score'))
+
+        return super().get_context_data(**kwargs)
+
     def get_queryset(self):
         queryset = self.request.user.student.taken_quizzes \
             .select_related('quiz') \
-            .order_by('quiz__title')
+            .order_by('-id')
         return queryset
 
 

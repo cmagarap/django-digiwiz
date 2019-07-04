@@ -48,8 +48,8 @@ class Subject(models.Model):
 
 class Course(models.Model):
     title = models.CharField(max_length=100)
-    code = models.CharField(max_length=20)
-    description = models.TextField(max_length=500)
+    code = models.CharField(max_length=20, unique=True)
+    description = models.TextField(max_length=1000)
     image = models.ImageField(upload_to='courses',
                               help_text='Recommended image resolution: 740px x 480px')
     status = models.CharField(max_length=10, default='pending')
@@ -73,7 +73,7 @@ class Course(models.Model):
 class Lesson(models.Model):
     title = models.CharField(max_length=100)
     number = models.IntegerField()
-    description = models.TextField(max_length=500)
+    description = models.TextField(max_length=1000)
     content = RichTextUploadingField()
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='lessons')
 

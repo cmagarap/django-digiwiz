@@ -53,7 +53,8 @@
                             </div><!--/.course-thumb-area-->
                             <div class="course-content">
                                 <h2><a href="{% url 'course_details' taken_course.course.pk %}">{{ taken_course.course.title }}</a></h2>
-                                <small>{{ taken_course.course.subject.get_html_badge }}</small>
+                                {{ taken_course.course.subject.get_html_badge }}
+                                ({{ taken_course.course.code }})
                                 <p style="white-space: nowrap; width: 300px; overflow: hidden; text-overflow: ellipsis">{{ taken_course.course.description }}</p>
                                 <hr>
                                 <div class="course-reviews">

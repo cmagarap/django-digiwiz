@@ -105,6 +105,7 @@
                             <div class="course-content">
                                 <h2><a href="{% url 'course_details' course.object_id %}">{{ course.title }}</a></h2>
                                 {{ course.subject.get_html_badge }}
+                                ({{ course.code }})
                                 <p style="white-space: nowrap; width: 310px; overflow: hidden; text-overflow: ellipsis">{{ course.description }}</p>
                                 <hr>
                                 <div class="course-reviews">

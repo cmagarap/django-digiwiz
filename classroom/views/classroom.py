@@ -61,10 +61,7 @@ class CourseDetailView(DetailView):
     def get_context_data(self, **kwargs):
         student = None
         teacher = None
-
         kwargs['title'] = self.get_object()
-        kwargs['course'] = get_object_or_404(Course.objects.filter(status='approved'),
-                                             pk=self.kwargs['pk'])
         kwargs['lessons'] = Lesson.objects.select_related('quizzes') \
             .select_related('course') \
             .filter(course__id=self.kwargs['pk']) \
@@ -73,10 +70,6 @@ class CourseDetailView(DetailView):
             .order_by('lesson__number')
         kwargs['files'] = MyFile.objects.filter(course_id=self.kwargs['pk']) \
             .order_by('file')
-
-        current_subject = kwargs['course'].subject_id
-        kwargs['related_courses'] = get_suggested_courses(self.kwargs['pk'],
-                                                          current_subject_id=current_subject)
 
         if self.request.user.is_authenticated:
             if self.request.user.is_student:
@@ -110,8 +103,20 @@ class CourseDetailView(DetailView):
                 kwargs['course'] = get_object_or_404(Course.objects.exclude(status='deleted'),
                                                      pk=self.kwargs['pk'])
 
+                current_subject = kwargs['course'].subject_id
+                kwargs['related_courses'] = get_suggested_courses(self.kwargs['pk'],
+                                                                  current_subject_id=current_subject)
+
+        else:
+            kwargs['course'] = get_object_or_404(Course.objects.filter(status='approved'),
+                                                 pk=self.kwargs['pk'])
+
+            current_subject = kwargs['course'].subject_id
+            kwargs['related_courses'] = get_suggested_courses(self.kwargs['pk'],
+                                                              current_subject_id=current_subject)
+
         kwargs['enrolled'] = student
-        kwargs['owns'] = teacher
+        kwargs['owns'] = True if teacher else None
 
         return super().get_context_data(**kwargs)
 

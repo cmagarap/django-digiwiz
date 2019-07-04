@@ -28,6 +28,20 @@
                     <div class="col-lg-3 col-md-12">
                         <div class="courses-sidebar">
                             <aside class="widget widget-courses-category">
+                                <h2>Lessons</h2>
+                                <ul class="list-unstyled">
+                                    {% for lesson in lessons %}
+                                        {% if enrolled.status == 'enrolled' or enrolled.status == 'finished' %}
+                                            <li><a href="{% url 'course_details' course.pk %}lesson?page={{ forloop.counter }}">{{ lesson.title }}</a></li>
+                                        {% else %}
+                                            <li>{{ lesson.title }}</li>
+                                        {% endif %}
+                                    {% empty %}
+                                        There are no lessons for this course.
+                                    {% endfor %}
+                                </ul>
+                            </aside>
+                            <aside class="widget widget-courses-category">
                                 <h2>Quizzes</h2>
                                 <ul class="list-unstyled">
                                     {% for quiz in quizzes %}
@@ -106,6 +120,12 @@
                                                     </button>
                                                 </div>
                                             {% endif %}
+                                        {% elif user.is_staff %}
+                                            <div class="course-cat text-capitalize text-right">
+                                                <button class="btn btn-default btn-primary" type="button">
+                                                    <a><span>{{ course.status }}</span></a>
+                                                </button>
+                                            </div>
                                         {% endif %}
                                     </div>
                                 </div>
@@ -233,7 +253,7 @@
                                     <div class="course-reviews">
                                         {% if user.is_student %}
                                             <center>
-                                                {% ratings course %}
+                                                {% ratings related_course %}
                                             </center>
                                         {% else %}
                                             <div class="star-ratings-css">
