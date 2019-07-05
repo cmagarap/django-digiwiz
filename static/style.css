@@ -1006,7 +1006,7 @@ ul.dropdown-content > .dropdown-trigger:hover > ul.dropdown-content > li:hover >
 
 .pricing-table-style-tow .pricing-content > .btn-default {
     border-radius: 5px;
-    color: #ffffff;
+    color: #f78888;
     font-size: 16px;
     padding: 15px 0;
     width: 100%;
@@ -1148,7 +1148,7 @@ ul.dropdown-content > .dropdown-trigger:hover > ul.dropdown-content > li:hover >
 # Contact Section
 ===============================*/
 .contact-form-area {
-    background-color: rgba(255, 127, 69, 0.9);
+    background-color: rgba(243, 210, 80, 0.9);
     padding: 90px 70px;
 }
 .contact-form-area h3 {
