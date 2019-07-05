@@ -15,13 +15,11 @@ def staff_required(function=None, redirect_field_name=REDIRECT_FIELD_NAME, login
     return actual_decorator
 
 
-def superuser_required(function=None, redirect_field_name=REDIRECT_FIELD_NAME, login_url='login'):
-    """
-    Decorator for views that checks that the logged in user is a teacher,
-    redirects to the log-in page if necessary.
-    """
+def student_required(function=None, redirect_field_name=REDIRECT_FIELD_NAME, login_url='login'):
+    """Decorator for views that checks that the logged in user is a student,
+    redirects to the log-in page if necessary."""
     actual_decorator = user_passes_test(
-        lambda u: u.is_active and u.is_superuser,
+        lambda u: u.is_active and u.is_student,
         login_url=login_url,
         redirect_field_name=redirect_field_name
     )
@@ -30,11 +28,11 @@ def superuser_required(function=None, redirect_field_name=REDIRECT_FIELD_NAME, l
     return actual_decorator
 
 
-def student_required(function=None, redirect_field_name=REDIRECT_FIELD_NAME, login_url='login'):
-    """Decorator for views that checks that the logged in user is a student,
+def superuser_required(function=None, redirect_field_name=REDIRECT_FIELD_NAME, login_url='login'):
+    """Decorator for views that checks that the logged in user is a superuser,
     redirects to the log-in page if necessary."""
     actual_decorator = user_passes_test(
-        lambda u: u.is_active and u.is_student,
+        lambda u: u.is_active and u.is_superuser,
         login_url=login_url,
         redirect_field_name=redirect_field_name
     )

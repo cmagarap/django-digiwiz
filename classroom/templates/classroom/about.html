@@ -21,7 +21,7 @@
             <div class="container">
                 <div class="row justify-content-md-center">
                     <div class="section-heading-area text-center">
-                        <h2 class="section-heading text-capitalize">DigiWiz</h2>
+                        <h2 class="section-heading text-capitalize">DigiWiz: The Open-source Learning Platform</h2>
                     </div>
                 </div>
             </div>
@@ -154,4 +154,19 @@
             </div><!--/.row-->
         </div><!--/.container-->
     </section><!--/#services-section-->
+{% endblock %}
+
+{% block join_us %}
+    <div class="footer-top-area">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-9">
+                        <h2>Become A Part of DigiWiz Community Today</h2>
+                    </div><!--/.col-lg-9-->
+                    <div class="col-lg-3 text-right">
+                        <a href="{% url 'register' %}" class="btn btn-default">get started</a>
+                    </div><!--/.col-lg-3-->
+                </div><!--/.row-->
+            </div><!--/.container-->
+        </div><!--/.footer-top-area-->
 {% endblock %}

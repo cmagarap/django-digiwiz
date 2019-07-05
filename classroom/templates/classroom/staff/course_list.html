@@ -1,5 +1,5 @@
 {% extends 'staff_base.html' %}
-
+{% load thumbnail %}
 {% block content %}
     <!-- ============================================================== -->
     <!-- pageheader -->
@@ -62,9 +62,14 @@
                                             </a>
                                         </td>
                                         <td>{{ course.code }}</td>
-                                        <td>{{ course.owner.first_name }} {{ course.owner.last_name }}</td>
-                                        <td>{{ course.created_at|date:"F d, Y g:i A" }}</td>
-                                        <td>{{ course.updated_at|date:"F d, Y g:i A" }}</td>
+                                        <td>
+                                            {% thumbnail course.owner.teacher.image "40x40" crop="center" as im %}
+                                                <img class="rounded-circle" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="user">&nbsp;&nbsp;
+                                            {% endthumbnail %}
+                                            {{ course.owner.first_name }} {{ course.owner.last_name }}
+                                        </td>
+                                        <td>{{ course.created_at|date:"F j, Y g:i A" }}</td>
+                                        <td>{{ course.updated_at|date:"F j, Y g:i A" }}</td>
                                         <td>
                                             <a href="#" class="btn btn-rounded btn-danger delete" title="Delete" data-id="{{ course.pk }}"><i class="fas fa-trash-alt"></i></a>
                                         </td>
@@ -150,4 +155,16 @@
                 });
         });
     </script>
+{% endblock %}
+
+{% block footer %}
+    <div class="footer">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
+                    Copyright © 2019 <a href="https://github.com/seeej/digiwiz" target="_blank">DigiWiz</a>. All rights reserved.
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

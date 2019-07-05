@@ -42,8 +42,8 @@
                             {% csrf_token %}
                             {{ form|crispy }}
                             <center>
-                                <button type="submit" class="btn btn-success">Save changes</button>
-                                <a href="{% url 'staff:subject_list' %}" class="btn btn-secondary" role="button">Cancel</a>
+                                <button type="submit" class="btn btn-secondary">Save changes</button>
+                                <a href="{% url 'staff:subject_list' %}" class="btn btn-primary" role="button">Cancel</a>
                             </center>
                         </form>
                     </div>

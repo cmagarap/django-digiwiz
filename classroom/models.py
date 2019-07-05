@@ -48,8 +48,8 @@ class Subject(models.Model):
 
 class Course(models.Model):
     title = models.CharField(max_length=100)
-    code = models.CharField(max_length=20)
-    description = models.TextField(max_length=500)
+    code = models.CharField(max_length=20, unique=True)
+    description = models.TextField(max_length=1000)
     image = models.ImageField(upload_to='courses',
                               help_text='Recommended image resolution: 740px x 480px')
     status = models.CharField(max_length=10, default='pending')
@@ -73,7 +73,7 @@ class Course(models.Model):
 class Lesson(models.Model):
     title = models.CharField(max_length=100)
     number = models.IntegerField()
-    description = models.TextField(max_length=500)
+    description = models.TextField(max_length=1000)
     content = RichTextUploadingField()
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='lessons')
 
@@ -105,10 +105,6 @@ class Question(models.Model):
     def __str__(self):
         return self.text
 
-    def save(self, *args, **kwargs):
-        setattr(self, 'text', getattr(self, 'text', False).capitalize())
-        super(Question, self).save(*args, **kwargs)
-
 
 class Answer(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='answers')
@@ -121,7 +117,7 @@ class Answer(models.Model):
 
 class Teacher(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    image = ImageField(default='profile_pics/default-user.png', upload_to='profile_pics')
+    image = ImageField(default='profile_pics/default-user.jpg', upload_to='profile_pics')
 
     def __str__(self):
         return f'{self.user.username} - teacher'
@@ -129,7 +125,7 @@ class Teacher(models.Model):
 
 class Student(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    image = ImageField(default='profile_pics/default-user.png', upload_to='profile_pics')
+    image = ImageField(default='profile_pics/default-user.jpg', upload_to='profile_pics')
     courses = models.ManyToManyField(Course, through='TakenCourse')
     quizzes = models.ManyToManyField(Quiz, through='TakenQuiz')
     interests = models.ManyToManyField(Subject, related_name='interested_students')
@@ -161,7 +157,6 @@ class TakenQuiz(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='taken_quizzes')
     score = models.FloatField()
     date = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=12, default='incomplete')
 
     def __str__(self):
         return f'{self.student.user.username}: {self.quiz.title}'

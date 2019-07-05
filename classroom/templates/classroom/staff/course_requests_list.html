@@ -1,4 +1,5 @@
 {% extends 'staff_base.html' %}
+{% load thumbnail %}
 {% block content %}
     <!-- ============================================================== -->
     <!-- pageheader -->
@@ -56,17 +57,22 @@
                                 {% for course in courses %}
                                     <tr>
                                         <td>
-                                            <a href="{% url 'course_details' course.pk %}">
+                                            <a href="{% url 'course_details' course.pk %}" target="_blank">
                                                 <b><u>{{ course.title }}</u></b>
                                             </a>
                                         </td>
                                         <td>{{ course.code }}</td>
-                                        <td>{{ course.owner.first_name }} {{ course.owner.last_name }}</td>
-                                        <td>{{ course.created_at|date:"F d, Y g:i A" }}</td>
-                                        <td>{{ course.updated_at|date:"F d, Y g:i A" }}</td>
+                                        <td>
+                                            {% thumbnail course.owner.teacher.image "40x40" crop="center" as im %}
+                                                <img class="rounded-circle" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="user">&nbsp;&nbsp;
+                                            {% endthumbnail %}
+                                            {{ course.owner.first_name }} {{ course.owner.last_name }}
+                                        </td>
+                                        <td>{{ course.created_at|date:"F j, Y g:i A" }}</td>
+                                        <td>{{ course.updated_at|date:"F j, Y g:i A" }}</td>
                                         <td>
                                             <a href="{% url 'staff:accept_course' course.pk %}" class="btn btn-rounded btn-success">Approve</a>
-                                            <a href="{% url 'staff:reject_course' course.pk %}" class="btn btn-rounded btn-danger">Reject</a>
+                                            <a href="#" class="btn btn-rounded btn-danger reject" data-id="{{ course.pk }}">Reject</a>
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -130,4 +136,23 @@
             </nav>
         </div>
     </div>
+
+    <script>
+        $(".reject").click(function () {
+            var url = "{% url 'staff:course_requests'  %}";
+            var id = $(this).data('id');
+            swal({
+                title: "Are you sure you want to reject this course?",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            })
+                .then((willDelete) => {
+                    if (willDelete) {
+                        {# This will follow the url pattern of 'staff:course_delete' #}
+                        window.location = url + "reject/" + id;
+                    }
+                });
+        });
+    </script>
 {% endblock %}

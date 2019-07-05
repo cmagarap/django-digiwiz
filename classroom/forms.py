@@ -39,11 +39,19 @@ class BaseAnswerInlineFormSet(forms.BaseInlineFormSet):
             raise ValidationError('Mark at least one answer as correct.', code='no_correct_answer')
 
 
+class ContactUsForm(forms.Form):
+    name = forms.CharField(widget=forms.TextInput(attrs={'autocomplete': 'off'}))
+    email = forms.EmailField(widget=forms.TextInput(attrs={'autocomplete': 'off'}))
+    subject = forms.CharField(widget=forms.TextInput(attrs={'autocomplete': 'off'}), max_length=100)
+    message = forms.CharField(widget=forms.Textarea)
+    cc_myself = forms.BooleanField(required=False)
+
+
 class CourseAddForm(forms.ModelForm):
     title = forms.CharField(max_length=100)
     code = forms.CharField(max_length=20, label='Course Code')
-    description = forms.CharField(widget=forms.Textarea(), max_length=500, label='Short Description')
-    image = forms.ImageField()
+    description = forms.CharField(widget=forms.Textarea(), max_length=1000, label='Short Description')
+    image = forms.ImageField(help_text='Recommended image resolution: 740px x 480px. This field is required.')
 
     class Meta:
         model = Course
@@ -77,7 +85,7 @@ class LessonAddForm(forms.ModelForm):
     title = forms.CharField(max_length=100)
     number = forms.IntegerField(max_value=20, label='Lesson No.',
                                 help_text='This helps the ordering of your lessons in the display.')
-    description = forms.CharField(widget=forms.Textarea(), label='Short Description', max_length=500)
+    description = forms.CharField(widget=forms.Textarea(), label='Short Description', max_length=1000)
     content = forms.Textarea()
 
     class Meta:
@@ -106,6 +114,8 @@ class LessonEditForm(forms.ModelForm):
 
 
 class QuizAddForm(forms.ModelForm):
+    title = forms.CharField(widget=forms.TextInput(attrs={'autocomplete': 'off'}))
+
     class Meta:
         model = Quiz
         fields = ('title', 'course', 'lesson')
@@ -131,7 +141,8 @@ class QuizAddForm(forms.ModelForm):
 
 
 class QuizEditForm(forms.ModelForm):
-    title = forms.CharField(max_length=255)
+    title = forms.CharField(max_length=255,
+                            widget=forms.TextInput(attrs={'autocomplete': 'off'}))
 
     class Meta:
         model = Quiz
@@ -139,6 +150,8 @@ class QuizEditForm(forms.ModelForm):
 
 
 class QuestionForm(forms.ModelForm):
+    text = forms.CharField(widget=forms.TextInput(attrs={'autocomplete': 'off'}))
+
     class Meta:
         model = Question
         fields = ('text', )

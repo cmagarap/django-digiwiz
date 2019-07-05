@@ -49,7 +49,7 @@
                                     {{ lesson.number }}
                                 </div>
                                 <div class="col-2">
-                                    <a href="{% url 'course_details' lesson.course.pk %}">{{ lesson.course.title }}</a>
+                                    <a href="{% url 'course_details' lesson.course.pk %}" target="_blank">{{ lesson.course.title }}</a>
                                 </div>
                                 <div class="col-2">
                                     <a href="{% url 'teachers:lesson_edit' lesson.course_id lesson.pk %}" class="btn btn-rounded btn-info">Edit</a>
@@ -64,6 +64,39 @@
                         </div>
                     {% endfor %}
                 </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <nav class="courses-navigation default-pager text-center">
+                    {% if is_paginated %}
+                        {% if page_obj.has_previous %}
+                            <a href="?page=1" title="First Lesson">
+                                <i class="fa fa-angle-double-left"></i>
+                            </a>
+                            <a href="?page={{ page_obj.previous_page_number }}" title="Previous Lesson">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        {% endif %}
+
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <a href="?page={{ num }}" title="Lesson {{ num }}" style="background-color: #f78888; color: #fff">{{ num }}</a>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <a href="?page={{ num }}" title="Lesson {{ num }}">{{ num }}</a>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}" title="Next Lesson">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                            <a href="?page={{ page_obj.paginator.num_pages }}" title="Last Lesson">
+                                <i class="fa fa-angle-double-right"></i>
+                            </a>
+                        {% endif %}
+                    {% endif %}
+                </nav>
             </div>
         </div>
     </section>

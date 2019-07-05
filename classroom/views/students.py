@@ -5,6 +5,7 @@ from django.contrib.auth.views import PasswordChangeView
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
 from django.db import transaction
+from django.db.models import Avg
 from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
@@ -42,9 +43,6 @@ class ChangePassword(PasswordChangeView):
 class LessonListView(ListView):
     model = Lesson
     context_object_name = 'lessons'
-    extra_context = {
-        'title': 'Lessons',
-    }
     template_name = 'classroom/students/lessons.html'
     paginate_by = 1
 
@@ -53,6 +51,12 @@ class LessonListView(ListView):
             .select_related('course') \
             .filter(course__id=self.kwargs['pk']) \
             .order_by('number')
+
+    def get_context_data(self, **kwargs):
+        course = Course.objects.values('id', 'title').get(id=self.kwargs['pk'])
+        kwargs['title'] = f"{course['title']} Lessons"
+
+        return super().get_context_data(**kwargs)
 
 
 @method_decorator([login_required, student_required], name='dispatch')
@@ -69,6 +73,7 @@ class MyCoursesListView(ListView):
         queryset = self.request.user.student.taken_courses \
             .select_related('course', 'course__subject') \
             .filter(status__in=['enrolled', 'pending', 'finished']) \
+            .filter(course__status='approved') \
             .order_by('course__title')
 
         return queryset
@@ -103,10 +108,15 @@ class TakenQuizListView(ListView):
     template_name = 'classroom/students/taken_quiz_list.html'
     paginate_by = 10
 
+    def get_context_data(self, **kwargs):
+        kwargs['grade'] = TakenQuiz.objects.filter(student_id=self.request.user.pk).aggregate(average=Avg('score'))
+
+        return super().get_context_data(**kwargs)
+
     def get_queryset(self):
         queryset = self.request.user.student.taken_quizzes \
             .select_related('quiz') \
-            .order_by('quiz__title')
+            .order_by('-id')
         return queryset
 
 
@@ -279,7 +289,8 @@ def take_quiz(request, course_pk, quiz_pk):
     student = request.user.student
 
     if student.quizzes.filter(pk=quiz_pk).exists():
-        messages.error(request, 'You already took that quiz!')
+        messages.error(request, 'We\'re sorry, you already took that quiz! '
+                                'You may see the result in your quizzes page.')
         return redirect('course_details', course_pk)
 
     total_questions = quiz.questions.count()
@@ -306,18 +317,14 @@ def take_quiz(request, course_pk, quiz_pk):
                                                                   answer__is_correct=True).count()
                     score = round((correct_answers / total_questions) * 100.0, 2)
                     TakenQuiz.objects.create(student=student, quiz=quiz, course=course,
-                                             score=score, status='Finished')
+                                             score=score)
 
                     UserLog.objects.create(action=f'Took the quiz: {quiz.title}',
                                            user_type='student',
                                            user=request.user)
 
-                    if score < 50.0:
-                        messages.warning(request, f'Better luck next time! Your score for the '
-                                                  f'quiz { quiz.title } was { score }.')
-                    else:
-                        messages.success(request, f'Congratulations! You completed the '
-                                                  f'quiz { quiz.title } with success! You scored { score } points.')
+                    messages.success(request, f'Congratulations! You completed the '
+                                              f'quiz { quiz.title }! Your grade is { score }%.')
 
                     # Count the taken quizzes and quizzes:
                     taken_quiz_count = TakenQuiz.objects.filter(student_id=request.user.pk, course=course) \
@@ -327,7 +334,7 @@ def take_quiz(request, course_pk, quiz_pk):
 
                     # Check if the taken quizzes and quizzes have equal count:
                     if taken_quiz_count == quiz_count:
-                        TakenCourse.objects.filter(course_id=course_pk).update(status='finished')
+                        TakenCourse.objects.filter(course_id=course_pk, student_id=request.user.pk).update(status='finished')
 
                     return redirect('course_details', course_pk)
     else:

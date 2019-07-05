@@ -34,24 +34,24 @@
         {% endfor %}
     {% endif %}
     <div class="container">
-    <div class="row">
-        <!-- ============================================================== -->
-        <!-- basic table  -->
-        <!-- ============================================================== -->
-        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-            <div class="card">
-                <div class="card-body">
-                    <form method="post" novalidate>
-                        {% csrf_token %}
-                        {{ form|crispy }}
-                        <center>
-                            <button type="submit" class="btn btn-success">Save changes</button>
-                            <a href="{% url 'staff:admin_list' %}" class="btn btn-secondary" role="button">Cancel</a>
-                        </center>
-                    </form>
+        <div class="row">
+            <!-- ============================================================== -->
+            <!-- basic table  -->
+            <!-- ============================================================== -->
+            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <form method="post" novalidate>
+                            {% csrf_token %}
+                            {{ form|crispy }}
+                            <center>
+                                <button type="submit" class="btn btn-secondary">Save changes</button>
+                                <a href="{% url 'staff:admin_list' %}" class="btn btn-primary" role="button">Cancel</a>
+                            </center>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
     </div>
 {% endblock %}

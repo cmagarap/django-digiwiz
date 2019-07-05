@@ -1,5 +1,206 @@
 {% extends 'staff_base.html' %}
-
+{% load static %}
+{% load thumbnail %}
 {% block content %}
+    <div class="row">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+            <div class="page-header">
+                <h2 class="pageheader-title">Dashboard</h2>
+                <div class="page-breadcrumb">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item active" aria-current="page">Admin</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+                <p{% if forloop.last %} class="mb-0"{% endif %}>{{ message }}</p>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row">
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="text-muted">Courses</h5>
+                    <div class="metric-value d-inline-block">
+                        <h1 class="mb-1 text-primary">{{ courses_count }} </h1>
+                    </div>
+                    <div class="metric-label d-inline-block float-right">
+                        <h1 class="mb-1 text-primary"><i class="fas fa-book"></i></h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="text-muted">Students</h5>
+                    <div class="metric-value d-inline-block">
+                        <h1 class="mb-1 text-primary">{{ students_count }} </h1>
+                    </div>
+                    <div class="metric-label d-inline-block float-right">
+                        <h1 class="mb-1 text-primary"><i class="fas fa-child"></i></h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="text-muted">Teachers</h5>
+                    <div class="metric-value d-inline-block">
+                        <h1 class="mb-1 text-primary">{{ teachers_count }}</h1>
+                    </div>
+                    <div class="metric-label d-inline-block float-right">
+                        <h1 class="mb-1 text-primary"><i class="fab fa-black-tie"></i></h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="text-muted">Quizzes</h5>
+                    <div class="metric-value d-inline-block">
+                        <h1 class="mb-1 text-primary">{{ quizzes_count }}</h1>
+                    </div>
+                    <div class="metric-label d-inline-block float-right">
+                        <h1 class="mb-1 text-primary"><i class="fas fa-pencil-alt"></i></h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xl-8 col-lg-12 col-md-8 col-sm-12 col-12">
+            <div class="card">
+                <h5 class="card-header"><i class="fas fa-chart-line" style="color: #F78888"></i> Daily User Activities</h5>
+                <div class="card-body">
+                    <canvas id="activities-line" width="500" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-lg-12 col-md-4 col-sm-12 col-12">
+            <div class="card">
+                <h5 class="card-header"><i class="fas fa-chart-pie" style="color: #F78888"></i> Course Status</h5>
+                <div class="card-body">
+                    <canvas id="course-status-donut" width="220" height="188"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xl-7 col-lg-12 col-md-12 col-sm-12 col-12">
+            <div class="card">
+                <h5 class="card-header"><i class="fas fa-address-book" style="color: #F3D250"></i> Latest User Log</h5>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead class="bg-light">
+                            <tr class="border-0">
+                                <th class="border-0">User</th>
+                                <th class="border-0">Action</th>
+                                <th class="border-0">User Type</th>
+                                <th class="border-0">Date</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for user_log in latest_user_log %}
+                                <tr>
+                                    <td>
+                                        {% if user_log.user_type == 'teacher' %}
+                                            {% thumbnail user_log.user.teacher.image "40x40" crop="center" as im %}
+                                                <img class="rounded-circle" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="user">&nbsp;&nbsp;
+                                            {% endthumbnail %}
+                                        {% elif user_log.user_type == 'student' %}
+                                            {% thumbnail user_log.user.student.image "40x40" crop="center" as im %}
+                                                <img class="rounded-circle" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="user">&nbsp;&nbsp;
+                                            {% endthumbnail %}
+                                        {% endif %}
+                                        <b>{{ user_log.user }}</b>
+                                    </td>
+                                    <td>{{ user_log.action }}</td>
+                                    <td>{{ user_log.user_type.title }}</td>
+                                    <td>{{ user_log.created_at|date:"F j, Y g:i A" }}</td>
+                                </tr>
+                            {% endfor %}
+                            <tr>
+                                <td colspan="8"><a href="{% url 'staff:user_log_list' %}" class="btn btn-outline-light float-right">Go To User Log</a></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-5 col-lg-12 col-md-12 col-sm-12 col-12">
+            <div class="card">
+                <h5 class="card-header"><i class="fas fa-fw fa-book" style="color: #F3D250"></i> Top Rated Courses</h5>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead class="bg-light">
+                            <tr class="border-0">
+                                <th class="border-0">Rating</th>
+                                <th class="border-0">Course</th>
+                                <th class="border-0">Course Code</th>
+                                <th class="border-0">Owner</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for course in popular_courses %}
+                                <tr>
+                                    <td>
+                                        <span style="color: #ffc107"><b>★</b></span> {{ course.average|floatformat:"-2" }}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'course_details' course.object_id %}" target="_blank">
+                                            <b><u>{{ course.title }}</u></b>
+                                        </a>
+                                    </td>
+                                    <td>{{ course.code }}</td>
+                                    <td>
+                                        {% thumbnail course.owner.teacher.image "40x40" crop="center" as im %}
+                                            <img class="rounded-circle" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="user">&nbsp;&nbsp;
+                                        {% endthumbnail %}
+                                        {{ course.owner.first_name }} {{ course.owner.last_name }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            <tr>
+                                <td colspan="8"><a href="{% url 'staff:course_list' %}" class="btn btn-outline-light float-right">Go To Courses</a></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="{% static 'staff/assets/charts/course_status_donut.js' %}"></script>
+    <script type="text/javascript" src="{% static 'staff/assets/charts/user_line.js' %}"></script>
+{% endblock %}
+
+{% block footer %}
+    <div class="footer">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
+                    Copyright © 2019 <a href="https://github.com/seeej/digiwiz" target="_blank">DigiWiz</a>. All rights reserved.
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
