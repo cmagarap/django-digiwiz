@@ -56,6 +56,7 @@ def get_user_type(user):
 
 class CourseDetailView(DetailView):
     model = Course
+    context_object_name = 'course'
     template_name = 'classroom/course_details.html'
 
     def get_context_data(self, **kwargs):
@@ -78,7 +79,7 @@ class CourseDetailView(DetailView):
                 student = self.request.user.student.taken_courses.values('id', 'status') \
                     .filter(course__id=self.kwargs['pk']).first()
 
-                kwargs['taken_quizzes'] = TakenQuiz.objects\
+                kwargs['taken_quizzes'] = TakenQuiz.objects \
                     .filter(student=self.request.user.student, course_id=self.kwargs['pk'])
 
                 taken_quiz_count = TakenQuiz.objects.filter(student_id=self.request.user.pk,
@@ -92,6 +93,9 @@ class CourseDetailView(DetailView):
                 subject_interests = Student.objects.values_list('interests').filter(pk=self.request.user)
                 kwargs['related_courses'] = get_suggested_courses(self.kwargs['pk'],
                                                                   subject_interests=subject_interests)
+
+                kwargs['course'] = get_object_or_404(Course.objects.filter(status='approved'),
+                                                     pk=self.kwargs['pk'])
 
             elif self.request.user.is_teacher:
                 student = None
