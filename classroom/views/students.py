@@ -289,7 +289,8 @@ def take_quiz(request, course_pk, quiz_pk):
     student = request.user.student
 
     if student.quizzes.filter(pk=quiz_pk).exists():
-        messages.error(request, 'You already took that quiz!')
+        messages.error(request, 'We\'re sorry, you already took that quiz! '
+                                'You may see the result in your quizzes page.')
         return redirect('course_details', course_pk)
 
     total_questions = quiz.questions.count()

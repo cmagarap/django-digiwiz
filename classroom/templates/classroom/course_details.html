@@ -190,18 +190,7 @@
                                                     {% elif user.is_student %}
                                                         {% if enrolled.status == 'enrolled' or enrolled.status == 'finished' %}
                                                             <a href="{% url 'course_details' course.pk %}lesson?page={{ forloop.counter }}" class="btn btn-primary mb-3" style=" border-color:#f78888;" role="button">See Lesson</a>
-
-                                                            {#                                                            {{ lesson.quizzes.pk }}#}
-
-                                                            {% for taken in taken_quizzes %}
-                                                                {{ taken.quiz_id }}
-                                                                {#                                                                {% if taken.quiz_id == lesson.quizzes.pk %}#}
-                                                                {#                                                                    <a class="btn btn-primary mb-3 disabled" style="background-color: buttonface;border-color: buttonface; color: graytext;"role="button">Quiz Already Taken</a><br>#}
-                                                                {#                                                                    <a href="{% url 'students:taken_quiz_detail' taken.id lesson.quizzes.pk %}">See Results</a>#}
-                                                                {#                                                                {% else %}#}
-                                                                {#                                                                    <a href="{% url 'students:take_quiz' lesson.course.pk lesson.quizzes.pk %}" class="btn btn-primary btn-takequiz mb-3" role="button">Take Quiz</a>#}
-                                                                {#                                                                {% endif %}#}
-                                                            {% endfor %}
+                                                            <a href="{% url 'students:take_quiz' lesson.course.pk lesson.quizzes.pk %}" class="btn btn-primary btn-takequiz mb-3" role="button">Take Quiz</a>
                                                         {% else %}
                                                             <i>Enroll in this course to see more.</i>
                                                         {% endif %}

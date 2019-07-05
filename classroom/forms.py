@@ -39,6 +39,14 @@ class BaseAnswerInlineFormSet(forms.BaseInlineFormSet):
             raise ValidationError('Mark at least one answer as correct.', code='no_correct_answer')
 
 
+class ContactUsForm(forms.Form):
+    name = forms.CharField(widget=forms.TextInput(attrs={'autocomplete': 'off'}))
+    email = forms.EmailField(widget=forms.TextInput(attrs={'autocomplete': 'off'}))
+    subject = forms.CharField(widget=forms.TextInput(attrs={'autocomplete': 'off'}), max_length=100)
+    message = forms.CharField(widget=forms.Textarea)
+    cc_myself = forms.BooleanField(required=False)
+
+
 class CourseAddForm(forms.ModelForm):
     title = forms.CharField(max_length=100)
     code = forms.CharField(max_length=20, label='Course Code')

@@ -1,4 +1,6 @@
+from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
+from django.core.mail import send_mail
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
@@ -6,7 +8,7 @@ from django.views.generic import DetailView
 from random import sample
 from .raw_sql import get_popular_courses
 from .teachers import get_enrollment_requests_count
-from ..forms import SearchCourses, UserLoginForm
+from ..forms import ContactUsForm, SearchCourses, UserLoginForm
 from ..models import (Course, Lesson, MyFile, Quiz, Student,
                       Subject, TakenQuiz, User, UserLog)
 
@@ -265,6 +267,7 @@ def browse_courses_subject(request, subject_pk):
 
 
 def contact_us(request):
+    form = None
     if request.user.is_authenticated:
         if request.user.is_teacher:
             return redirect('teachers:course_change_list')
@@ -272,7 +275,34 @@ def contact_us(request):
             return redirect('students:mycourses_list')
         elif request.user.is_staff:
             return redirect('staff:dashboard')
-    return render(request, 'classroom/contact.html', {'title': 'Contact Us'})
+    else:
+        if request.method == 'POST':
+            form = ContactUsForm(request.POST)
+            if form.is_valid():
+                subject = form.cleaned_data['subject']
+                message = form.cleaned_data['message']
+                sender = form.cleaned_data['email']
+                cc_myself = form.cleaned_data['cc_myself']
+
+                recipients = ['digiwiz.sq@gmail.com']
+                if cc_myself:
+                    recipients.append(sender)
+
+                try:
+                    send_mail(subject, message, sender, recipients)
+
+                    messages.success(request, 'You successfully sent an email to us. '
+                                              'Please wait for a response in your email, thank you.')
+
+                    return redirect('contact_us')
+                except Exception:
+                    messages.error(request, 'An unexpected error has occurred. Please try again.')
+
+                    return redirect('contact_us')
+        else:
+            form = ContactUsForm()
+
+    return render(request, 'classroom/contact.html', {'title': 'Contact Us', 'form': form})
 
 
 def home(request):
