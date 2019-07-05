@@ -74,7 +74,11 @@ class Lesson(models.Model):
     title = models.CharField(max_length=100)
     number = models.IntegerField()
     description = models.TextField(max_length=1000)
-    content = RichTextUploadingField()
+    content = RichTextUploadingField(external_plugin_resources=[(
+        'youtube',
+        '/static/classroom/vendor/ckeditor_plugins/youtube/youtube/',
+        'plugin.js',
+    )])
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='lessons')
 
     def __str__(self):

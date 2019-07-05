@@ -62,8 +62,10 @@ CKEDITOR_CONFIGS = {
              'BidiLtr', 'BidiRtl'],
             ['RemoveFormat', 'Smiley', 'SpecialChar'],
             ['Styles', 'Format'],
+            ['Youtube'],
             ['Source']
         ],
+        'extraPlugins': 'youtube',
     },
 }
 

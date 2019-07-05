@@ -40,7 +40,6 @@ class BaseAnswerInlineFormSet(forms.BaseInlineFormSet):
 
 
 class ContactUsForm(forms.Form):
-    name = forms.CharField(widget=forms.TextInput(attrs={'autocomplete': 'off'}))
     email = forms.EmailField(widget=forms.TextInput(attrs={'autocomplete': 'off'}))
     subject = forms.CharField(widget=forms.TextInput(attrs={'autocomplete': 'off'}), max_length=100)
     message = forms.CharField(widget=forms.Textarea)
