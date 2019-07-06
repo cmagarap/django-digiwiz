@@ -66,185 +66,189 @@
     {% endfor %}</style>
 </head>
 <body>
-    <!--====Header Area
-    ====================================-->
-    <header id="site-header" class="header-area">
-        <div class="header-inner">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="logo-menu-wrap hidden-xs hidden-sm">
-                            <div class="logo">
-                                <a href="{% url 'home' %}">
-                                    <img src="{% static 'images/digiwiz.png' %}" alt="logo" height="50">
-                                </a>
-                            </div><!--/.logo-->
+<!--====Header Area
+====================================-->
+<header id="site-header" class="header-area">
+    <div class="header-inner">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="logo-menu-wrap hidden-xs hidden-sm">
+                        <div class="logo">
+                            <a href="{% url 'home' %}">
+                                <img src="{% static 'images/digiwiz.png' %}" alt="logo" height="50">
+                            </a>
+                        </div><!--/.logo-->
 
-                            <nav class="menu">
-                                <ul id="nav" align="center">
-                                    {% if user.is_authenticated %}
-                                        {% if user.is_student %}
-                                            {% if title != 'Browse Courses' %}
-                                                <li>
-                                                    <form class="product-search-form" method="get" action="{% url 'browse_courses' %}" style="position: absolute; left: -280px; top: 10px;" novalidate>
+                        <nav class="menu">
+                            <ul id="nav" align="center">
+                                {% if user.is_authenticated %}
+                                    {% if user.is_student %}
+                                        {% if title != 'Browse Courses' %}
+                                            <li>
+                                                <form class="product-search-form" method="get" action="{% url 'browse_courses' %}" style="position: absolute; left: -280px; top: 10px;" novalidate>
                                                     <div class="form-group"style="width: 300px;  height: 50px; " >
                                                         <input type="text" name="search" placeholder="Search course" class="textinput textInput form-controllar" required id="id_search" style="height: 50px; width: 230px">
                                                         <input type="image" src="{% static 'images/icon/search.png' %}" style="height:30px; width:30px; margin: 8px;" align="right" alt="Search" title="Search">
                                                     </div>
                                                 </form>
-                                                </li>
-                                            {% endif %}
-                                            <li class="dropdown-trigger">
-                                                {% thumbnail user.student.image "40x40" crop="center" as im %}
-                                                    <img class="rounded-circle" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="course-owner">
-                                                {% endthumbnail %}&nbsp;&nbsp;
-                                                <a href="#">{{ user.first_name }}</a>
-                                                <ul class="dropdown-content">
-                                                    <li><a href="{% url 'students:profile' %}">My Profile</a></li>
-                                                    <li><a href="{% url 'students:mycourses_list' %}">My Courses</a></li>
-                                                    <li><a href="{% url 'students:taken_quiz_list' %}">My Quizzes</a></li>
-
-                                                </ul>
                                             </li>
-                                            <li><a href="{% url 'browse_courses' %}">Browse Courses</a></li>
+                                        {% endif %}
 
-                                        {% elif user.is_teacher %}
+                                        <li><a href="{% url 'browse_courses' %}">Browse Courses</a></li>
+<li class="dropdown-trigger">
+                                            {% thumbnail user.student.image "40x40" crop="center" as im %}
+                                                <img class="rounded-circle" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="course-owner">
+                                            {% endthumbnail %}&nbsp;&nbsp;
+                                            <a href="#">{{ user.first_name }}</a>
+                                            <ul class="dropdown-content">
+                                                <li><a href="{% url 'students:profile' %}">My Profile</a></li>
+                                                <li><a href="{% url 'students:mycourses_list' %}">My Courses</a></li>
+                                                <li><a href="{% url 'students:taken_quiz_list' %}">My Quizzes</a></li>
+                                                <li class="login"><a href="{% url 'logout' %}">Logout</a></li>
+                                            </ul>
+                                        </li>
+                                    {% elif user.is_teacher %}
 
-                                            <li class="dropdown-trigger">
-                                                {% thumbnail user.teacher.image "40x40" crop="center" as im %}
-                                                    <img class="rounded-circle" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="course-owner">
-                                                {% endthumbnail %}&nbsp;&nbsp;
-                                                <a href="#">{{ user.first_name }}</a>
-                                                <ul class="dropdown-content">
-                                                    <li><a href="{% url 'teachers:profile' %}">My Profile</a></li>
-                                                    <li><a href="{% url 'teachers:course_change_list' %}">My Courses</a></li>
-                                                    <li><a href="{% url 'teachers:lesson_list' %}">My Lessons</a></li>
-                                                    <li><a href="{% url 'teachers:quiz_list' %}">My Quizzes</a></li>
-                                                    <li><a href="{% url 'teachers:file_list' %}">My Files</a></li>
-                                                </ul>
-                                            </li>
-                                            <li ><a href="{% url 'browse_courses' %}">Browse Courses</a></li>
-                                            <li class="login">
-                                                <a href="{% url 'teachers:enrollment_requests_list' %}">Enrollment Requests
-                                                    {% if enrollment_request_count > 0 %}
-                                                        <sup>
+
+                                        <li ><a href="{% url 'browse_courses' %}">Browse Courses</a></li>
+                                        <li class="login">
+                                            <a href="{% url 'teachers:enrollment_requests_list' %}">Enrollment Requests
+                                                {% if enrollment_request_count > 0 %}
+                                                    <sup>
                                                             <span style="background-color: red; color: white; padding: 2px; border-radius: 3px;">
                                                                 &nbsp;<b>{{ enrollment_request_count }}</b>&nbsp;
                                                             </span>
-                                                        </sup>
-                                                    {% endif %}
-                                                </a>
-                                            </li>
-                                        {% elif user.is_staff %}
-                                            <li><a>{{ user.first_name }}</a></li>
-                                        {% endif %}
+                                                    </sup>
+                                                {% endif %}
+                                            </a>
+                                        </li>
+                                        <li class="dropdown-trigger">
+                                            {% thumbnail user.teacher.image "40x40" crop="center" as im %}
+                                                <img class="rounded-circle" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="course-owner">
+                                            {% endthumbnail %}&nbsp;&nbsp;
+                                            <a href="#">{{ user.first_name }}</a>
+
+                                            <ul class="dropdown-content">
+                                                <li><a href="{% url 'teachers:profile' %}">My Profile</a></li>
+                                                <li><a href="{% url 'teachers:course_change_list' %}">My Courses</a></li>
+                                                <li><a href="{% url 'teachers:lesson_list' %}">My Lessons</a></li>
+                                                <li><a href="{% url 'teachers:quiz_list' %}">My Quizzes</a></li>
+                                                <li><a href="{% url 'teachers:file_list' %}">My Files</a></li>
+                                                <li class="login"><a href="{% url 'logout' %}">Logout</a></li>
+                                            </ul>
+                                        </li>
+                                    {% elif user.is_staff %}
+                                        <li><a>{{ user.first_name }}</a></li>
                                         <li class="login"><a href="{% url 'logout' %}">Logout</a></li>
-                                        </ul>
+                                    {% endif %}
+
+                                    </ul>
                                     </nav>
 
-                                    {% else %}
-                                                <li class="login"><a href="{% url 'home' %}">Home</a></li>
-                                                <li class="login"><a href="{% url 'browse_courses' %}">Courses</a></li>
-                                                <li class="login"><a href="{% url 'about_us' %}">About Us</a></li>
-                                                <li class="login"><a href="{% url 'register' %}">Register</a></li>
-                                                <li class="login"><a href="{% url 'login' %}">Login</a></li>
-                                            </ul>
-                                        </nav><!--/.menu-->
-                                        <div class="register-contact-nav pull-right">
-                                            <a class="register-contact-nav login btn btn-default " href="{% url 'contact_us' %}" hidden>contact</a> <a class="register-contact-nav login btn btn-default " href="{% url 'contact_us' %}">contact</a>
-                                        </div><!--/.register-contact-nav-->
-                                    {% endif %}
-                        </div><!--/.logo-menu-wrap-->
-                    </div><!--/.col-lg-12-->
-                </div><!--/.row-->
-            </div><!--/.container-fluid-->
-        </div><!--/.headier-inner-->
+                                {% else %}
+                                    <li class="login"><a href="{% url 'home' %}">Home</a></li>
+                                    <li class="login"><a href="{% url 'browse_courses' %}">Courses</a></li>
+                                    <li class="login"><a href="{% url 'about_us' %}">About Us</a></li>
+                                    <li class="login"><a href="{% url 'register' %}">Register</a></li>
+                                    <li class="login"><a href="{% url 'login' %}">Login</a></li>
+                                    </ul>
+                                    </nav><!--/.menu-->
+                                    <div class="register-contact-nav pull-right">
+                                        <a class="register-contact-nav login btn btn-default " href="{% url 'contact_us' %}" hidden>contact</a> <a class="register-contact-nav login btn btn-default " href="{% url 'contact_us' %}">contact</a>
+                                    </div><!--/.register-contact-nav-->
+                                {% endif %}
+                    </div><!--/.logo-menu-wrap-->
+                </div><!--/.col-lg-12-->
+            </div><!--/.row-->
+        </div><!--/.container-fluid-->
+    </div><!--/.headier-inner-->
 
-        <div id="sticky-header"></div><!--/#sticky-header-->
+    <div id="sticky-header"></div><!--/#sticky-header-->
 
-        <!--Mobile Menu-->
-        <div class="mobile-menu">
-            <a class="mobile-logo" href="index.html"><img src="{% static 'images/digiwiz.png' %}" alt="logo" height="40"></a>
-        </div>
-    </header><!--/.header-area-->
+    <!--Mobile Menu-->
+    <div class="mobile-menu">
+        <a class="mobile-logo" href="index.html"><img src="{% static 'images/digiwiz.png' %}" alt="logo" height="40"></a>
+    </div>
+</header><!--/.header-area-->
 
-    {% block content %}
+{% block content %}
+{% endblock %}
+
+<!-- Start footer area -->
+<footer id="footer" class="site-footer">
+    {% block join_us %}
     {% endblock %}
+    <!-- Start footer widgets area -->
+    <div class="footer-widgets-area">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 col-sm-6 col-6">
+                    <div class="footer-widget">
+                        <h4 class="footer-title">Quick Links</h4>
+                        <ul class="footer-widget-list list-unstyled">
+                            <li><a href="#">Help Desk</a></li>
+                            <li><a href="#">Contact</a></li>
+                            <li><a href="#">User Reviews</a></li>
+                            <li><a href="#">Client Area</a></li>
+                            <li><a href="#">About Us</a></li>
+                        </ul>
+                    </div><!--/.footer-widget-->
+                </div><!--/.col-lg-3-->
+                <div class="col-lg-3 col-sm-6 col-6">
+                    <div class="footer-widget">
+                        <h4 class="footer-title">Navigation</h4>
+                        <ul class="footer-widget-list list-unstyled">
+                            <li><a href="#">Features</a></li>
+                            <li><a href="#">Screen Shot</a></li>
+                            <li><a href="#">How it Works</a></li>
+                            <li><a href="#">Testimonial</a></li>
+                            <li><a href="#">Contact</a></li>
+                        </ul>
+                    </div><!--/.footer-widget-->
+                </div><!--/.col-lg-3-->
+                <div class="col-lg-6 col-sm-12">
+                    <div class="footer-newsletter footer-widget">
+                        <h4 class="footer-title">Newsletter</h4>
+                        <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur sint occaecat.</p>
+                        <form class="newsletter-form">
+                            <div class="form-group">
+                                <input class="form-control" type="email" placeholder="Your email address">
+                                <button type="submit" class="btn btn-default btn-primary">Subscribe</button>
+                            </div>
+                        </form>
+                    </div><!--/.footer-newsletter-->
+                </div><!--/.col-lg-6-->
+            </div><!--/.row-->
+        </div><!--/.container-->
+    </div><!-- End footer widgets area -->
 
-    <!-- Start footer area -->
-    <footer id="footer" class="site-footer">
-        {% block join_us %}
-        {% endblock %}
-        <!-- Start footer widgets area -->
-        <div class="footer-widgets-area">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-3 col-sm-6 col-6">
-                        <div class="footer-widget">
-                            <h4 class="footer-title">Quick Links</h4>
-                            <ul class="footer-widget-list list-unstyled">
-                                <li><a href="#">Help Desk</a></li>
-                                <li><a href="#">Contact</a></li>
-                                <li><a href="#">User Reviews</a></li>
-                                <li><a href="#">Client Area</a></li>
-                                <li><a href="#">About Us</a></li>
-                            </ul>
-                        </div><!--/.footer-widget-->
-                    </div><!--/.col-lg-3-->
-                    <div class="col-lg-3 col-sm-6 col-6">
-                        <div class="footer-widget">
-                            <h4 class="footer-title">Navigation</h4>
-                            <ul class="footer-widget-list list-unstyled">
-                                <li><a href="#">Features</a></li>
-                                <li><a href="#">Screen Shot</a></li>
-                                <li><a href="#">How it Works</a></li>
-                                <li><a href="#">Testimonial</a></li>
-                                <li><a href="#">Contact</a></li>
-                            </ul>
-                        </div><!--/.footer-widget-->
-                    </div><!--/.col-lg-3-->
-                    <div class="col-lg-6 col-sm-12">
-                        <div class="footer-newsletter footer-widget">
-                            <h4 class="footer-title">Newsletter</h4>
-                            <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur sint occaecat.</p>
-                            <form class="newsletter-form">
-                                <div class="form-group">
-                                    <input class="form-control" type="email" placeholder="Your email address">
-                                    <button type="submit" class="btn btn-default btn-primary">Subscribe</button>
-                                </div>
-                            </form>
-                        </div><!--/.footer-newsletter-->
-                    </div><!--/.col-lg-6-->
-                </div><!--/.row-->
-            </div><!--/.container-->
-        </div><!-- End footer widgets area -->
-
-        <!-- Start footer copyright area -->
-        <div class="footer-copyright-area bg-gray">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="copyright text-center">
-                            Copyright © 2019 <a href="https://github.com/seeej/digiwiz" target="_blank">DigiWiz</a>. All rights reserved.
-                        </div>
+    <!-- Start footer copyright area -->
+    <div class="footer-copyright-area bg-gray">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="copyright text-center">
+                        Copyright © 2019 <a href="https://github.com/seeej/digiwiz" target="_blank">DigiWiz</a>. All rights reserved.
                     </div>
-                </div><!--/.row-->
-            </div><!--/.container-->
-        </div><!--End footer copyright area -->
-    </footer><!--End footer area -->
+                </div>
+            </div><!--/.row-->
+        </div><!--/.container-->
+    </div><!--End footer copyright area -->
+</footer><!--End footer area -->
 
-    <!-- All JS files are included here.
-	============================================== -->
+<!-- All JS files are included here.
+============================================== -->
 
-    <!-- jQuery Latest Version -->
-    <script src="{% static 'js/jquery-v3.2.1.min.js' %}"></script>
-    <!-- Popper JS -->
-    <script src="{% static 'js/popper.min.js' %}"></script>
-    <!-- Bootstrap framework JS -->
-    <script src="{% static 'js/bootstrap.min.js' %}"></script>
-    <!-- All JS plugins included in this file. -->
-    <script src="{% static 'js/plugins.js' %}"></script>
-    <!-- Main JS file that contents all jQuery Plugins activation. -->
-    <script src="{% static 'js/main.js' %}"></script>
+<!-- jQuery Latest Version -->
+<script src="{% static 'js/jquery-v3.2.1.min.js' %}"></script>
+<!-- Popper JS -->
+<script src="{% static 'js/popper.min.js' %}"></script>
+<!-- Bootstrap framework JS -->
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+<!-- All JS plugins included in this file. -->
+<script src="{% static 'js/plugins.js' %}"></script>
+<!-- Main JS file that contents all jQuery Plugins activation. -->
+<script src="{% static 'js/main.js' %}"></script>
 </body>
 </html>
