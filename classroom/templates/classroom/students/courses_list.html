@@ -52,9 +52,8 @@
             <div class="container">
                 <div class="row">
                     <div class="col-lg-12">
-
                         <center>
-                            <a href="{% url 'browse_courses' %}" class="btn btn-default btn-primary" role="button">All</a>
+                            <a href="{% url 'browse_courses' %}" class="btn btn-default btn-gray" role="button">All</a>
                             {% for subject in subjects %}
                                 <a href="{% url 'browse_courses_subject' subject.pk %}" class="btn btn-{{ subject.name.lower }} btn-primary-{{ subject.name.lower }}">{{ subject.name }}</a>
                             {% endfor %}

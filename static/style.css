@@ -272,6 +272,10 @@ button:focus {
     background-color: #f78888;
     border-color: #f78888;
 }
+.btn-gray {
+    background-color: #ececec;
+    border-color: #ececec;
+}
 .btn-takequiz {
     background-color: #5da2d5;
     border-color: #5da2d5;
@@ -289,6 +293,11 @@ button:focus {
     background-color: #f78888;
     border-color: #f78888;
     color: #ffffff;
+}
+.btn-gray:hover {
+    background-color: #ececec;
+    border-color: #ececec;
+    color: #f78888;
 }
 .btn-primary:hover {
     background-color: transparent;
