@@ -56,11 +56,10 @@
                                 {{ taken_course.course.subject.get_html_badge }}
                                 ({{ taken_course.course.code }})
                                 <p style="white-space: nowrap; width: 300px; overflow: hidden; text-overflow: ellipsis">{{ taken_course.course.description }}</p>
-                                <hr>
+
                                 <div class="course-reviews">
-                                    <center>
+
                                         {% ratings taken_course.course %}
-                                    </center>
                                 </div><!--/.course-reviews-->
                                 <hr>
                                 <div class="trainer-profile clearfix">
