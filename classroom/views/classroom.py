@@ -1,4 +1,6 @@
+from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
+from django.core.mail import send_mail
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
@@ -6,7 +8,7 @@ from django.views.generic import DetailView
 from random import sample
 from .raw_sql import get_popular_courses
 from .teachers import get_enrollment_requests_count
-from ..forms import SearchCourses, UserLoginForm
+from ..forms import ContactUsForm, SearchCourses, UserLoginForm
 from ..models import (Course, Lesson, MyFile, Quiz, Student,
                       Subject, TakenQuiz, User, UserLog)
 
@@ -56,27 +58,21 @@ def get_user_type(user):
 
 class CourseDetailView(DetailView):
     model = Course
+    context_object_name = 'course'
     template_name = 'classroom/course_details.html'
 
     def get_context_data(self, **kwargs):
         student = None
         teacher = None
-
         kwargs['title'] = self.get_object()
-        kwargs['course'] = get_object_or_404(Course.objects.filter(status='approved'),
-                                             pk=self.kwargs['pk'])
         kwargs['lessons'] = Lesson.objects.select_related('quizzes') \
             .select_related('course') \
             .filter(course__id=self.kwargs['pk']) \
             .order_by('number')
         kwargs['quizzes'] = Quiz.objects.filter(course_id=self.kwargs['pk']) \
-            .order_by('title')
+            .order_by('lesson__number')
         kwargs['files'] = MyFile.objects.filter(course_id=self.kwargs['pk']) \
             .order_by('file')
-
-        current_subject = kwargs['course'].subject_id
-        kwargs['related_courses'] = get_suggested_courses(self.kwargs['pk'],
-                                                          current_subject_id=current_subject)
 
         if self.request.user.is_authenticated:
             if self.request.user.is_student:
@@ -85,7 +81,7 @@ class CourseDetailView(DetailView):
                 student = self.request.user.student.taken_courses.values('id', 'status') \
                     .filter(course__id=self.kwargs['pk']).first()
 
-                kwargs['taken_quizzes'] = TakenQuiz.objects\
+                kwargs['taken_quizzes'] = TakenQuiz.objects \
                     .filter(student=self.request.user.student, course_id=self.kwargs['pk'])
 
                 taken_quiz_count = TakenQuiz.objects.filter(student_id=self.request.user.pk,
@@ -96,9 +92,12 @@ class CourseDetailView(DetailView):
 
                 kwargs['progress'] = (taken_quiz_count / quiz_count) * 100 if quiz_count != 0 else 0
 
-                subject_interests = Student.objects.values_list('interests').filter(pk=3)
+                subject_interests = Student.objects.values_list('interests').filter(pk=self.request.user)
                 kwargs['related_courses'] = get_suggested_courses(self.kwargs['pk'],
                                                                   subject_interests=subject_interests)
+
+                kwargs['course'] = get_object_or_404(Course.objects.filter(status='approved'),
+                                                     pk=self.kwargs['pk'])
 
             elif self.request.user.is_teacher:
                 student = None
@@ -110,8 +109,20 @@ class CourseDetailView(DetailView):
                 kwargs['course'] = get_object_or_404(Course.objects.exclude(status='deleted'),
                                                      pk=self.kwargs['pk'])
 
+                current_subject = kwargs['course'].subject_id
+                kwargs['related_courses'] = get_suggested_courses(self.kwargs['pk'],
+                                                                  current_subject_id=current_subject)
+
+        else:
+            kwargs['course'] = get_object_or_404(Course.objects.filter(status='approved'),
+                                                 pk=self.kwargs['pk'])
+
+            current_subject = kwargs['course'].subject_id
+            kwargs['related_courses'] = get_suggested_courses(self.kwargs['pk'],
+                                                              current_subject_id=current_subject)
+
         kwargs['enrolled'] = student
-        kwargs['owns'] = teacher
+        kwargs['owns'] = True if teacher else None
 
         return super().get_context_data(**kwargs)
 
@@ -163,6 +174,7 @@ def browse_courses(request):
         if form.is_valid():
             query = form.cleaned_data.get('search')
             courses = Course.objects.filter(Q(title__icontains=query) |
+                                            Q(code__icontains=query) |
                                             Q(description__icontains=query)) \
                 .filter(status__iexact='approved') \
                 .annotate(taken_count=Count('taken_courses',
@@ -221,6 +233,7 @@ def browse_courses_subject(request, subject_pk):
         if form.is_valid():
             query = form.cleaned_data.get('search')
             courses = Course.objects.filter(Q(title__icontains=query) |
+                                            Q(code__icontains=query) |
                                             Q(description__icontains=query)) \
                 .filter(status__iexact='approved') \
                 .annotate(taken_count=Count('taken_courses',
@@ -254,6 +267,7 @@ def browse_courses_subject(request, subject_pk):
 
 
 def contact_us(request):
+    form = None
     if request.user.is_authenticated:
         if request.user.is_teacher:
             return redirect('teachers:course_change_list')
@@ -261,7 +275,34 @@ def contact_us(request):
             return redirect('students:mycourses_list')
         elif request.user.is_staff:
             return redirect('staff:dashboard')
-    return render(request, 'classroom/contact.html', {'title': 'Contact Us'})
+    else:
+        if request.method == 'POST':
+            form = ContactUsForm(request.POST)
+            if form.is_valid():
+                subject = form.cleaned_data['subject']
+                message = form.cleaned_data['message']
+                sender = form.cleaned_data['email']
+                cc_myself = form.cleaned_data['cc_myself']
+
+                recipients = ['digiwiz.sq@gmail.com']
+                if cc_myself:
+                    recipients.append(sender)
+
+                try:
+                    send_mail(subject, message, sender, recipients)
+
+                    messages.success(request, 'You successfully sent an email to us. '
+                                              'Please wait for a response in your email, thank you.')
+
+                    return redirect('contact_us')
+                except Exception:
+                    messages.error(request, 'An unexpected error has occurred. Please try again.')
+
+                    return redirect('contact_us')
+        else:
+            form = ContactUsForm()
+
+    return render(request, 'classroom/contact.html', {'title': 'Contact Us', 'form': form})
 
 
 def home(request):

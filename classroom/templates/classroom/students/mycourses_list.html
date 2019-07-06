@@ -53,13 +53,13 @@
                             </div><!--/.course-thumb-area-->
                             <div class="course-content">
                                 <h2><a href="{% url 'course_details' taken_course.course.pk %}">{{ taken_course.course.title }}</a></h2>
-                                <small>{{ taken_course.course.subject.get_html_badge }}</small>
+                                {{ taken_course.course.subject.get_html_badge }}
+                                ({{ taken_course.course.code }})
                                 <p style="white-space: nowrap; width: 300px; overflow: hidden; text-overflow: ellipsis">{{ taken_course.course.description }}</p>
-                                <hr>
+
                                 <div class="course-reviews">
-                                    <center>
+
                                         {% ratings taken_course.course %}
-                                    </center>
                                 </div><!--/.course-reviews-->
                                 <hr>
                                 <div class="trainer-profile clearfix">
@@ -71,7 +71,13 @@
                                         <p>{{ taken_course.course.created_at|date:"F d, Y" }}</p>
                                     </div>
                                     <div class="course-cat text-capitalize text-right">
-                                        <a href="#">{{ taken_course.status }}</a>
+                                        {% if taken_course.status == 'finished' %}
+                                            <a style="background-color: #5DA2D5; color: white;"><b>{{ taken_course.status }}</b></a>
+                                        {% elif taken_course.status == 'pending' %}
+                                            <a style="background-color: #F3D250; color: white;"><b>{{ taken_course.status }}</b></a>
+                                        {% elif taken_course.status == 'enrolled' %}
+                                            <a style="background-color: #F78888; color: white;"><b>{{ taken_course.status }}</b></a>
+                                        {% endif %}
                                     </div>
                                 </div><!--/.trainer-profile-->
                             </div><!--/.course-content-->

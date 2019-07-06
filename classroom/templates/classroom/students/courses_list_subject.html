@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
+{% load custom_tags %}
 {% load ratings %}
 {% load static %}
 {% load thumbnail %}
@@ -52,7 +53,7 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <center>
-                            <a href="{% url 'browse_courses' %}" class="btn btn-default btn-primary" role="button">All</a>
+                            <a href="{% url 'browse_courses' %}" class="btn btn-default btn-gray" role="button">All</a>
                             {% for subject in subjects %}
                                 <a href="{% url 'browse_courses_subject' subject.pk %}" class="btn btn-{{ subject.name.lower }} btn-primary-{{ subject.name.lower }}">{{ subject.name }}</a>
                             {% endfor %}
@@ -87,15 +88,34 @@
                                                 <div class="course-content">
                                                     <h2><a href="{% url 'course_details' course.pk %}">{{ course.title }}</a></h2>
                                                     {{ course.subject.get_html_badge }}
+                                                    ({{ course.code }})
                                                     <p style="white-space: nowrap; width: 310px; overflow: hidden; text-overflow: ellipsis">{{ course.description }}</p>
+
                                                     <div class="course-reviews">
-                                                        {% if user.is_teacher %}
-                                                            {{ course.ratings.get.average|floatformat:"-2" }}/5
-                                                            ({{ course.ratings.get.count }} reviews)
-                                                        {% else %}
+                                                        {% if user.is_student %}
+
                                                             {% ratings course %}
+
+                                                        {% else %}
+                                                            <div class="star-ratings-css" style="float:left;">
+                                                                <div class="star-ratings-css-top" style="width: {{ course.ratings.get.average|get_star_percentage|floatformat:"-2" }}%"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                                                                </div>
+                                                                <div class="star-ratings-css-bottom"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                                                                </div>
+                                                            </div>
+                                                            <br>
+
+                                                            <b>{{ course.ratings.get.average|floatformat:"-2" }}</b>/5
+                                                            ({{ course.ratings.get.count }}
+                                                            {% if course.ratings.get.count == 1 %}
+                                                                review)
+                                                            {% else %}
+                                                                reviews)
+                                                            {% endif %}
+
                                                         {% endif %}
                                                     </div><!--/.course-reviews-->
+                                                    <hr>
                                                     <div class="trainer-profile clearfix">
                                                         {% thumbnail course.owner.teacher.image "100x100" crop="center" as im %}
                                                             <img class="rounded-circle" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="course-owner">
@@ -104,6 +124,22 @@
                                                             <h3>{{ course.owner.first_name }} {{ course.owner.last_name }}</h3>
                                                             <p>{{ course.created_at|date:"F d, Y" }}</p>
                                                         </div>
+
+                                                        {% if user.is_student %}
+                                                            <div class="course-cat text-capitalize text-right">
+                                                                {% for taken in user.student.taken_courses.values %}
+                                                                    {% if taken.course_id == course.pk %}
+                                                                        {% if taken.status == 'finished' %}
+                                                                            <a style="background-color: #5DA2D5; color: white;"><b>{{ taken.status }}</b></a>
+                                                                        {% elif taken.status == 'pending' %}
+                                                                            <a style="background-color: #F3D250; color: white;"><b>{{ taken.status }}</b></a>
+                                                                        {% elif taken.status == 'enrolled' %}
+                                                                            <a style="background-color: #F78888; color: white;"><b>{{ taken.status }}</b></a>
+                                                                        {% endif %}
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            </div>
+                                                        {% endif %}
                                                     </div><!--/.trainer-profile-->
                                                 </div><!--/.course-content-->
                                             </div><!--/.single-course-item-end-->

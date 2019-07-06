@@ -48,8 +48,8 @@ class Subject(models.Model):
 
 class Course(models.Model):
     title = models.CharField(max_length=100)
-    code = models.CharField(max_length=20)
-    description = models.TextField(max_length=500)
+    code = models.CharField(max_length=20, unique=True)
+    description = models.TextField(max_length=1000)
     image = models.ImageField(upload_to='courses',
                               help_text='Recommended image resolution: 740px x 480px')
     status = models.CharField(max_length=10, default='pending')
@@ -73,8 +73,12 @@ class Course(models.Model):
 class Lesson(models.Model):
     title = models.CharField(max_length=100)
     number = models.IntegerField()
-    description = models.TextField(max_length=500)
-    content = RichTextUploadingField()
+    description = models.TextField(max_length=1000)
+    content = RichTextUploadingField(external_plugin_resources=[(
+        'youtube',
+        '/static/classroom/vendor/ckeditor_plugins/youtube/youtube/',
+        'plugin.js',
+    )])
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='lessons')
 
     def __str__(self):
@@ -157,7 +161,6 @@ class TakenQuiz(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='taken_quizzes')
     score = models.FloatField()
     date = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=12, default='incomplete')
 
     def __str__(self):
         return f'{self.student.user.username}: {self.quiz.title}'
