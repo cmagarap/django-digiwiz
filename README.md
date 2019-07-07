@@ -1,5 +1,6 @@
 # Digiwiz: An Open-source Learning Platform
 > The system’s goal is to provide free courses and class resources to students who are willing to learn.
+![DigiWiz Homepage](https://raw.githubusercontent.com/seeej/digiwiz/master/static/images/digiwiz-home-screenshot.png)
 
 ## Built with
 * [Django 2.2.2](https://www.djangoproject.com/)
