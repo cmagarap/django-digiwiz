@@ -1,15 +1,60 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <div class="login-page page-wrapper s-pd100">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 col-md-6 col-sm-8">
+                    <div class="login-form-area">
+                        {% if user.is_student %}
+                            <h2 class="mb-3">My Quiz Result</h2>
+                        {% elif user.is_teacher %}
+                            <h2 class="mb-3">Quiz Result</h2>
+                            <p>Student: <b><u>{{ student_name.first_name }} {{ student_name.last_name }}</u></b></p>
+                        {% endif %}
+                        <p>Quiz title: <b><u>{{ taken_quiz.quiz.title }}</u></b><br>
+                        Grade: <b>{{ taken_quiz.score|floatformat:'-2' }}</b>/100
+                            <br>
+                        Took on: {{ taken_quiz.date|date:"F d, Y g:i A" }}</p>
+                        <hr>
+                        <form novalidate>
+                            {% csrf_token %}
+                            {% for student_answer in student_answers %}
+                                [{{ forloop.counter }}.] <b style="font-size: 20px">{{ student_answer.answer.question.text }}</b>
+                                <br><br>
+                                {% for answer in answers %}
+                                    {% if answer.question.pk == student_answer.answer.question.pk %}
+                                        {% if answer.text == student_answer.answer.text %}
+                                            {% if student_answer.answer.is_correct %}
+                                                <input class="textinput textInput form-control" style="border-color: limegreen" type="text" value="{{ answer.text }}" readonly><small style="color: green"><b>{{ ownership }} answer is correct!</b></small>
+                                            {% else %}
+                                                <input class="textinput textInput form-control" style="border-color: red" type="text" value="{{ answer.text }}" readonly><small style="color: red"><b>{{ ownership }} Answer</b></small>
+                                            {% endif %}
 
-{{ taken_quiz.quiz.title }}<br>
+                                        {% else %}
+                                            {% if answer.is_correct %}
+                                                <input class="textinput textInput form-control" style="border-color: limegreen" type="text" value="{{ answer.text }}" readonly><small style="color: green">Correct Answer</small>
+                                            {% else %}
+                                                <input class="textinput textInput form-control" type="text" value="{{ answer.text }}" readonly>
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                                <hr>
+                            {% endfor %}
 
-{{ taken_quiz.date }}<br>
-{{ taken_quiz.score }}/100<br>
-
-<hr>
-
-{% for answer in student_answer %}
-    {{ answer.answer.question.text }}<br>
-    {{ answer.answer.text }}<br>
-    {{ answer.answer.is_correct }}<br>
-    <hr>
-{% endfor %}
+                            <center>
+                                {% if user.is_student %}
+                                    <a href="javascript:history.back();" class="btn btn-danger" role="button">Go Back</a>
+                                {% elif user.is_teacher %}
+                                    <a href="{% url 'teachers:quiz_results' taken_quiz.quiz.pk %}" class="btn btn-danger" role="button">Go Back</a>
+                                {% endif %}
+                            </center>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
 

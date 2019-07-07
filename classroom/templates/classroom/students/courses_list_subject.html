@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load custom_tags %}
+{% load ratings %}
+{% load static %}
+{% load thumbnail %}
+{% block content %}
+    <!--=======Page Heading
+    ==================================-->
+    <section class="page-heading-section page-heading-one before-bg bg-image" style="background-image: url({% static 'images/header/p-header3.jpg' %});">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 col-sm-12">
+                    <div class="page-heading">
+                        <h2 class="page-name text-capitalize">Find your courses</h2>
+                        <a href="{% url 'home' %}" class="btn btn-default btn-primary">back to home</a>
+                    </div><!--/.page-heading-->
+                </div><!--/.col-md-12-->
+            </div><!--/.row-->
+        </div><!--/.container-->
+    </section><!--/.page-heading-area-->
+
+    <div class="courses-page page-wrapper">
+        <!--=======Courses Search Area
+        ==================================-->
+        <div class="courses-search-area">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <form class="search-course" method="GET">
+                            <div class="row">
+                                <div class="col-lg-9 col-md-6">
+                                    <div class="form-group">
+                                        {{ form|crispy }}
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-md-6">
+                                    <div class="form-group">
+                                        <button type="submit" class="btn btn-default btn-primary">SEARCH YOUR COURSES</button>
+                                    </div>
+                                </div><!--/.col-lg-3-->
+                            </div><!--/.row-->
+                        </form><!--/.search-course-->
+                    </div><!--/.col-lg-12-->
+                </div><!--/.row-->
+            </div><!--/.container-->
+        </div><!--/.courses-search-area-->
+
+        <!--=======Courses Page Content
+        ==================================-->
+        <div class="courses-page-content">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <center>
+                            <a href="{% url 'browse_courses' %}" class="btn btn-default btn-gray" role="button">All</a>
+                            {% for subject in subjects %}
+                                <a href="{% url 'browse_courses_subject' subject.pk %}" class="btn btn-{{ subject.name.lower }} btn-primary-{{ subject.name.lower }}">{{ subject.name }}</a>
+                            {% endfor %}
+                        </center>
+                        <br>
+                        {% if search_str is not None %}
+                            <center>
+                                <i>Showing search results for "{{ search_str }}"</i>.
+                                <u><a href="{% url 'browse_courses' %}">Show all courses</a></u>
+                            </center>
+                        {% endif %}
+                        <br>
+                        <div class="courses-page-content">
+                            <div class="courses-content">
+                                <div class="row">
+                                    {% for course in courses %}
+                                        <div class="col-lg-4 col-md-6 col-sm-12">
+                                            <!--Single Course Item Start-->
+                                            <div class="single-course-item border-radius">
+                                                <div class="course-thumb-area">
+                                                    <div style="width: 350px; height: 200px; overflow: hidden">
+                                                        <img class="img-fluid"  src="{{ course.image.url }}" alt="img">
+                                                    </div>
+                                                    <span class="course-duration"><b>{{ course.taken_count }}</b>
+                                                        {% if course.taken_count > 1 %}
+                                                            students
+                                                        {% else %}
+                                                            student
+                                                        {% endif %}
+                                                        enrolled</span>
+                                                </div><!--/.course-thumb-area-->
+                                                <div class="course-content">
+                                                    <h2><a href="{% url 'course_details' course.pk %}">{{ course.title }}</a></h2>
+                                                    {{ course.subject.get_html_badge }}
+                                                    ({{ course.code }})
+                                                    <p style="white-space: nowrap; width: 310px; overflow: hidden; text-overflow: ellipsis">{{ course.description }}</p>
+
+                                                    <div class="course-reviews">
+                                                        {% if user.is_student %}
+
+                                                            {% ratings course %}
+
+                                                        {% else %}
+                                                            <div class="star-ratings-css" style="float:left;">
+                                                                <div class="star-ratings-css-top" style="width: {{ course.ratings.get.average|get_star_percentage|floatformat:"-2" }}%"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                                                                </div>
+                                                                <div class="star-ratings-css-bottom"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                                                                </div>
+                                                            </div>
+                                                            <br>
+
+                                                            <b>{{ course.ratings.get.average|floatformat:"-2" }}</b>/5
+                                                            ({{ course.ratings.get.count }}
+                                                            {% if course.ratings.get.count == 1 %}
+                                                                review)
+                                                            {% else %}
+                                                                reviews)
+                                                            {% endif %}
+
+                                                        {% endif %}
+                                                    </div><!--/.course-reviews-->
+                                                    <hr>
+                                                    <div class="trainer-profile clearfix">
+                                                        {% thumbnail course.owner.teacher.image "100x100" crop="center" as im %}
+                                                            <img class="rounded-circle" src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt="course-owner">
+                                                        {% endthumbnail %}
+                                                        <div class="trainer-info">
+                                                            <h3>{{ course.owner.first_name }} {{ course.owner.last_name }}</h3>
+                                                            <p>{{ course.created_at|date:"F d, Y" }}</p>
+                                                        </div>
+
+                                                        {% if user.is_student %}
+                                                            <div class="course-cat text-capitalize text-right">
+                                                                {% for taken in user.student.taken_courses.values %}
+                                                                    {% if taken.course_id == course.pk %}
+                                                                        {% if taken.status == 'finished' %}
+                                                                            <a style="background-color: #5DA2D5; color: white;"><b>{{ taken.status }}</b></a>
+                                                                        {% elif taken.status == 'pending' %}
+                                                                            <a style="background-color: #F3D250; color: white;"><b>{{ taken.status }}</b></a>
+                                                                        {% elif taken.status == 'enrolled' %}
+                                                                            <a style="background-color: #F78888; color: white;"><b>{{ taken.status }}</b></a>
+                                                                        {% endif %}
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            </div>
+                                                        {% endif %}
+                                                    </div><!--/.trainer-profile-->
+                                                </div><!--/.course-content-->
+                                            </div><!--/.single-course-item-end-->
+
+                                        </div><!--/.col-lg-4-->
+                                    {% empty %}
+                                        <center><p>There are no courses to be shown.</p></center>
+                                    {% endfor %}
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <nav class="courses-navigation default-pager text-center">
+                                            {% if courses.has_other_pages %}
+                                                {% if courses.has_previous %}
+                                                    <a href="{{ base_url }}page=1" title="First Lesson">
+                                                        <i class="fa fa-angle-double-left"></i>
+                                                    </a>
+                                                    <a href="{{ base_url }}page={{ courses.previous_page_number }}" title="Previous Lesson">
+                                                        <i class="fa fa-angle-left"></i>
+                                                    </a>
+                                                {% endif %}
+
+                                                {% for num in courses.paginator.page_range %}
+                                                    {% if courses.number == num %}
+                                                        <a href="{{ base_url }}page={{ num }}" title="Lesson {{ num }}" style="background-color: #f78888; color: #fff">{{ num }}</a>
+                                                    {% elif num > courses.number|add:'-3' and num < courses.number|add:'3' %}
+                                                        <a href="{{ base_url }}page={{ num }}" title="Lesson {{ num }}">{{ num }}</a>
+                                                    {% endif %}
+                                                {% endfor %}
+
+                                                {% if courses.has_next %}
+                                                    <a href="{{ base_url }}page={{ courses.next_page_number }}" title="Next Lesson">
+                                                        <i class="fa fa-angle-right"></i>
+                                                    </a>
+                                                    <a href="{{ base_url }}page={{ courses.paginator.num_pages }}" title="Last Lesson">
+                                                        <i class="fa fa-angle-double-right"></i>
+                                                    </a>
+                                                {% endif %}
+                                            {% endif %}
+                                        </nav>
+                                    </div>
+                                </div>
+                                <br>
+                            </div>
+                        </div>
+                    </div>
+                </div><!--/.row-->
+            </div><!--/.container-->
+        </div><!--/.courses-page-content-->
+    </div><!--/.courses-page-->
+{% endblock %}

@@ -1,7 +1,5 @@
 {% extends 'base.html' %}
-
 {% load crispy_forms_tags %}
-
 {% block content %}
     <div class="login-page page-wrapper s-pd100">
         <div class="container">
@@ -17,6 +15,7 @@
                         <h2 class="mb-3">Add a course</h2>
                         <form method="post" enctype="multipart/form-data" novalidate>
                             {% csrf_token %}
+                            {{ form.media }}
                             {{ form|crispy }}
                             <center>
                                 <button type="submit" class="btn btn-success">Save</button>

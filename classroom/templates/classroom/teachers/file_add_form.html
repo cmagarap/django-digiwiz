@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <div class="login-page page-wrapper s-pd100">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 col-md-6 col-sm-8">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'teachers:file_list' %}">My Files</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Add a New Files</li>
+                        </ol>
+                    </nav><br>
+                    <div class="login-form-area">
+                        <h2 class="mb-3">Add files</h2>
+                        <form method="post" enctype="multipart/form-data" novalidate>
+                            {% csrf_token %}
+                            {{ form|crispy }}
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+                                        <p{% if forloop.last %} class="mb-0"{% endif %}>{{ message }}</p>
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                            <center>
+                                <button type="submit" class="btn btn-success">Save</button>
+                                <a href="{% url 'teachers:file_list' %}" class="btn btn-danger" role="button">Cancel</a>
+                            </center>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

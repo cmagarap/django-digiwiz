@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    {% include 'classroom/students/_header.html' with active='taken' %}
     <section id="courses-section" class="popular-courses-area bg-white s-pd2">
         <div class="container">
             {% if messages %}
@@ -35,7 +34,8 @@
                             <strong>Lesson</strong>
                         </div>
                         <div class="col-2">
-                            <strong>Score</strong>
+                            <strong>Grade</strong>
+                            <span class="badge badge-pill badge-primary" style="background-color: #5DA2D5">Average: {{ grade.average|default_if_none:0.0|floatformat:'-2' }}</span>
                         </div>
                     </div>
                 </div>
@@ -44,16 +44,16 @@
                         <div class="list-group-item">
                             <div class="row">
                                 <div class="col-4">
-                                    <a href="{% url 'students:taken_quiz_detail' taken_quiz.pk %}">{{ taken_quiz.quiz.title }}</a>
+                                    <a href="{% url 'students:taken_quiz_detail' taken_quiz.pk taken_quiz.quiz.pk %}">{{ taken_quiz.quiz.title }}</a>
                                 </div>
                                 <div class="col-3">
-                                    {{ taken_quiz.quiz.course.title }}
+                                    <a href="{% url 'course_details' taken_quiz.quiz.course.pk %}">{{ taken_quiz.quiz.course.title }}</a>
                                 </div>
                                 <div class="col-3">
                                     {{ taken_quiz.quiz.lesson.title }}
                                 </div>
                                 <div class="col-2">
-                                    <strong>{{ taken_quiz.score }}</strong>
+                                    <strong>{{ taken_quiz.score|floatformat:"-2" }}</strong>
                                 </div>
                             </div>
                         </div>
@@ -63,6 +63,40 @@
                         </div>
                     {% endfor %}
                 </div>
+            </div>
+        </div>
+        {# FOR PAGINATION #}
+        <div class="row">
+            <div class="col-md-12">
+                <nav class="courses-navigation default-pager text-center">
+                    {% if is_paginated %}
+                        {% if page_obj.has_previous %}
+                            <a href="?page=1" title="First Lesson">
+                                <i class="fa fa-angle-double-left"></i>
+                            </a>
+                            <a href="?page={{ page_obj.previous_page_number }}" title="Previous Lesson">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        {% endif %}
+
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <a href="?page={{ num }}" title="Lesson {{ num }}" style="background-color: #f78888; color: #fff">{{ num }}</a>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <a href="?page={{ num }}" title="Lesson {{ num }}">{{ num }}</a>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}" title="Next Lesson">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                            <a href="?page={{ page_obj.paginator.num_pages }}" title="Last Lesson">
+                                <i class="fa fa-angle-double-right"></i>
+                            </a>
+                        {% endif %}
+                    {% endif %}
+                </nav>
             </div>
         </div>
     </section>

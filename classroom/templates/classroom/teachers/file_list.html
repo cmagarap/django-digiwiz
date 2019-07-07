@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% block content %}
+    <section id="courses-section" class="popular-courses-area bg-white s-pd2">
+        <div class="container">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+                        <p{% if forloop.last %} class="mb-0"{% endif %}>{{ message }}</p>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            <div class="row justify-content-md-center">
+                <div class="col-lg-8">
+                    <div class="section-heading-area text-center">
+                        <h2 class="section-heading text-capitalize">My Files</h2>
+                        <a href="{% url 'teachers:file_add' %}" class="btn btn-primary mb-3" role="button">Add Files</a>
+                    </div><!--/.section-heading-area-->
+                </div><!--/.col-lg-8-->
+            </div><!--/.row-->
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-6">
+                            <strong>File path</strong>
+                        </div>
+                        <div class="col-2">
+                            <strong>Course</strong>
+                        </div>
+                        <div class="col-2">
+                            <strong>Date Uploaded</strong>
+                        </div>
+                        <div class="col-2">
+                        </div>
+                    </div>
+                </div>
+                <div class="list-group list-group-flush list-group-formset">
+                    {% for file in files %}
+                        <div class="list-group-item">
+                            <div class="row">
+                                <div class="col-6">
+                                    {{ file.file|cut:'class_resources/' }}
+                                    <small>({{ file.file.size|filesizeformat }})</small>
+                                </div>
+                                <div class="col-2">
+                                    <a href="{% url 'course_details' file.course.pk %}">{{ file.course.title }}</a>
+                                </div>
+                                <div class="col-2">
+                                    {{ file.created_at|date:"F d, Y g:i A" }}
+                                </div>
+                                <div class="col-2">
+                                    <a href="#" class="btn btn-rounded btn-danger delete" data-id="{{ file.pk }}">Delete</a>
+                                </div>
+
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="list-group-item text-center">
+                            <p class="text-muted font-italic mb-0">You do not own any files right now.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <nav class="courses-navigation default-pager text-center">
+                    {% if is_paginated %}
+                        {% if page_obj.has_previous %}
+                            <a href="?page=1" title="First Lesson">
+                                <i class="fa fa-angle-double-left"></i>
+                            </a>
+                            <a href="?page={{ page_obj.previous_page_number }}" title="Previous Lesson">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        {% endif %}
+
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <a href="?page={{ num }}" title="Lesson {{ num }}" style="background-color: #f78888; color: #fff">{{ num }}</a>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <a href="?page={{ num }}" title="Lesson {{ num }}">{{ num }}</a>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}" title="Next Lesson">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                            <a href="?page={{ page_obj.paginator.num_pages }}" title="Last Lesson">
+                                <i class="fa fa-angle-double-right"></i>
+                            </a>
+                        {% endif %}
+                    {% endif %}
+                </nav>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        $(".delete").click(function () {
+            var url = "{% url 'teachers:file_list'  %}";
+            var id = $(this).data('id');
+            swal({
+                title: "Are you sure you want to delete this file?",
+                text: "Once you delete this, you will never recover it.",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            })
+            .then((willDelete) => {
+                if (willDelete) {
+                    {# This will follow the url pattern of 'teachers:delete_lesson_from_list' #}
+                    window.location = url + id + "/delete/";
+                }
+            });
+        });
+    </script>
+{% endblock %}

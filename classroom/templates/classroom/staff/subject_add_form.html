@@ -11,7 +11,7 @@
                 <div class="page-breadcrumb">
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="#" class="breadcrumb-link">Admin</a></li>
+                            <li class="breadcrumb-item"><a href="{% url 'staff:dashboard' %}" class="breadcrumb-link">Admin</a></li>
                             <li class="breadcrumb-item"><a href="{% url 'staff:subject_list' %}" class="breadcrumb-link">Subjects</a></li>
                             <li class="breadcrumb-item active" aria-current="page">Add Subject</li>
                         </ol>
@@ -25,7 +25,7 @@
     <!-- ============================================================== -->
     {% if messages %}
         {% for message in messages %}
-            <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
                 <p{% if forloop.last %} class="mb-0"{% endif %}>{{ message }}</p>
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
@@ -33,21 +33,20 @@
             </div>
         {% endfor %}
     {% endif %}
-    <div class="row">
-        <!-- ============================================================== -->
-        <!-- basic table  -->
-        <!-- ============================================================== -->
-        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-            <div class="card">
-                <div class="card-body">
-                    <form method="post" novalidate>
-                        {% csrf_token %}
-                        {{ form|crispy }}
-                        <center>
-                            <button type="submit" class="btn btn-success">Save changes</button>
-                            <a href="{% url 'staff:subject_list' %}" class="btn btn-secondary" role="button">Cancel</a>
-                        </center>
-                    </form>
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <form method="post" novalidate>
+                            {% csrf_token %}
+                            {{ form|crispy }}
+                            <center>
+                                <button type="submit" class="btn btn-secondary">Save changes</button>
+                                <a href="{% url 'staff:subject_list' %}" class="btn btn-primary" role="button">Cancel</a>
+                            </center>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

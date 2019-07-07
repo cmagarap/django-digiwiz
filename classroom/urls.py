@@ -1,5 +1,4 @@
 from django.urls import include, path
-
 from .views import classroom, staff, students, teachers
 
 urlpatterns = [
@@ -7,6 +6,8 @@ urlpatterns = [
 
     path('staff/', include(([
         path('', staff.dashboard, name='dashboard'),
+        path('account/', staff.account, name='account'),
+        path('account/change-password/', staff.ChangePassword.as_view(), name='change_password'),
         path('admin-accounts/', staff.AdminListView.as_view(), name='admin_list'),
         path('admin-accounts/add/', staff.AdminCreateView.as_view(), name='admin_add'),
         path('admin-accounts/<int:pk>/delete/', staff.deactivate_admin, name='admin_deactivate'),
@@ -15,6 +16,8 @@ urlpatterns = [
         path('course-requests/reject/<int:course_pk>/', staff.reject_course, name='reject_course'),
         path('courses/', staff.CourseListView.as_view(), name='course_list'),
         path('courses/<int:course_pk>/delete/', staff.delete_course, name='course_delete'),
+        path('get-user-activities/', staff.get_user_activities, name='get_user_activities'),
+        path('get-course-status/', staff.get_course_status, name='get_course_status'),
         path('students/', staff.StudentListView.as_view(), name='student_list'),
         path('students/<int:pk>/delete/', staff.deactivate_student, name='teacher_deactivate'),
         path('subjects/', staff.SubjectListView.as_view(), name='subject_list'),
@@ -23,22 +26,27 @@ urlpatterns = [
         path('subjects/<int:pk>/delete/', staff.delete_subject, name='subject_delete'),
         path('teachers/', staff.TeacherListView.as_view(), name='teacher_list'),
         path('teachers/<int:pk>/delete/', staff.deactivate_teacher, name='teacher_deactivate'),
+        path('user-log/', staff.UserLogListView.as_view(), name='user_log_list'),
+        path('user-log/<int:pk>/delete/', staff.delete_log, name='user_log_delete')
     ], 'classroom'), namespace='staff')),
 
     path('student/', include(([
         path('', students.MyCoursesListView.as_view(), name='mycourses_list'),
+        path('change-password/', students.ChangePassword.as_view(), name='change_password'),
         path('course/<int:course_pk>/quiz/<int:quiz_pk>/', students.take_quiz, name='take_quiz'),
         path('enroll/<int:pk>/', students.enroll, name='enroll'),
         path('interests/', students.StudentInterestsView.as_view(), name='student_interests'),
         path('profile/', students.profile, name='profile'),
         path('taken/', students.TakenQuizListView.as_view(), name='taken_quiz_list'),
-        path('taken/<int:pk>/', students.TakenQuizDetailView.as_view(), name='taken_quiz_detail'),
+        path('taken/<int:taken_pk>/quiz/<int:quiz_pk>/', students.taken_quiz_result, name='taken_quiz_detail'),
         path('unenroll/<int:pk>/', students.unenroll, name='unenroll'),
+        path('view-file/<int:pk>/', students.file_view, name='view_file')
     ], 'classroom'), namespace='students')),
 
     path('teacher/', include(([
         path('', teachers.CourseListView.as_view(), name='course_change_list'),
         path('ajax/load-lessons/', teachers.load_lessons, name='ajax_load_lessons'),
+        path('change-password/', teachers.ChangePassword.as_view(), name='change_password'),
         path('course/add/', teachers.CourseCreateView.as_view(), name='course_add'),
         path('course/<int:pk>/', teachers.CourseUpdateView.as_view(), name='course_change'),
         path('course/<int:pk>/delete/', teachers.delete_course,name='course_delete'),
@@ -60,6 +68,10 @@ urlpatterns = [
              name='enrollment_accept'),
         path('enrollment-requests/reject/<int:taken_course_pk>', teachers.reject_enrollment,
              name='enrollment_reject'),
+        path('files/', teachers.FilesListView.as_view(), name='file_list'),
+        path('files/add/', teachers.add_files, name='file_add'),
+        path('files/<int:file_pk>/delete/', teachers.delete_file,
+             name='delete_file'),
         path('lesson/', teachers.LessonListView.as_view(), name='lesson_list'),
         path('lesson/add/', teachers.add_lesson, name='lesson_add'),
         path('lesson/<int:lesson_pk>/delete/', teachers.delete_lesson_from_list,
@@ -70,6 +82,8 @@ urlpatterns = [
         path('quiz/<int:quiz_pk>/delete/', teachers.delete_quiz_from_list,
              name='delete_quiz_from_list'),
         path('quiz/<int:quiz_pk>/delete/', teachers.delete_quiz, name='quiz_delete'),
-        path('quiz/<int:pk>/results/', teachers.QuizResultsView.as_view(), name='quiz_results')
+        path('quiz/<int:pk>/results/', teachers.QuizResultsView.as_view(), name='quiz_results'),
+        path('quiz/<int:quiz_pk>/results/<int:student_pk>/taken/<int:taken_pk>',
+             teachers.quiz_result_detail, name='quiz_result_detail')
     ], 'classroom'), namespace='teachers')),
 ]

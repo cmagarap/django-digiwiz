@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <!--=======Page Heading
+    ==================================-->
+    <section class="page-heading-section bg-image before-bg" style="background-image: url({% static 'images/header/p-header1.jpg' %});">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="page-heading">
+                        <h2 class="page-name text-capitalize">contact us</h2>
+                    </div><!--/ .page-heading-->
+                </div><!--/.col-md-12-->
+            </div><!--/.row-->
+        </div><!--/.container-->
+    </section><!--/.page-heading-area-->
+
+    <!--=======Contact Page
+    ==================================-->
+    <div class="contact-page page-wrapper">
+        <section class="contact-form-section bg-image s-pd100" style="background-image: url({% static 'images/contact.jpg' %});">
+            <div class="container">
+                <div class="row justify-content-md-center">
+                    <div class="col-md-10">
+                        <form class="contact-form-area border-radius" id="contact-form" method="post" novalidate>
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+                                        <p{% if forloop.last %} class="mb-0"{% endif %}>{{ message }}</p>
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+
+                            <h3>Direct Message</h3>
+                            {% csrf_token %}
+                            {{ form|crispy }}
+                            <button type="submit" class="btn btn-default "style="margin-left:600px;  ">Submit</button>
+                        </form><!--/.contact-form-area-->
+                    </div><!--/.col-md-10-->
+                </div><!--/.row-->
+            </div><!--/.container-->
+        </section><!--/.contact-form-section-->
+
+        <section class="contact-info-section s-pd100">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-3 col-md-6 col-6">
+                        <div class="single-contact-info box bg-gray text-center border-radius">
+                            <span class="fa fa-envelope"></span>
+                            <h3>Email</h3>
+                            <p><a href="http://bdevs.net/cdn-cgi/l/email-protection#533a3d353c1320243f3231207d303c3e"><span class="__cf_email__" data-cfemail="4821262e27083b3f24292a3b662b2725">digiwiz.sq@gmail.com</span></a></p>
+                        </div><!--/.single-contact-info-->
+                    </div><!--/.col-lg-3-->
+                    <div class="col-lg-3 col-md-6 col-6">
+                        <div class="single-contact-info box bg-gray text-center border-radius">
+                            <span class="fa fa-phone"></span>
+                            <h3>phone</h3>
+                            <p>+1 444 2700 312</p>
+                        </div><!--/.single-contact-info-->
+                    </div><!--/.col-lg-3-->
+                    <div class="col-lg-3 col-md-6 col-6">
+                        <div class="single-contact-info box bg-gray text-center border-radius">
+                            <span class="fa fa-globe"></span>
+                            <h3>website</h3>
+                            <p><a href="#">www.digiwiz.com</a></p>
+                        </div><!--/.single-contact-info-->
+                    </div><!--/.col-lg-3-->
+                    <div class="col-lg-3 col-md-6 col-6">
+                        <div class="single-contact-info box bg-gray text-center border-radius">
+                            <span class="fa fa-map-marker"></span>
+                            <h3>address</h3>
+                            <p>Manila, Philippines</p>
+                        </div><!--/.single-contact-info-->
+                    </div><!--/.col-lg-3-->
+                </div><!--/.row-->
+            </div><!--/.container-->
+        </section><!--/.contact-info-section-->
+    </div><!--/.contact-page-->
+{% endblock %}
+
+{% block join_us %}
+    <div class="footer-top-area">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-9">
+                        <h2>Become A Part of DigiWiz Community Today</h2>
+                    </div><!--/.col-lg-9-->
+                    <div class="col-lg-3 text-right">
+                        <a href="{% url 'register' %}" class="btn btn-default">get started</a>
+                    </div><!--/.col-lg-3-->
+                </div><!--/.row-->
+            </div><!--/.container-->
+        </div><!--/.footer-top-area-->
+{% endblock %}
