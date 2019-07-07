@@ -95,8 +95,7 @@
 
                                                     <div class="course-reviews">
                                                         {% if user.is_student %}
-                                                                {% ratings course %}
-
+                                                            {% ratings course %}
                                                         {% else %}
                                                             <div class="star-ratings-css" style="float:left;">
                                                                 <div class="star-ratings-css-top" style="width: {{ course.ratings.get.average|get_star_percentage|floatformat:"-2" }}%"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
@@ -105,15 +104,13 @@
                                                                 </div>
                                                             </div>
                                                             <br>
-
-                                                                <b>{{ course.ratings.get.average|floatformat:"-2" }}</b>/5
-                                                                ({{ course.ratings.get.count }}
-                                                                {% if course.ratings.get.count == 1 %}
-                                                                    review)
-                                                                {% else %}
-                                                                    reviews)
-                                                                {% endif %}
-
+                                                            <b>{{ course.ratings.get.average|floatformat:"-2" }}</b>/5
+                                                            ({{ course.ratings.get.count }}
+                                                            {% if course.ratings.get.count == 1 %}
+                                                                review)
+                                                            {% else %}
+                                                                reviews)
+                                                            {% endif %}
                                                         {% endif %}
                                                     </div><!--/.course-reviews-->
                                                     <hr>

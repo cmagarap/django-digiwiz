@@ -65,20 +65,17 @@
                                         <div class="star-ratings-css-bottom"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
                                         </div>
                                     </div>
-                                <br>
-
-                                        <b>{{ course.ratings.get.average|floatformat:"-2" }}</b>/5
-                                        ({{ course.ratings.get.count }}
-                                        {% if course.ratings.get.count == 1 %}
-                                            review)
-                                        {% else %}
-                                            reviews)
-                                        {% endif %}
-
+                                    <br>
+                                    <b>{{ course.ratings.get.average|floatformat:"-2" }}</b>/5
+                                    ({{ course.ratings.get.count }}
+                                    {% if course.ratings.get.count == 1 %}
+                                        review)
+                                    {% else %}
+                                        reviews)
+                                    {% endif %}
                                 </div><!--/.course-reviews-->
                                 <hr>
                                 <div class="trainer-profile clearfix">
-
                                     <div class="trainer-info">
                                         {% if course.status == 'pending' %}
                                             <h3 style="color: #F3D250">{{ course.status.upper }}</h3>
@@ -87,7 +84,7 @@
                                         {% elif course.status == 'rejected' %}
                                             <h3 style="color: #F78888">{{ course.status.upper }}</h3>
                                         {% endif %}
-                                        <p>{{ course.created_at|date:"F d, Y" }}</p>
+                                        <p>Date Created: {{ course.created_at|date:"F d, Y" }}</p>
                                     </div>
                                     <div class="course-cat text-capitalize text-right">
                                         <a href="{% url 'teachers:course_change' course.pk %}" style="background-color: #F78888; color: white;"><b>Edit</b></a>

@@ -60,7 +60,7 @@
                                 <ul class="list-unstyled">
                                     {% for file in files %}
                                         {% if enrolled.status == 'enrolled' %}
-                                            <li><a href="{% url 'students:view_file' file.pk %}">{{ file.file|cut:'class_resources/' }}</a></li>
+                                            <li><a href="{% url 'students:view_file' file.pk %}" target="_blank">{{ file.file|cut:'class_resources/' }}</a></li>
                                         {% else %}
                                             <li>{{ file.file|cut:'class_resources/' }}</li>
                                         {% endif %}
@@ -190,7 +190,12 @@
                                                     {% elif user.is_student %}
                                                         {% if enrolled.status == 'enrolled' or enrolled.status == 'finished' %}
                                                             <a href="{% url 'course_details' course.pk %}lesson?page={{ forloop.counter }}" class="btn btn-primary mb-3" style=" border-color:#f78888;" role="button">See Lesson</a>
-                                                            <a href="{% url 'students:take_quiz' lesson.course.pk lesson.quizzes.pk %}" class="btn btn-primary btn-takequiz mb-3" role="button">Take Quiz</a>
+                                                            {% if lesson.quizzes.pk %}
+                                                                <a href="{% url 'students:take_quiz' lesson.course.pk lesson.quizzes.pk %}" class="btn btn-primary btn-takequiz mb-3" role="button">Take Quiz</a>
+                                                            {% else %}
+                                                                <br>
+                                                                <i>There's no quiz for this lesson.</i>
+                                                            {% endif %}
                                                         {% else %}
                                                             <i>Enroll in this course to see more.</i>
                                                         {% endif %}
