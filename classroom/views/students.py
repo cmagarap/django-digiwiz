@@ -246,7 +246,6 @@ def register(request):
                 message = render_to_string('authentication/email_student_confirm.html', {
                     'user': user,
                     'domain': current_site,
-                    # use .decode to convert byte to string (b'NDc' -> NDc)
                     'uid': urlsafe_base64_encode(force_bytes(user.pk)),
                     'token': account_activation_token.make_token(user),
                 })

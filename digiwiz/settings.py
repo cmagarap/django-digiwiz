@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
+from digiwiz import info
 from django.contrib.messages import constants as messages
 import os
 
@@ -22,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '-@$#l2f-u32mn%aa8u1gr7q+q^(_@erw#lh+8zbau$-!09c=^j'
+SECRET_KEY = info.SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -174,8 +175,8 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'digiwiz.sq@gmail.com'
-EMAIL_HOST_PASSWORD = '!#digiwiz#!'
+EMAIL_HOST_USER = info.EMAIL
+EMAIL_HOST_PASSWORD = info.EMAIL_PASS
 EMAIL_PORT = 587
 
 MEDIA_URL = '/media/'
