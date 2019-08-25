@@ -5,8 +5,8 @@
 ## Built with
 * [Django 2.2.2](https://www.djangoproject.com/)
 * JavaScript
+* MySQL
 * [Python 3.6.8](https://www.python.org/)
-* SQLite
 
 ## Instructions
 1. Install [Python](https://www.python.org/) (v.3.6.8 is recommended).
