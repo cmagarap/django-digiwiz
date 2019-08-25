@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
@@ -288,9 +288,11 @@ def contact_us(request):
                 if cc_myself:
                     recipients.append(sender)
 
-                try:
-                    send_mail(subject, message, sender, recipients)
+                email = EmailMessage(subject, message, from_email=sender, to=recipients)
 
+
+                try:
+                    email.send()
                     messages.success(request, 'You successfully sent an email to us. '
                                               'Please wait for a response in your email, thank you.')
 

@@ -508,8 +508,8 @@ def delete_lesson_from_list(request, lesson_pk):
 
     UserLog.objects.create(action=f'Deleted lesson: {lesson_get.title}',
                            user_type='teacher',
-                           user=request.user) 
-    
+                           user=request.user)
+
     return redirect('teachers:lesson_list')
 
 

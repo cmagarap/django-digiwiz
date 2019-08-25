@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
+from digiwiz import info
 from django.contrib.messages import constants as messages
 import os
 
@@ -22,12 +23,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '-@$#l2f-u32mn%aa8u1gr7q+q^(_@erw#lh+8zbau$-!09c=^j'
+SECRET_KEY = info.SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []  # if not DEBUG (False): ['127.0.0.1']
+ALLOWED_HOSTS = ['digiwiz.pythonanywhere.com']  # if not DEBUG (False): ['127.0.0.1']
 
 
 # Application definition
@@ -107,8 +108,11 @@ WSGI_APPLICATION = 'digiwiz.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': info.DB_NAME,
+        'USER': info.DB_USER,
+        'PASSWORD': info.DB_PASS,
+        'HOST': info.DB_HOST,
     }
 }
 
@@ -162,7 +166,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
-# STATIC_ROOT = 'static/'  # for production
+STATIC_ROOT = '/home/seej/digiwiz/static'
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
@@ -174,8 +178,8 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'digiwiz.sq@gmail.com'
-EMAIL_HOST_PASSWORD = '!#digiwiz#!'
+EMAIL_HOST_USER = info.EMAIL
+EMAIL_HOST_PASSWORD = info.EMAIL_PASS
 EMAIL_PORT = 587
 
 MEDIA_URL = '/media/'
