@@ -172,10 +172,11 @@ class StudentAnswer(models.Model):
 
 
 class MyFile(models.Model):
-    file = models.FileField(upload_to='class_resources/')
+    file = models.CharField(max_length=100, blank=True)
+    file_link = models.CharField(max_length=255, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='my_files')
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='my_files')
 
     def __str__(self):
-        return f'{self.file}'
+        return f'{self.file_link}'
