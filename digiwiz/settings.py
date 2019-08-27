@@ -166,11 +166,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = '/home/seej/digiwiz/static'
+STATIC_ROOT = '/home/digiwiz/digiwiz/static'
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Third party apps configuration
 
@@ -181,9 +184,6 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = info.EMAIL
 EMAIL_HOST_PASSWORD = info.EMAIL_PASS
 EMAIL_PORT = 587
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 TEMPLATE_CONTEXT_PROCESSOR = 'django.core.context_processors.request'
 STAR_RATINGS_STAR_HEIGHT = 20
